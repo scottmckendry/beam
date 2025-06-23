@@ -62,6 +62,15 @@ type Attachment struct {
 	ContentInBase64 string `json:"contentInBase64"`
 }
 
+// EmailOperationStatus represents the status of an email send operation
+type EmailOperationStatus struct {
+	Status string `json:"status"`
+	Error  struct {
+		Message string `json:"message"`
+		Code    string `json:"code"`
+	} `json:"error"`
+}
+
 // NewEmailClient creates a new ACS email client with the specified endpoint and credential.
 func NewEmailClient(endpoint, credential string) *EmailClient {
 	return &EmailClient{
@@ -72,39 +81,71 @@ func NewEmailClient(endpoint, credential string) *EmailClient {
 }
 
 // SendEmail sends an email using the Azure Communication Services email API.
-func (c *EmailClient) SendEmail(emailReq EmailRequest) error {
+func (c *EmailClient) SendEmail(emailReq EmailRequest) (string, error) {
 	url := fmt.Sprintf("%s/emails:send?api-version=%s", c.endpoint, apiVersion)
 
 	jsonData, err := json.Marshal(emailReq)
 	if err != nil {
-		return fmt.Errorf("failed to marshal email request: %w", err)
+		return "", fmt.Errorf("failed to marshal email request: %w", err)
 	}
 
 	contentHash := generateContentHash(jsonData)
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	if err := c.signRequest(req, contentHash); err != nil {
-		return fmt.Errorf("failed to sign request: %w", err)
+		return "", fmt.Errorf("failed to sign request: %w", err)
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
+		return "", fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+	if resp.StatusCode != http.StatusAccepted {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
+		return "", fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
 	}
 
-	return nil
+	operationLocation := resp.Header.Get("Operation-Location")
+	return operationLocation, nil
+}
+
+func (c *EmailClient) GetEmailStatus(operationLocation string) (*EmailOperationStatus, error) {
+	contentHash := generateContentHash([]byte{})
+
+	req, err := http.NewRequest(http.MethodGet, operationLocation, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	if err := c.signRequest(req, contentHash); err != nil {
+		return nil, fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
+	}
+
+	var status EmailOperationStatus
+	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &status, nil
 }
 
 // NewAttachment creates a new email attachment from the provided file data.

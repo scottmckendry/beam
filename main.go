@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 
@@ -55,6 +56,7 @@ func main() {
 			},
 		},
 		Content: acs.EmailContent{
+			// TODO: all emails should contain opt-out links that call back to the application, updating a db flag in contacts table
 			Subject:   "Test Email from ACS",
 			PlainText: "This is a test email sent using Azure Communication Services.",
 			Html:      "<h1>Hello from ACS Email</h1><p>This is a test email sent using Azure Communication Services.</p>",
@@ -62,7 +64,31 @@ func main() {
 		Attachments: []acs.Attachment{attachment},
 	}
 
-	if err := client.SendEmail(request); err != nil {
+	operationLocation, err := client.SendEmail(request)
+
+	if err != nil {
 		log.Fatal(err)
+	}
+
+	// Poll for status up to 30 times with 1 second interval
+	for range 30 {
+		status, err := client.GetEmailStatus(operationLocation)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Status: %s", status.Status)
+		if status.Error.Code != "" {
+			// TODO: gracefully handle bounces here, important for domain reputation
+			log.Printf("ErrorCode: %s", status.Error.Code)
+			log.Printf("ErrorMessage: %s", status.Error.Message)
+			break
+		}
+
+		if status.Status == "Succeeded" {
+			break
+		}
+
+		time.Sleep(time.Second)
 	}
 }
