@@ -8,9 +8,18 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/scottmckendry/beam/acs"
+	"github.com/scottmckendry/beam/db"
 )
 
+const skipSend = true
+
 func main() {
+	// Initialise the database
+	if err := db.InitialiseDb(); err != nil {
+		log.Fatal("Failed to initialise database:", err)
+		return
+	}
+
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, proceeding with environment variables")
@@ -30,6 +39,10 @@ func main() {
 	senderAddress := os.Getenv("SENDER_ADDRESS")
 	if senderAddress == "" {
 		log.Fatal("SENDER_ADDRESS is required")
+	}
+
+	if skipSend {
+		return
 	}
 
 	client := acs.NewEmailClient(endpoint, accessKey)
