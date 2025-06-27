@@ -1,0 +1,7 @@
+{
+  "componentsDir": "ui/components",
+  "utilsDir": "ui/utils",
+  "moduleName": "github.com/scottmckendry/beam",
+  "jsDir": "public/js",
+  "jsPublicPath": "/public/js"
+}
