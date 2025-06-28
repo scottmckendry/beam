@@ -31,5 +31,5 @@ func main() {
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
-	views.Landing().Render(r.Context(), w)
+	views.Login().Render(r.Context(), w)
 }

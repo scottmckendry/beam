@@ -1,0 +1,46 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/ui/components/aspectratio"
+	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/icon"
+)
+
+templ Login() {
+	@BaseLayout() {
+		<div class="flex justify-center items-center min-h-screen">
+			<div class="w-full max-w-sm">
+				@card.Card() {
+					@card.Media(card.MediaProps{
+						ID:          "right-media",
+						Alt:         "Right side image",
+						Position:    card.MediaPositionTop,
+						AspectRatio: aspectratio.RatioVideo,
+						Src:         "/public/images/beam.webp",
+					})
+					<div class="flex flex-col flex-1">
+						@card.Header() {
+							@card.Title() {
+								Welcome to Beam!
+							}
+							@card.Description() {
+								Business Effieciency and Automation Management
+							}
+						}
+						@card.Content() {
+							@button.Button(button.Props{
+								Class: "gap-2",
+								Href:  "/auth/github",
+							}) {
+								@icon.Github(icon.Props{
+									Size: 16})
+								Login with GitHub
+							}
+						}
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
