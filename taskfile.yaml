@@ -1,0 +1,7 @@
+version: 3
+
+tasks:
+  default:
+    cmds:
+      - cmd: tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify
+      - cmd: air
