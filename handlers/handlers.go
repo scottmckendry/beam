@@ -12,11 +12,12 @@ import (
 
 type Handlers struct {
 	Queries *db.Queries
+	OAuth   *oauth.OAuth
 }
 
 // New creates a new Handlers instance with the provided database queries.
-func New(queries *db.Queries) *Handlers {
-	return &Handlers{Queries: queries}
+func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
+	return &Handlers{Queries: queries, OAuth: env}
 }
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
@@ -41,8 +42,8 @@ func (h *Handlers) HandleLogout(w http.ResponseWriter, r *http.Request) {
 // HandleRoot serves the main application page, handling user authentication and repository info display.
 func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := oauth.GetSignedCookie(r, "user_name")
-	if err != nil {
+	user, err := h.OAuth.GetSignedCookie(r, "user_name")
+	if err != nil || user == "" {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}

@@ -20,32 +20,35 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 )
 
-var (
-	githubOauthConfig *oauth2.Config
-	hashKey           []byte
-	blockKey          []byte
-	sc                *securecookie.SecureCookie
-)
+type OAuth struct {
+	OauthConfig  *oauth2.Config
+	SecureCookie *securecookie.SecureCookie
+	DB           *db.Queries
+}
 
-// InitOAuth initializes OAuth2 config and secure cookie keys from environment variables.
-func InitOAuth() {
+// New creates a new OAuthEnv instance using environment variables for configuration.
+func New(db *db.Queries) *OAuth {
 	const githubOAuthScopes = "read:user,user:email,repo"
-
-	githubOauthConfig = &oauth2.Config{
+	config := &oauth2.Config{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		Endpoint:     github.Endpoint,
 		RedirectURL:  os.Getenv("GITHUB_CALLBACK_URL"),
 		Scopes:       strings.Split(githubOAuthScopes, ","),
 	}
-	hashKey = []byte(os.Getenv("COOKIE_HASH_KEY"))
-	blockKey = []byte(os.Getenv("COOKIE_BLOCK_KEY"))
-	sc = securecookie.New(hashKey, blockKey)
+	hashKey := []byte(os.Getenv("COOKIE_HASH_KEY"))
+	blockKey := []byte(os.Getenv("COOKIE_BLOCK_KEY"))
+	sc := securecookie.New(hashKey, blockKey)
+	return &OAuth{
+		OauthConfig:  config,
+		SecureCookie: sc,
+		DB:           db,
+	}
 }
 
 // SetSignedCookie encodes and sets a signed, HTTP-only cookie.
-func SetSignedCookie(w http.ResponseWriter, name, value string) {
-	encoded, err := sc.Encode(name, value)
+func (env *OAuth) SetSignedCookie(w http.ResponseWriter, name, value string) {
+	encoded, err := env.SecureCookie.Encode(name, value)
 	if err != nil {
 		return
 	}
@@ -53,40 +56,42 @@ func SetSignedCookie(w http.ResponseWriter, name, value string) {
 }
 
 // GetSignedCookie retrieves and decodes a signed cookie value.
-func GetSignedCookie(r *http.Request, name string) (string, error) {
+func (env *OAuth) GetSignedCookie(r *http.Request, name string) (string, error) {
 	cookie, err := r.Cookie(name)
 	if err != nil {
 		return "", err
 	}
 	var value string
-	if err = sc.Decode(name, cookie.Value, &value); err != nil {
+	if err = env.SecureCookie.Decode(name, cookie.Value, &value); err != nil {
 		return "", err
 	}
 	return value, nil
 }
 
 // RegisterRoutes registers OAuth login and callback routes on the given router.
-func RegisterRoutes(r chi.Router, queries *db.Queries) {
+func (env *OAuth) RegisterRoutes(r chi.Router) {
 	r.Get(
 		"/login/github",
-		func(w http.ResponseWriter, r *http.Request) { githubLoginHandler(w, r) },
+		env.githubLoginHandler(),
 	)
 	r.Get(
 		"/auth/github/callback",
-		githubCallbackHandler(queries),
+		env.githubCallbackHandler(),
 	)
 }
 
 // githubLoginHandler starts the GitHub OAuth2 login flow.
-func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
-	state := generateState()
-	http.SetCookie(w, &http.Cookie{Name: "oauthstate", Value: state, Path: "/", HttpOnly: true})
-	url := githubOauthConfig.AuthCodeURL(state)
-	http.Redirect(w, r, url, http.StatusFound)
+func (env *OAuth) githubLoginHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		state := generateState()
+		http.SetCookie(w, &http.Cookie{Name: "oauthstate", Value: state, Path: "/", HttpOnly: true})
+		url := env.OauthConfig.AuthCodeURL(state)
+		http.Redirect(w, r, url, http.StatusFound)
+	}
 }
 
 // githubCallbackHandler handles the GitHub OAuth2 callback and user authentication.
-func githubCallbackHandler(queries *db.Queries) http.HandlerFunc {
+func (env *OAuth) githubCallbackHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 		state, err := r.Cookie("oauthstate")
@@ -95,12 +100,12 @@ func githubCallbackHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 		code := r.URL.Query().Get("code")
-		token, err := githubOauthConfig.Exchange(ctx, code)
+		token, err := env.OauthConfig.Exchange(ctx, code)
 		if err != nil {
 			http.Error(w, "OAuth token exchange failed", http.StatusInternalServerError)
 			return
 		}
-		client := githubOauthConfig.Client(ctx, token)
+		client := env.OauthConfig.Client(ctx, token)
 		resp, err := client.Get("https://api.github.com/user")
 		if err != nil || resp.StatusCode != 200 {
 			http.Error(w, "Failed to fetch user info", http.StatusInternalServerError)
@@ -115,11 +120,11 @@ func githubCallbackHandler(queries *db.Queries) http.HandlerFunc {
 			http.Error(w, "Failed to decode user info", http.StatusInternalServerError)
 			return
 		}
-		_ = queries.InsertUser(ctx, db.InsertUserParams{
+		_ = env.DB.InsertUser(ctx, db.InsertUserParams{
 			Email:    user.Email,
 			GithubID: fmt.Sprint(user.ID),
 		})
-		SetSignedCookie(w, "user_name", user.ID)
+		env.SetSignedCookie(w, "user_name", user.ID)
 		http.SetCookie(
 			w,
 			&http.Cookie{Name: "oauth_token", Value: token.AccessToken, Path: "/", HttpOnly: true},

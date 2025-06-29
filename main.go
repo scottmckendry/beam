@@ -15,20 +15,20 @@ import (
 
 func main() {
 	_ = godotenv.Load()
-	oauth.InitOAuth()
 	dbConn, queries, err := db.InitialiseDB()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer dbConn.Close()
 
-	h := handlers.New(queries)
+	auth := oauth.New(queries)
+	h := handlers.New(queries, auth)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	oauth.RegisterRoutes(r, queries)
+	auth.RegisterRoutes(r)
 
 	r.Get("/login", h.HandleLogin)
 	r.Get("/logout", h.HandleLogout)
