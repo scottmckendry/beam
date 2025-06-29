@@ -6,12 +6,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 
 	"github.com/scottmckendry/beam/db"
+	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
 )
 
 func main() {
+	_ = godotenv.Load()
+	oauth.InitOAuth()
 	if err := db.InitialiseDb(); err != nil {
 		log.Fatalf("Failed to initialise database: %v", err)
 	}
@@ -20,6 +24,10 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	oauth.RegisterRoutes(r)
+
+	r.Get("/login", handleLogin)
+	r.Get("/logout", handleLogout)
 	r.Get("/", handleRoot)
 
 	// static content
@@ -30,6 +38,30 @@ func main() {
 	}
 }
 
-func handleRoot(w http.ResponseWriter, r *http.Request) {
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	// If already authenticated, redirect to /
+	_, err := r.Cookie("user_name")
+	if err == nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
 	views.Login().Render(r.Context(), w)
+}
+
+func handleLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(
+		w,
+		&http.Cookie{Name: "user_name", Value: "", Path: "/", HttpOnly: true, MaxAge: -1},
+	)
+	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	// If authenticated, show user info; else redirect to /login
+	user, err := oauth.GetSignedCookie(r, "user_name")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+	w.Write([]byte("Logged in as: " + user))
 }

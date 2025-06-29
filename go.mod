@@ -7,7 +7,10 @@ require (
 	github.com/a-h/templ v0.3.906
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/securecookie v1.1.2
+	github.com/joho/godotenv v1.5.1
 	github.com/tursodatabase/go-libsql v0.0.0-20250609073118-9c24e0e7fa97
+	golang.org/x/oauth2 v0.30.0
 )
 
 require (

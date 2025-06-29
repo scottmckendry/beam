@@ -181,7 +181,7 @@ func Login() templ.Component {
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
 						Class: "gap-2",
-						Href:  "/auth/github",
+						Href:  "/login/github",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
