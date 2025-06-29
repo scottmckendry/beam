@@ -1,3 +1,4 @@
+// Package handlers provides HTTP handler functions for user authentication, session management, and main application routes.
 package handlers
 
 import (
@@ -13,10 +14,12 @@ type Handlers struct {
 	Queries *db.Queries
 }
 
+// New creates a new Handlers instance with the provided database queries.
 func New(queries *db.Queries) *Handlers {
 	return &Handlers{Queries: queries}
 }
 
+// HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
 func (h *Handlers) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie("user_name")
 	if err == nil {
@@ -26,6 +29,7 @@ func (h *Handlers) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	views.Login().Render(r.Context(), w)
 }
 
+// HandleLogout clears the user session and redirects to the login page.
 func (h *Handlers) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(
 		w,
@@ -34,6 +38,7 @@ func (h *Handlers) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
+// HandleRoot serves the main application page, handling user authentication and repository info display.
 func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := oauth.GetSignedCookie(r, "user_name")

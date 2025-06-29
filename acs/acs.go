@@ -52,7 +52,7 @@ type EmailAddress struct {
 type EmailContent struct {
 	Subject   string `json:"subject"`
 	PlainText string `json:"plainText,omitempty"`
-	Html      string `json:"html,omitempty"`
+	HTML      string `json:"html,omitempty"`
 }
 
 // Attachment represents an email attachment with its metadata and content.
@@ -110,7 +110,11 @@ func (c *EmailClient) SendEmail(emailReq EmailRequest) (string, error) {
 
 	if resp.StatusCode != http.StatusAccepted {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
+		return "", fmt.Errorf(
+			"request failed with status code %d: %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
 
 	operationLocation := resp.Header.Get("Operation-Location")
@@ -137,7 +141,11 @@ func (c *EmailClient) GetEmailStatus(operationLocation string) (*EmailOperationS
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf(
+			"request failed with status code %d: %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
 
 	var status EmailOperationStatus
@@ -194,7 +202,10 @@ func (c *EmailClient) signRequest(req *http.Request, contentHash string) error {
 	req.Header.Set("repeatability-request-id", uuid.New().String())
 	req.Header.Set("repeatability-first-sent", time.Now().UTC().Format(time.RFC3339))
 
-	authHeader := fmt.Sprintf("HMAC-SHA256 SignedHeaders=x-ms-date;host;x-ms-content-sha256&Signature=%s", signature)
+	authHeader := fmt.Sprintf(
+		"HMAC-SHA256 SignedHeaders=x-ms-date;host;x-ms-content-sha256&Signature=%s",
+		signature,
+	)
 	req.Header.Set("Authorization", authHeader)
 
 	return nil

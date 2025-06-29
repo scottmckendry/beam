@@ -1,3 +1,4 @@
+// Package db handles database initialization, migrations, and utility functions for interacting with the application's persistent storage.
 package db
 
 import (
