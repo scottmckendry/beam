@@ -4,9 +4,33 @@ tasks:
   default:
     desc: Run the development server
     cmds:
-      - cmd: tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify
-      - cmd: air
+      - tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify
+      - air
   elevate-admin:
     desc: Elevate user 'scottmckendry' to admin
     cmds:
       - sqlite3 data/beam.db "UPDATE users SET is_admin=1 WHERE github_id='scottmckendry';"
+  encrypt-env:
+    desc: Encrypt .env to .env.sops using sops (no-op if unchanged)
+    cmds:
+      - |
+        (
+          set -e
+          sops --input-type binary --output-type binary --encrypt .env > .env.sops.tmp
+          if [ -f .env.sops ]; then
+            sops --input-type binary --output-type binary --decrypt .env.sops > .env.dec
+          else
+            touch "$TMP_DEC_OLD"
+          fi
+          sops --input-type binary --output-type binary --decrypt .env.sops.tmp > .env.tmp.dec
+          if diff -q .env.dec .env.tmp.dec >/dev/null; then
+            rm -f .env.sops.tmp .env.dec .env.tmp.dec
+          else
+            mv .env.sops.tmp .env.sops
+            rm -f .env.dec .env.tmp.dec
+          fi
+        )
+  decrypt-env:
+    desc: Decrypt .env.sops to .env using sops
+    cmds:
+      - sops --input-type binary --output-type binary --decrypt .env.sops > .env
