@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -16,14 +17,17 @@ import (
 )
 
 var queries *db.Queries
+var dbConn *sql.DB
+var err error
 
 func main() {
 	_ = godotenv.Load()
 	oauth.InitOAuth()
-	dbConn, queries, err := beamDb.InitialiseDB()
+	dbConn, queries, err = beamDb.InitialiseDB()
 	if err != nil {
-		log.Fatalf("Failed to initialise database: %v", err)
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
+
 	defer dbConn.Close()
 
 	r := chi.NewRouter()
