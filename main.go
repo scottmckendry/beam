@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/scottmckendry/beam/db"
+	"github.com/scottmckendry/beam/github"
 	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -57,11 +59,32 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
-	// If authenticated, show user info; else redirect to /login
 	user, err := oauth.GetSignedCookie(r, "user_name")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
-	w.Write([]byte("Logged in as: " + user))
+
+	tokenCookie, err := r.Cookie("oauth_token")
+	if err != nil {
+		w.Write([]byte("Logged in as: " + user + " (no token, cannot fetch repo)"))
+		return
+	}
+
+	ghClient := github.NewClient(tokenCookie.Value)
+	repo, err := ghClient.GetRepo(user, "beam")
+	if err != nil {
+		w.Write([]byte("Logged in as: " + user + " (could not fetch repo)"))
+		return
+	}
+
+	w.Write(
+		[]byte(
+			"Logged in as: " + user + "<br>Repo: " + repo.FullName + "<br>Description: " + repo.Description + "<br>Stars: " + fmt.Sprint(
+				repo.StargazersCount,
+			) + "<br>Forks: " + fmt.Sprint(
+				repo.ForksCount,
+			),
+		),
+	)
 }

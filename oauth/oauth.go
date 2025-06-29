@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/securecookie"
@@ -25,12 +26,14 @@ var (
 
 // InitOAuth initializes OAuth2 config and secure cookie keys from environment variables.
 func InitOAuth() {
+	const githubOAuthScopes = "read:user,user:email,repo"
+
 	githubOauthConfig = &oauth2.Config{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		Endpoint:     github.Endpoint,
 		RedirectURL:  os.Getenv("GITHUB_CALLBACK_URL"),
-		Scopes:       []string{"read:user", "user:email"},
+		Scopes:       strings.Split(githubOAuthScopes, ","),
 	}
 	hashKey = []byte(os.Getenv("COOKIE_HASH_KEY"))
 	blockKey = []byte(os.Getenv("COOKIE_BLOCK_KEY"))
@@ -107,6 +110,10 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SetSignedCookie(w, "user_name", user.Login)
+	http.SetCookie(
+		w,
+		&http.Cookie{Name: "oauth_token", Value: token.AccessToken, Path: "/", HttpOnly: true},
+	)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
