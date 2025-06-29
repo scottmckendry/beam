@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -9,24 +8,29 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 
-	"github.com/scottmckendry/beam/db"
+	beamDb "github.com/scottmckendry/beam/db"
+	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/github"
 	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
 )
 
+var queries *db.Queries
+
 func main() {
 	_ = godotenv.Load()
 	oauth.InitOAuth()
-	if err := db.InitialiseDb(); err != nil {
+	dbConn, queries, err := beamDb.InitialiseDB()
+	if err != nil {
 		log.Fatalf("Failed to initialise database: %v", err)
 	}
+	defer dbConn.Close()
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	oauth.RegisterRoutes(r)
+	oauth.RegisterRoutes(r, queries)
 
 	r.Get("/login", handleLogin)
 	r.Get("/logout", handleLogout)
@@ -59,6 +63,7 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user, err := oauth.GetSignedCookie(r, "user_name")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusFound)
@@ -67,24 +72,24 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 	tokenCookie, err := r.Cookie("oauth_token")
 	if err != nil {
-		w.Write([]byte("Logged in as: " + user + " (no token, cannot fetch repo)"))
+		views.Root(user, false, "", "", 0, 0).Render(ctx, w)
 		return
 	}
 
 	ghClient := github.NewClient(tokenCookie.Value)
 	repo, err := ghClient.GetRepo(user, "beam")
 	if err != nil {
-		w.Write([]byte("Logged in as: " + user + " (could not fetch repo)"))
+		views.Root(user, false, "", "", 0, 0).Render(ctx, w)
 		return
 	}
 
-	w.Write(
-		[]byte(
-			"Logged in as: " + user + "<br>Repo: " + repo.FullName + "<br>Description: " + repo.Description + "<br>Stars: " + fmt.Sprint(
-				repo.StargazersCount,
-			) + "<br>Forks: " + fmt.Sprint(
-				repo.ForksCount,
-			),
-		),
-	)
+	isAdmin, err := queries.IsUserAdmin(ctx, user)
+	if err != nil {
+		views.Root(user, false, repo.FullName, repo.Description, repo.StargazersCount, repo.ForksCount).
+			Render(ctx, w)
+		return
+	}
+
+	views.Root(user, isAdmin, repo.FullName, repo.Description, repo.StargazersCount, repo.ForksCount).
+		Render(ctx, w)
 }

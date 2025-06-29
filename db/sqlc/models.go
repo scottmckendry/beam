@@ -20,4 +20,5 @@ type User struct {
 	ID       uuid.UUID
 	Email    string
 	GithubID string
+	IsAdmin  bool
 }

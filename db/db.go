@@ -8,6 +8,7 @@ import (
 	"log"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	_ "github.com/tursodatabase/go-libsql"
 
@@ -19,31 +20,30 @@ var migrationsFS embed.FS
 
 const dbName = "file:data/beam.db"
 
-func InitialiseDb() error {
+// InitialiseDB sets up the database and runs migrations. Returns the DB and Queries for use/testing.
+func InitialiseDB() (*sql.DB, *db.Queries, error) {
 	ctx := context.Background()
 
 	store, err := sql.Open("libsql", dbName)
 	if err != nil {
-		log.Fatalf("Failed to open database: %v", err)
-		return err
+		return nil, nil, fmt.Errorf("failed to open database: %w", err)
 	}
-	defer store.Close()
 
 	queries := db.New(store)
-	err = queries.CreateMigrationsTable(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create migrations table: %v", err)
-		return err
+	if err := queries.CreateMigrationsTable(ctx); err != nil {
+		store.Close()
+		return nil, nil, fmt.Errorf("failed to create migrations table: %w", err)
 	}
 
 	if err := applyMigrations(ctx, store, queries); err != nil {
-		log.Fatalf("Failed to apply migrations: %v", err)
-		return err
+		store.Close()
+		return nil, nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	return nil
+	return store, queries, nil
 }
 
+// applyMigrations applies all pending migrations in order.
 func applyMigrations(ctx context.Context, db *sql.DB, queries *db.Queries) error {
 	files, err := migrationsFS.ReadDir("migrations")
 	if err != nil {
@@ -84,10 +84,17 @@ func applyMigrations(ctx context.Context, db *sql.DB, queries *db.Queries) error
 
 		qtx := queries.WithTx(tx)
 
-		// Execute the migration file
-		_, err = tx.ExecContext(ctx, string(content))
-		if err != nil {
-			return fmt.Errorf("error executing migration %s: %v", fileName, err)
+		// Split and execute each SQL statement separately
+		stmts := splitSQLStatements(string(content))
+		for _, stmt := range stmts {
+			stmt = strings.TrimSpace(stmt)
+			if len(stmt) == 0 {
+				continue
+			}
+			_, err = tx.ExecContext(ctx, stmt)
+			if err != nil {
+				return fmt.Errorf("error executing migration %s: %v", fileName, err)
+			}
 		}
 
 		// Record the migration
@@ -102,4 +109,26 @@ func applyMigrations(ctx context.Context, db *sql.DB, queries *db.Queries) error
 	}
 
 	return nil
+}
+
+// splitSQLStatements splits SQL migration files into individual statements by semicolon.
+func splitSQLStatements(sql string) []string {
+	stmts := []string{}
+	curr := ""
+	inString := false
+	for _, r := range sql {
+		if r == '\'' {
+			inString = !inString
+		}
+		if r == ';' && !inString {
+			stmts = append(stmts, curr)
+			curr = ""
+		} else {
+			curr += string(r)
+		}
+	}
+	if len(curr) > 0 {
+		stmts = append(stmts, curr)
+	}
+	return stmts
 }

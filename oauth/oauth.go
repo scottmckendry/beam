@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,8 @@ import (
 	"github.com/gorilla/securecookie"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
+
+	"github.com/scottmckendry/beam/db/sqlc"
 )
 
 var (
@@ -63,14 +66,14 @@ func GetSignedCookie(r *http.Request, name string) (string, error) {
 }
 
 // RegisterRoutes registers OAuth login and callback routes on the given router.
-func RegisterRoutes(r chi.Router) {
+func RegisterRoutes(r chi.Router, queries *db.Queries) {
 	r.Get(
 		"/login/github",
 		func(w http.ResponseWriter, r *http.Request) { githubLoginHandler(w, r) },
 	)
 	r.Get(
 		"/auth/github/callback",
-		func(w http.ResponseWriter, r *http.Request) { githubCallbackHandler(w, r) },
+		githubCallbackHandler(queries),
 	)
 }
 
@@ -83,38 +86,46 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // githubCallbackHandler handles the GitHub OAuth2 callback and user authentication.
-func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	state, err := r.Cookie("oauthstate")
-	if err != nil || r.URL.Query().Get("state") != state.Value {
-		http.Error(w, "Invalid OAuth state", http.StatusBadRequest)
-		return
+func githubCallbackHandler(queries *db.Queries) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.Background()
+		state, err := r.Cookie("oauthstate")
+		if err != nil || r.URL.Query().Get("state") != state.Value {
+			http.Error(w, "Invalid OAuth state", http.StatusBadRequest)
+			return
+		}
+		code := r.URL.Query().Get("code")
+		token, err := githubOauthConfig.Exchange(ctx, code)
+		if err != nil {
+			http.Error(w, "OAuth token exchange failed", http.StatusInternalServerError)
+			return
+		}
+		client := githubOauthConfig.Client(ctx, token)
+		resp, err := client.Get("https://api.github.com/user")
+		if err != nil || resp.StatusCode != 200 {
+			http.Error(w, "Failed to fetch user info", http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+		var user struct {
+			ID    string `json:"login"`
+			Email string `json:"email"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+			http.Error(w, "Failed to decode user info", http.StatusInternalServerError)
+			return
+		}
+		_ = queries.InsertUser(ctx, db.InsertUserParams{
+			Email:    user.Email,
+			GithubID: fmt.Sprint(user.ID),
+		})
+		SetSignedCookie(w, "user_name", user.ID)
+		http.SetCookie(
+			w,
+			&http.Cookie{Name: "oauth_token", Value: token.AccessToken, Path: "/", HttpOnly: true},
+		)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
-	code := r.URL.Query().Get("code")
-	token, err := githubOauthConfig.Exchange(context.Background(), code)
-	if err != nil {
-		http.Error(w, "OAuth token exchange failed", http.StatusInternalServerError)
-		return
-	}
-	client := githubOauthConfig.Client(context.Background(), token)
-	resp, err := client.Get("https://api.github.com/user")
-	if err != nil || resp.StatusCode != 200 {
-		http.Error(w, "Failed to fetch user info", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-	var user struct {
-		Login string `json:"login"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
-		http.Error(w, "Failed to decode user info", http.StatusInternalServerError)
-		return
-	}
-	SetSignedCookie(w, "user_name", user.Login)
-	http.SetCookie(
-		w,
-		&http.Cookie{Name: "oauth_token", Value: token.AccessToken, Path: "/", HttpOnly: true},
-	)
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // generateState generates a random state string for OAuth2 CSRF protection.

@@ -2,6 +2,11 @@ version: 3
 
 tasks:
   default:
+    desc: Run the development server
     cmds:
       - cmd: tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify
       - cmd: air
+  elevate-admin:
+    desc: Elevate user 'scottmckendry' to admin
+    cmds:
+      - sqlite3 data/beam.db "UPDATE users SET is_admin=1 WHERE github_id='scottmckendry';"
