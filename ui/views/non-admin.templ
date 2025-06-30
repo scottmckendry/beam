@@ -1,0 +1,46 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/ui/components/aspectratio"
+	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/icon"
+)
+
+templ NonAdmin() {
+	<div class="flex justify-center items-center min-h-screen">
+		<div class="w-full max-w-sm">
+			@card.Card() {
+				<div class="flex flex-col flex-1">
+					@card.Header() {
+						@card.Title() {
+							<div class="flex items-center gap-3 mb-2">
+								@icon.Lock(icon.Props{Size: 18})
+								You're not an admin!
+							</div>
+						}
+						@card.Description() {
+							Your sign-in was successful, but you do not have admin privileges to access this page. Please contact your administrator if you believe this is an error.
+						}
+					}
+					@card.Content() {
+						@button.Button(button.Props{
+							Class: "gap-2",
+							Href:  "/logout",
+						}) {
+							@icon.LogOut(icon.Props{Size: 16})
+							Logout
+						}
+					}
+					@card.Media(card.MediaProps{
+						ID:          "right-media",
+						Alt:         "Right side image",
+						Position:    card.MediaPositionBottom,
+						AspectRatio: aspectratio.RatioVideo,
+						Src:         "/public/images/beam.webp",
+					})
+				</div>
+			}
+		</div>
+	</div>
+}

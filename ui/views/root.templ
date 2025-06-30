@@ -1,28 +1,12 @@
 package views
 
-templ Root(user string, isAdmin bool, repoName string, repoDesc string, stars int, forks int) {
+templ Root(isAdmin bool) {
 	@BaseLayout() {
 		if !isAdmin {
-			<div class="flex justify-center items-center min-h-screen">
-				<div class="w-full max-w-sm">
-					<div class="p-8 rounded shadow text-center">
-						<h1 class="text-2xl font-bold mb-4">Sign-in successful</h1>
-						<p class="mb-4">You do not have permission to access this app. Please contact an administrator.</p>
-					</div>
-				</div>
-			</div>
+			@NonAdmin()
 		} else {
-			<div>
-				Logged in as: { user }
-				<br/>
-				Repo: { repoName }
-				<br/>
-				Description: { repoDesc }
-				<br/>
-				Stars: { stars }
-				<br/>
-				Forks: { forks }
-			</div>
+			<h1 class="text-2xl font-bold mb-4">Welcome to Beam!</h1>
+			<p class="mb-4">You are an admin user.</p>
 		}
 	}
 }

@@ -2,10 +2,10 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/github"
 	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -47,23 +47,12 @@ func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
-	tokenCookie, err := r.Cookie("oauth_token")
-	if err != nil {
-		views.Root(user, false, "", "", 0, 0).Render(ctx, w)
-		return
-	}
-	ghClient := github.NewClient(tokenCookie.Value)
-	repo, err := ghClient.GetRepo(user, "beam")
-	if err != nil {
-		views.Root(user, false, "", "", 0, 0).Render(ctx, w)
-		return
-	}
 	isAdmin, err := h.Queries.IsUserAdmin(ctx, user)
 	if err != nil {
-		views.Root(user, false, repo.FullName, repo.Description, repo.StargazersCount, repo.ForksCount).
-			Render(ctx, w)
+		log.Printf("Error checking admin status for user %s: %v", user, err)
+		views.Root(false).Render(r.Context(), w)
 		return
 	}
-	views.Root(user, isAdmin, repo.FullName, repo.Description, repo.StargazersCount, repo.ForksCount).
-		Render(ctx, w)
+
+	views.Root(isAdmin).Render(r.Context(), w)
 }
