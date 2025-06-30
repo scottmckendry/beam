@@ -8,9 +8,35 @@ templ BaseLayout() {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link href="/public/css/output.css" rel="stylesheet"/>
 			<title>Beam</title>
+			<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-beta.11/bundles/datastar.js"></script>
 		</head>
-		<body>
+		<body data-on-datastart-see="initModals(evt)">
 			{ children... }
 		</body>
+		<script nonce={ templ.GetNonce(ctx) }>
+          window.initModals = function(evt) {
+            // Re-initialize components after finished event
+            if (evt.detail?.type === 'finished') {
+              requestAnimationFrame(() => {
+                if (window.templUI) {
+                  Object.values(window.templUI).forEach(comp => {
+                    comp.initAllComponents?.();
+                  });
+                }
+              });
+            }
+
+            // Cleanup before new content is loaded
+            if (evt.detail?.type === 'started') {
+                requestAnimationFrame(() => {
+                    if (window.templUI) {
+                        Object.values(window.templUI).forEach(comp => {
+                            comp.cleanup?.(document);
+                        });
+                    }
+                });
+            }
+          }
+        </script>
 	</html>
 }

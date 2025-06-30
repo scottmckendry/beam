@@ -1,12 +1,24 @@
 package views
 
+import (
+	"github.com/scottmckendry/beam/ui/components/input"
+)
+
 templ Root(isAdmin bool) {
 	@BaseLayout() {
 		if !isAdmin {
 			@NonAdmin()
 		} else {
-			<h1 class="text-2xl font-bold mb-4">Welcome to Beam!</h1>
-			<p class="mb-4">You are an admin user.</p>
+			// Data binging must appear first in the tree in order to be referenced
+			<input type="hidden" id="input" data-bind="input" value=""/>
+			// Now we can connect the input data to the h1 element
+			<h1 data-text="$input" class="text-2xl font-bold mb-4">Welcome to Beam!</h1>
+			// and use this input in the UI to control the text
+			@input.Input(input.Props{
+				Placeholder: "Type something here...",
+				Class:       "border p-2 mb-4",
+				Attributes:  templ.Attributes{"data-bind": "input"},
+			})
 		}
 	}
 }
