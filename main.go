@@ -32,13 +32,17 @@ func main() {
 	auth.RegisterRoutes(r)
 
 	// Public routes
-	r.Get("/login", h.HandleLogin)
-	r.Get("/logout", h.HandleLogout)
+	handlers.RegisterRoutes(r, []handlers.Route{
+		{Method: "GET", Pattern: "/login", Handler: h.HandleLogin},
+		{Method: "GET", Pattern: "/logout", Handler: h.HandleLogout},
+	})
 
 	// Authenticated routes
 	r.Group(func(protected chi.Router) {
 		protected.Use(handlers.AuthMiddleware(auth))
-		protected.Get("/no-access", h.HandleNoAccess)
+		handlers.RegisterRoutes(protected, []handlers.Route{
+			{Method: "GET", Pattern: "/no-access", Handler: h.HandleNoAccess},
+		})
 
 		// Admin routes
 		protected.Group(func(admin chi.Router) {
@@ -46,6 +50,7 @@ func main() {
 			admin.Get("/", h.HandleRoot)
 			admin.Get("/dashboard", h.HandleDashboard)
 			admin.Get("/invoices", h.HandleInvoices)
+			admin.Get("/customer/{id}", h.HandleCustomer)
 		})
 	})
 

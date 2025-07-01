@@ -1,0 +1,13 @@
+package views
+
+templ Customer(id, name string) {
+	@BaseLayout() {
+		@Navigation("customer-"+id, name, "Details for "+name) {
+			<div id="page-content" data-fragment="page-content">
+				<h2 class="text-2xl font-bold mb-2">{ name }</h2>
+				<p>Customer ID: { id }</p>
+				<p>More customer details here...</p>
+			</div>
+		}
+	}
+}

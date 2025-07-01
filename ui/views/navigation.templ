@@ -20,19 +20,16 @@ templ NavItem(icon templ.Component, text string, active bool) {
 	</li>
 }
 
-templ CustomerNavItem(name string, active bool) {
+templ CustomerNavItem(name, href string, active bool) {
 	<li>
 		<a
-			href="#"
+			href={ href }
 			class={ "flex items-center gap-2 px-4 py-2 mx-2 rounded-md font-medium text-sm",
 			templ.KV("bg-accent text-accent-foreground", active),
 			templ.KV("hover:bg-accent hover:text-accent-foreground", !active) }
 		>
 			@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {
-				// TODO: Add dynamic image fetch here
-				@avatar.Image(avatar.ImageProps{
-					Src: "broken-image.webp",
-				})
+				@avatar.Image(avatar.ImageProps{Src: "broken-image.webp"})
 				@avatar.Fallback() {
 					{ avatar.Initials(name) }
 				}
@@ -72,9 +69,9 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 					<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
 					<ul class="space-y-1">
 						@avatar.Script()
-						@CustomerNavItem("Acme Corporation", false)
-						@CustomerNavItem("Tech Solutions Inc", false)
-						@CustomerNavItem("Startup Co", false)
+						@CustomerNavItem("Acme Corporation", "/customer/1", currentPage == "customer-1")
+						@CustomerNavItem("Tech Solutions Inc", "/customer/2", currentPage == "customer-2")
+						@CustomerNavItem("Startup Co", "/customer/3", currentPage == "customer-3")
 					</ul>
 					<div class="px-4 py-2">
 						@button.Button(button.Props{

@@ -4,6 +4,8 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
@@ -32,6 +34,24 @@ func (h *Handlers) HandleNoAccess(w http.ResponseWriter, r *http.Request) {
 // New creates a new Handlers instance with the provided database queries.
 func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
 	return &Handlers{Queries: queries, OAuth: env}
+}
+
+// HandleCustomers serves the customers page for a specific customer.
+func (h *Handlers) HandleCustomer(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	// TODO: Fetch customer data from DB using id
+	var name string
+	switch id {
+	case "1":
+		name = "Acme Corporation"
+	case "2":
+		name = "Tech Solutions Inc"
+	case "3":
+		name = "Startup Co"
+	default:
+		name = "Unknown Customer"
+	}
+	views.Customer(id, name).Render(r.Context(), w)
 }
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
