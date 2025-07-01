@@ -2,6 +2,8 @@ package views
 
 import (
 	"github.com/scottmckendry/beam/ui/components/input"
+	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/icon"
 )
 
 templ Root(isAdmin bool) {
@@ -9,18 +11,29 @@ templ Root(isAdmin bool) {
 		if !isAdmin {
 			@NonAdmin()
 		} else {
-			@Application() {
-				// Data binging must appear first in the tree in order to be referenced
-				<input type="hidden" id="input" data-bind="input" value=""/>
-				// Now we can connect the input data to the h1 element
-				<h1 data-text="$input" class="text-2xl font-bold mb-4">Welcome to Beam!</h1>
-				// and use this input in the UI to control the text
-				@input.Input(input.Props{
-					Placeholder: "Type something here...",
-					Class:       "border p-2 mb-4",
-					Attributes:  templ.Attributes{"data-bind": "input"},
-				})
-			}
+			<div data-signals-page="'dashboard'">
+				@Navigation() {
+					// Data binging must appear first in the tree in order to be referenced
+					<input type="hidden" id="input" data-bind="input" value=""/>
+					// Now we can connect the input data to the h1 element
+					<h1 data-text="$input" class="text-2xl font-bold mb-4">Welcome to Beam!</h1>
+					// and use this input in the UI to control the text
+					@input.Input(input.Props{
+						Placeholder: "Type something here...",
+						Class:       "border p-2 mb-4",
+						Attributes:  templ.Attributes{"data-bind": "input"},
+					})
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{"data-on-click": "@get('/actions/hello')"},
+						Class:      "flex items-center gap-2 ",
+					}) {
+						@icon.Rss(icon.Props{Size: 16})
+						<span>Say Hello (SSE)</span>
+					}
+					<div id="hello-message" class="mt-2 text-green-600"></div>
+					@Dashboard()
+				}
+			</div>
 		}
 	}
 }

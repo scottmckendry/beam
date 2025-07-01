@@ -33,6 +33,8 @@ func main() {
 	r.Get("/login", h.HandleLogin)
 	r.Get("/logout", h.HandleLogout)
 	r.Get("/", h.HandleRoot)
+	r.Get("/actions/hello", h.HandleHelloSSE)
+	r.Get("/actions/nav", h.HandleNav)
 
 	// static content
 	r.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))

@@ -2,8 +2,11 @@
 package handlers
 
 import (
+	"bytes"
 	"log"
 	"net/http"
+
+	datastar "github.com/starfederation/datastar/sdk/go"
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
@@ -13,6 +16,35 @@ import (
 type Handlers struct {
 	Queries *db.Queries
 	OAuth   *oauth.OAuth
+}
+
+// HandleHelloSSE streams a message and a signal using Datastar SSE.
+func (h *Handlers) HandleHelloSSE(w http.ResponseWriter, r *http.Request) {
+	sse := datastar.NewSSE(w, r)
+	sse.MergeFragments(`<div id="hello-message">Hello from the backend via SSE!</div>`)
+	sse.MergeSignals([]byte(`{"hello": "world"}`))
+}
+
+// HandleNav streams page content and a signal for navigation.
+func (h *Handlers) HandleNav(w http.ResponseWriter, r *http.Request) {
+	sse := datastar.NewSSE(w, r)
+	page := r.URL.Query().Get("page")
+	if page == "" {
+		page = "dashboard"
+	}
+	var buf bytes.Buffer
+	switch page {
+	case "dashboard":
+		views.Dashboard().Render(r.Context(), &buf)
+	case "invoices":
+		views.Invoices().Render(r.Context(), &buf)
+	default:
+		buf.WriteString(
+			`<div id="page-content" data-fragment="main-content"><p>Page not found.</p></div>`,
+		)
+	}
+	sse.MergeFragments(buf.String())
+	sse.MergeSignals([]byte(`{"page": "` + page + `"}`))
 }
 
 // New creates a new Handlers instance with the provided database queries.
