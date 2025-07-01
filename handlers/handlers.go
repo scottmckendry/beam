@@ -2,11 +2,7 @@
 package handlers
 
 import (
-	"bytes"
-	"log"
 	"net/http"
-
-	datastar "github.com/starfederation/datastar/sdk/go"
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
@@ -18,33 +14,19 @@ type Handlers struct {
 	OAuth   *oauth.OAuth
 }
 
-// HandleHelloSSE streams a message and a signal using Datastar SSE.
-func (h *Handlers) HandleHelloSSE(w http.ResponseWriter, r *http.Request) {
-	sse := datastar.NewSSE(w, r)
-	sse.MergeFragments(`<div id="hello-message">Hello from the backend via SSE!</div>`)
-	sse.MergeSignals([]byte(`{"hello": "world"}`))
+// HandleDashboard serves the dashboard page.
+func (h *Handlers) HandleDashboard(w http.ResponseWriter, r *http.Request) {
+	views.Dashboard().Render(r.Context(), w)
 }
 
-// HandleNav streams page content and a signal for navigation.
-func (h *Handlers) HandleNav(w http.ResponseWriter, r *http.Request) {
-	sse := datastar.NewSSE(w, r)
-	page := r.URL.Query().Get("page")
-	if page == "" {
-		page = "dashboard"
-	}
-	var buf bytes.Buffer
-	switch page {
-	case "dashboard":
-		views.Dashboard().Render(r.Context(), &buf)
-	case "invoices":
-		views.Invoices().Render(r.Context(), &buf)
-	default:
-		buf.WriteString(
-			`<div id="page-content" data-fragment="main-content"><p>Page not found.</p></div>`,
-		)
-	}
-	sse.MergeFragments(buf.String())
-	sse.MergeSignals([]byte(`{"page": "` + page + `"}`))
+// HandleInvoices serves the invoices page.
+func (h *Handlers) HandleInvoices(w http.ResponseWriter, r *http.Request) {
+	views.Invoices().Render(r.Context(), w)
+}
+
+// HandleNoAccess serves a page indicating that the user does not have access to the requested resource.
+func (h *Handlers) HandleNoAccess(w http.ResponseWriter, r *http.Request) {
+	views.NonAdmin().Render(r.Context(), w)
 }
 
 // New creates a new Handlers instance with the provided database queries.
@@ -71,20 +53,8 @@ func (h *Handlers) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-// HandleRoot serves the main application page, handling user authentication and repository info display.
+// HandleRoot serves the main application page.
 func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, err := h.OAuth.GetSignedCookie(r, "user_name")
-	if err != nil || user == "" {
-		http.Redirect(w, r, "/login", http.StatusFound)
-		return
-	}
-	isAdmin, err := h.Queries.IsUserAdmin(ctx, user)
-	if err != nil {
-		log.Printf("Error checking admin status for user %s: %v", user, err)
-		views.Root(false).Render(r.Context(), w)
-		return
-	}
-
-	views.Root(isAdmin).Render(r.Context(), w)
+	// Admin middleware handles the admin check, so we can assume the user is authenticated here and has admin privileges.
+	views.Root(true).Render(r.Context(), w)
 }

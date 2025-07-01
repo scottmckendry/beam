@@ -1,7 +1,11 @@
 package views
 
 templ Dashboard() {
-	<div id="page-content" data-fragment="page-content">
-		<p>Dashboard placeholder content</p>
-	</div>
+	@BaseLayout() {
+		@Navigation("dashboard", "Dashboard", "Overview of your account") {
+			<div id="page-content" data-fragment="page-content">
+				<p>Dashboard placeholder content</p>
+			</div>
+		}
+	}
 }

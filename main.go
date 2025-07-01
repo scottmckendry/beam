@@ -15,6 +15,7 @@ import (
 
 func main() {
 	_ = godotenv.Load()
+
 	dbConn, queries, err := db.InitialiseDB()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
@@ -30,13 +31,25 @@ func main() {
 
 	auth.RegisterRoutes(r)
 
+	// Public routes
 	r.Get("/login", h.HandleLogin)
 	r.Get("/logout", h.HandleLogout)
-	r.Get("/", h.HandleRoot)
-	r.Get("/actions/hello", h.HandleHelloSSE)
-	r.Get("/actions/nav", h.HandleNav)
 
-	// static content
+	// Authenticated routes
+	r.Group(func(protected chi.Router) {
+		protected.Use(handlers.AuthMiddleware(auth))
+		protected.Get("/no-access", h.HandleNoAccess)
+
+		// Admin routes
+		protected.Group(func(admin chi.Router) {
+			admin.Use(handlers.AdminMiddleware(auth))
+			admin.Get("/", h.HandleRoot)
+			admin.Get("/dashboard", h.HandleDashboard)
+			admin.Get("/invoices", h.HandleInvoices)
+		})
+	})
+
+	// Static file server for public assets
 	r.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 
 	if err := http.ListenAndServe(":1337", r); err != nil {

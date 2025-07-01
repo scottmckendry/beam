@@ -1,7 +1,11 @@
 package views
 
 templ Invoices() {
-	<div id="page-content" data-fragment="page-content">
-		<p>Placeholder invoices content</p>
-	</div>
+	@BaseLayout() {
+		@Navigation("invoices", "Invoices", "All your invoices") {
+			<div id="page-content" data-fragment="page-content">
+				<p>Placeholder invoices content</p>
+			</div>
+		}
+	}
 }
