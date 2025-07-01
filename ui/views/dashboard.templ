@@ -1,10 +1,85 @@
 package views
 
+import (
+	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/components/card"
+)
+
+var dashboardStats = map[string]string{
+	"totalCustomers":      "4",
+	"activeCustomers":     "3",
+	"totalContacts":       "10",
+	"totalProjects":       "7",
+	"monthlyRevenue":      "1247",
+	"activeSubscriptions": "3",
+	"totalInvoices":       "12",
+	"pendingInvoices":     "2",
+	"overdueInvoices":     "1",
+	"totalInvoiceAmmount": "348",
+	"paidInvoices":        "9",
+}
+
 templ Dashboard() {
 	@BaseLayout() {
 		@Navigation("dashboard", "Dashboard", "Overview of your account") {
 			<div id="page-content" data-fragment="page-content">
-				<p>Dashboard placeholder content</p>
+				<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
+					@card.Card() {
+						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+							<h3 class="text-lg font-medium">Customers</h3>
+							@icon.Building2(icon.Props{Size: 20, Class: "text-muted-foreground"})
+						}
+						@card.Content() {
+							<div class="text-2xl font-bold">{ dashboardStats["totalCustomers"] }</div>
+							<p class="text-xs text-muted-foreground">{ dashboardStats["activeCustomers"] } active</p>
+						}
+					}
+					@card.Card() {
+						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+							<h3 class="text-lg font-medium">Contacts</h3>
+							@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
+						}
+						@card.Content() {
+							<div class="text-2xl font-bold">{ dashboardStats["totalContacts"] }</div>
+							<p class="text-xs text-muted-foreground">All customers</p>
+						}
+					}
+					@card.Card() {
+						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+							<h3 class="text-lg font-medium">Projects</h3>
+							@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
+						}
+						@card.Content() {
+							<div class="text-2xl font-bold">{ dashboardStats["totalProjects"] }</div>
+							<p class="text-xs text-muted-foreground">GitHub repos</p>
+						}
+					}
+					@card.Card() {
+						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+							<h3 class="text-lg font-medium">Revenue</h3>
+							@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
+						}
+						@card.Content() {
+							<div class="text-2xl font-bold">${ dashboardStats["monthlyRevenue"] }</div>
+							<p class="text-xs text-muted-foreground">
+								@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+								+15%
+							</p>
+						}
+					}
+					@card.Card() {
+						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+							<h3 class="text-lg font-medium">Invoices</h3>
+							@icon.FileText(icon.Props{Size: 20, Class: "text-muted-foreground"})
+						}
+						@card.Content() {
+							<div class="text-2xl font-bold">{ dashboardStats["totalInvoices"] }</div>
+							<p class="text-xs text-muted-foreground">
+								{ dashboardStats["pendingInvoices"] } pending, { dashboardStats["overdueInvoices"] } overdue
+							</p>
+						}
+					}
+				</div>
 			</div>
 		}
 	}
