@@ -1,5 +1,12 @@
 package views
 
+import (
+	"github.com/scottmckendry/beam/ui/components/badge"
+	"github.com/scottmckendry/beam/ui/components/icon"
+)
+
+const version = "v0.1.0"
+
 templ BaseLayout() {
 	<!DOCTYPE html>
 	<html lang="en" class="h-full dark">
@@ -38,5 +45,16 @@ templ BaseLayout() {
             }
           }
         </script>
+		<div class="fixed bottom-4 right-4">
+			<a href="https://github.com/scottmckendry/beam" target="_blank" rel="noopener noreferrer">
+				@badge.Badge(badge.Props{
+					Class:   "flex gap-1 items-center shadow-md",
+					Variant: badge.VariantSecondary,
+				}) {
+					@icon.Github(icon.Props{Size: 14})
+					{ version }
+				}
+			</a>
+		</div>
 	</html>
 }

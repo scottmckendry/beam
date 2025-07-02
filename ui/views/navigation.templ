@@ -53,7 +53,7 @@ templ CustomerNavItem(name, href string, active bool) {
 }
 
 templ NavigationContent(currentPage string) {
-	<div class="flex-1 overflow-y-auto">
+	<div class="flex-1 overflow-y-auto px-2">
 		<div class="mt-2">
 			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
 			<ul class="space-y-1">
@@ -83,6 +83,14 @@ templ NavigationContent(currentPage string) {
 	</div>
 }
 
+templ NavigationFooter() {
+	<div class="p-2">
+		<a href="/logout" class="flex items-center p-2 hover:bg-accent rounded-md justify-center">
+			@icon.LogOut(icon.Props{Size: 20})
+		</a>
+	</div>
+}
+
 templ Navigation(currentPage, headerTitle, headerDesc string) {
 	<div class="flex h-screen">
 		// Desktop navigation
@@ -92,6 +100,7 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 				<h1 class="text-xl font-bold">beam</h1>
 			</div>
 			@NavigationContent(currentPage)
+			@NavigationFooter()
 		</aside>
 		<div class="flex flex-col flex-1">
 			<header class="h-16 border-b px-4 shrink-0">
@@ -143,25 +152,31 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 			@drawer.Content(drawer.ContentProps{
 				Position: drawer.PositionLeft,
 				ID:       "mobile-nav",
-				Class:    "w-64",
 			}) {
-				<div class="flex items-center justify-between h-16 px-4 border-b">
-					<div class="flex items-center gap-3">
-						@icon.Rss(icon.Props{Size: 24})
-						<h1 class="text-xl font-bold">beam</h1>
-					</div>
-					@drawer.Trigger(drawer.TriggerProps{
-						For: "mobile-nav",
-					}) {
-						@button.Button(button.Props{
-							Variant: button.VariantGhost,
-							Size:    button.SizeIcon,
+				<div class="flex flex-col h-full">
+					<div class="shrink-0 flex items-center justify-between h-16 px-4 ">
+						<div class="flex items-center gap-3">
+							@icon.Rss(icon.Props{Size: 24})
+							<h1 class="text-xl font-bold">beam</h1>
+						</div>
+						@drawer.Trigger(drawer.TriggerProps{
+							For: "mobile-nav",
 						}) {
-							@icon.PanelLeftClose(icon.Props{Size: 24})
+							@button.Button(button.Props{
+								Variant: button.VariantGhost,
+								Size:    button.SizeIcon,
+							}) {
+								@icon.PanelLeftClose(icon.Props{Size: 24})
+							}
 						}
-					}
+					</div>
+					<div class="flex-1 min-h-0">
+						@NavigationContent(currentPage)
+					</div>
+					<div class="mt-auto">
+						@NavigationFooter()
+					</div>
 				</div>
-				@NavigationContent(currentPage)
 			}
 			<div class="flex-1 p-4 md:p-6">
 				{ children... }

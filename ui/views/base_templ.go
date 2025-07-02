@@ -8,6 +8,13 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"github.com/scottmckendry/beam/ui/components/badge"
+	"github.com/scottmckendry/beam/ui/components/icon"
+)
+
+const version = "v0.1.0"
+
 func BaseLayout() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -44,13 +51,55 @@ func BaseLayout() templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(templ.GetNonce(ctx))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/base.templ`, Line: 16, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/base.templ`, Line: 23, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">\n          window.initModals = function(evt) {\n            // Re-initialize components after finished event\n            if (evt.detail?.type === 'finished') {\n              requestAnimationFrame(() => {\n                if (window.templUI) {\n                  Object.values(window.templUI).forEach(comp => {\n                    comp.initAllComponents?.();\n                  });\n                }\n              });\n            }\n\n            // Cleanup before new content is loaded\n            if (evt.detail?.type === 'started') {\n                requestAnimationFrame(() => {\n                    if (window.templUI) {\n                        Object.values(window.templUI).forEach(comp => {\n                            comp.cleanup?.(document);\n                        });\n                    }\n                });\n            }\n          }\n        </script></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">\n          window.initModals = function(evt) {\n            // Re-initialize components after finished event\n            if (evt.detail?.type === 'finished') {\n              requestAnimationFrame(() => {\n                if (window.templUI) {\n                  Object.values(window.templUI).forEach(comp => {\n                    comp.initAllComponents?.();\n                  });\n                }\n              });\n            }\n\n            // Cleanup before new content is loaded\n            if (evt.detail?.type === 'started') {\n                requestAnimationFrame(() => {\n                    if (window.templUI) {\n                        Object.values(window.templUI).forEach(comp => {\n                            comp.cleanup?.(document);\n                        });\n                    }\n                });\n            }\n          }\n        </script><div class=\"fixed bottom-4 right-4\"><a href=\"https://github.com/scottmckendry/beam\" target=\"_blank\" rel=\"noopener noreferrer\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = icon.Github(icon.Props{Size: 14}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(version)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/base.templ`, Line: 55, Col: 14}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = badge.Badge(badge.Props{
+			Class:   "flex gap-1 items-center shadow-md",
+			Variant: badge.VariantSecondary,
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</a></div></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
