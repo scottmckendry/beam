@@ -4,6 +4,7 @@ import (
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/avatar"
+	"github.com/scottmckendry/beam/ui/components/drawer"
 	"strings"
 )
 
@@ -51,50 +52,70 @@ templ CustomerNavItem(name, href string, active bool) {
 	</li>
 }
 
+templ NavigationContent(currentPage string) {
+	<div class="flex-1 overflow-y-auto">
+		<div class="mt-2">
+			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
+			<ul class="space-y-1">
+				for _, item := range navigationItems {
+					@NavItem(item.Icon, item.Text, item.Href, currentPage == strings.ToLower(item.Text))
+				}
+			</ul>
+		</div>
+		<div class="mt-6">
+			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
+			<ul class="space-y-1">
+				@avatar.Script()
+				@CustomerNavItem("Acme Corporation", "/customer/1", currentPage == "customer-1")
+				@CustomerNavItem("Tech Solutions Inc", "/customer/2", currentPage == "customer-2")
+				@CustomerNavItem("Startup Co", "/customer/3", currentPage == "customer-3")
+			</ul>
+			<div class="px-4 py-2">
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Class:   "w-full bg-transparent",
+				}) {
+					@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
+					Add Customer
+				}
+			</div>
+		</div>
+	</div>
+}
+
 templ Navigation(currentPage, headerTitle, headerDesc string) {
 	<div class="flex h-screen">
-		<aside class="w-64 border-r flex flex-col">
+		// Desktop navigation
+		<aside class="w-64 border-r flex flex-col hidden md:flex">
 			<div class="flex items-center gap-3 h-16 px-4">
 				@icon.Rss(icon.Props{Size: 24})
 				<h1 class="text-xl font-bold">beam</h1>
 			</div>
-			<div class="flex-1 overflow-y-auto">
-				<div class="mt-2">
-					<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
-					<ul class="space-y-1">
-						for _, item := range navigationItems {
-							@NavItem(item.Icon, item.Text, item.Href, currentPage == strings.ToLower(item.Text))
-						}
-					</ul>
-				</div>
-				<div class="mt-6">
-					<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
-					<ul class="space-y-1">
-						@avatar.Script()
-						@CustomerNavItem("Acme Corporation", "/customer/1", currentPage == "customer-1")
-						@CustomerNavItem("Tech Solutions Inc", "/customer/2", currentPage == "customer-2")
-						@CustomerNavItem("Startup Co", "/customer/3", currentPage == "customer-3")
-					</ul>
-					<div class="px-4 py-2">
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-							Class:   "w-full bg-transparent",
-						}) {
-							@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
-							Add Customer
-						}
-					</div>
-				</div>
-			</div>
+			@NavigationContent(currentPage)
 		</aside>
-		<main class="flex-1 flex flex-col">
-			<header class="flex h-16 items-center gap-2 border-b px-4">
-				<div class="flex-1 flex items-center justify-between">
-					<div>
-						<h2 class="text-xl font-bold">{ headerTitle }</h2>
-						<p class="text-sm text-gray-500 hidden sm:block">{ headerDesc }</p>
+		<div class="flex flex-col flex-1">
+			<header class="h-16 border-b px-4 shrink-0">
+				// Mobile navigation trigger
+				<div class="h-full flex items-center">
+					<div class="md:hidden">
+						@drawer.Script()
+						@drawer.Trigger(drawer.TriggerProps{
+							For: "mobile-nav",
+						}) {
+							@button.Button(button.Props{
+								Variant: button.VariantGhost,
+								Size:    button.SizeIcon,
+								Class:   "-ml-2 pr-2",
+							}) {
+								@icon.PanelLeftOpen(icon.Props{Size: 24})
+							}
+						}
 					</div>
-					<div class="flex items-center gap-2">
+					<div class="flex-1 flex items-center justify-between">
+						<div>
+							<h2 class="text-xl font-bold">{ headerTitle }</h2>
+							<p class="text-sm text-gray-500 ">{ headerDesc }</p>
+						</div>
 						<div class="relative hidden sm:block">
 							<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
 								@icon.Search(icon.Props{Size: 16})
@@ -103,16 +124,48 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 						</div>
 						@button.Button(button.Props{
 							Variant: button.VariantSecondary,
+							Class:   "hidden",
 						}) {
 							@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
 							Add New
 						}
+						@button.Button(button.Props{
+							Variant: button.VariantSecondary,
+							Size:    button.SizeIcon,
+							Class:   "sm:hidden",
+						}) {
+							@icon.Plus(icon.Props{Size: 16})
+						}
 					</div>
 				</div>
 			</header>
+			// Mobile navigation drawer
+			@drawer.Content(drawer.ContentProps{
+				Position: drawer.PositionLeft,
+				ID:       "mobile-nav",
+				Class:    "w-64",
+			}) {
+				<div class="flex items-center justify-between h-16 px-4 border-b">
+					<div class="flex items-center gap-3">
+						@icon.Rss(icon.Props{Size: 24})
+						<h1 class="text-xl font-bold">beam</h1>
+					</div>
+					@drawer.Trigger(drawer.TriggerProps{
+						For: "mobile-nav",
+					}) {
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+						}) {
+							@icon.PanelLeftClose(icon.Props{Size: 24})
+						}
+					}
+				</div>
+				@NavigationContent(currentPage)
+			}
 			<div class="flex-1 p-4 md:p-6">
 				{ children... }
 			</div>
-		</main>
+		</div>
 	</div>
 }
