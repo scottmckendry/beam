@@ -5,10 +5,48 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type ActivityLog struct {
+	ID           uuid.UUID
+	CustomerID   interface{}
+	ActivityType string
+	Action       string
+	Description  string
+	CreatedAt    sql.NullTime
+}
+
+type Contact struct {
+	ID         uuid.UUID
+	CustomerID uuid.UUID
+	Name       string
+	Role       sql.NullString
+	Email      sql.NullString
+	Phone      sql.NullString
+	Avatar     sql.NullString
+	IsPrimary  sql.NullBool
+	Notes      sql.NullString
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+}
+
+type Customer struct {
+	ID        uuid.UUID
+	Name      string
+	Logo      sql.NullString
+	Status    string
+	Email     sql.NullString
+	Phone     sql.NullString
+	Address   sql.NullString
+	Website   sql.NullString
+	Notes     sql.NullString
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+}
 
 type Migration struct {
 	ID      uuid.UUID
