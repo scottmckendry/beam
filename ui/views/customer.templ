@@ -1,0 +1,17 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/db/sqlc"
+)
+
+templ Customer(c db.Customer) {
+	@BaseLayout() {
+		@Navigation("customer-"+c.ID.String(), c.Name, "Details for "+c.Name) {
+			<div id="page-content" data-fragment="page-content">
+				<h2 class="text-2xl font-bold mb-2">{ c.Name }</h2>
+				<p>Customer ID: { c.ID.String() }</p>
+				<p>More customer details here...</p>
+			</div>
+		}
+	}
+}

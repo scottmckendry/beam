@@ -2,9 +2,12 @@
 package handlers
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+	datastar "github.com/starfederation/datastar/sdk/go"
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
@@ -14,6 +17,11 @@ import (
 type Handlers struct {
 	Queries *db.Queries
 	OAuth   *oauth.OAuth
+}
+
+// New creates a new Handlers instance with the provided database queries.
+func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
+	return &Handlers{Queries: queries, OAuth: env}
 }
 
 // HandleDashboard serves the dashboard page.
@@ -31,27 +39,36 @@ func (h *Handlers) HandleNoAccess(w http.ResponseWriter, r *http.Request) {
 	views.NonAdmin().Render(r.Context(), w)
 }
 
-// New creates a new Handlers instance with the provided database queries.
-func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
-	return &Handlers{Queries: queries, OAuth: env}
-}
-
-// HandleCustomers serves the customers page for a specific customer.
+// HandleCustomer serves the customers page for a specific customer.
 func (h *Handlers) HandleCustomer(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	// TODO: Fetch customer data from DB using id
-	var name string
-	switch id {
-	case "1":
-		name = "Acme Corporation"
-	case "2":
-		name = "Tech Solutions Inc"
-	case "3":
-		name = "Startup Co"
-	default:
-		name = "Unknown Customer"
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Customer not found", http.StatusNotFound)
+		return
 	}
-	views.Customer(id, name).Render(r.Context(), w)
+
+	customer, err := h.Queries.GetCustomer(r.Context(), parsedID)
+	if err != nil {
+		http.Error(w, "Customer not found", http.StatusNotFound)
+		return
+	}
+
+	views.Customer(customer).Render(r.Context(), w)
+}
+
+// HandleSSECustomerNav streams the rendered CustomerNavigation component via SSE for Datastar
+func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) {
+	sse := datastar.NewSSE(w, r)
+	customers, err := h.Queries.ListCustomers(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
+		return
+	}
+	currentPage := r.URL.Query().Get("page")
+	buf := &bytes.Buffer{}
+	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
+	sse.MergeFragments(`<div id="customer-nav-section">`+buf.String()+`</div>`, datastar.WithUseViewTransitions(true))
 }
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.

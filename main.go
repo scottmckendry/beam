@@ -51,6 +51,9 @@ func main() {
 			admin.Get("/dashboard", h.HandleDashboard)
 			admin.Get("/invoices", h.HandleInvoices)
 			admin.Get("/customer/{id}", h.HandleCustomer)
+
+			// Server-Sent Events (Powered by Datastar 🚀🚀)
+			admin.Get("/sse/customers", h.HandleSSECustomerNav)
 		})
 	})
 
