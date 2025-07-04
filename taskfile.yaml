@@ -4,8 +4,7 @@ tasks:
   default:
     desc: Run the development server
     cmds:
-      - tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify
-      - air
+      - go tool air
   elevate-admin:
     desc: Elevate user 'scottmckendry' to admin
     cmds:
