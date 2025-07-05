@@ -44,12 +44,10 @@ templ NavigationContent(currentPage string) {
 		</div>
 		<div class="mt-6">
 			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
-			<div id="customer-nav-section" data-signals-customersloading="true" data-on-load={ `@get('/sse/customers?page=` + currentPage + `')` } class="relative">
-				<div data-show="$customersloading">
-					@SkeletonProfile()
-					@SkeletonProfile()
-					@SkeletonProfile()
-				</div>
+			<div id="customer-nav-section" data-on-load={ `@get('/sse/customers?page=` + currentPage + `')` }>
+				@SkeletonProfile()
+				@SkeletonProfile()
+				@SkeletonProfile()
 			</div>
 		</div>
 	</div>

@@ -9,34 +9,35 @@ import (
 )
 
 templ CustomerNavigation(customers []db.Customer, currentPage string) {
-	<ul class="space-y-1">
-		for _, c := range customers {
-			@CustomerNavItem(c.Name, "/customer/"+c.ID.String(), currentPage == ("customer-"+c.ID.String()))
-		}
-	</ul>
-	<div class="px-4 py-2">
-		@AddCustomerButton()
+	<div id="customer-nav-section">
+		<div class="space-y-1">
+			for _, c := range customers {
+				// TODO: Add image URL if available
+				@CustomerNavItem(c.Name, "/customer/"+c.ID.String(), currentPage == ("customer-"+c.ID.String()), "")
+			}
+		</div>
+		<div class="px-4 py-2">
+			@AddCustomerButton()
+		</div>
 	</div>
 }
 
-templ CustomerNavItem(name, href string, active bool) {
-	<li>
-		<a
-			href={ href }
-			class={ "flex items-center gap-2 px-4 py-2 mx-2 rounded-md font-medium text-sm",
+templ CustomerNavItem(name, href string, active bool, image string) {
+	<a
+		href={ href }
+		class={ "flex items-center gap-2 px-4 py-2 mx-2 rounded-md font-medium text-sm",
 			templ.KV("bg-accent text-accent-foreground", active),
 			templ.KV("hover:bg-accent hover:text-accent-foreground", !active) }
-		>
-			@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {
-				// TODO: add support for avatar images, fix the @avatar.Script() import
-				// @avatar.Image(avatar.ImageProps{Src: "broken-image.webp"})
-				@avatar.Fallback() {
-					{ avatar.Initials(name) }
-				}
+	>
+		@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {
+			if image != "" {
+				@avatar.Image(avatar.ImageProps{Src: image})
+			} else {
+				{ avatar.Initials(name) }
 			}
-			<span>{ name }</span>
-		</a>
-	</li>
+		}
+		<span>{ name }</span>
+	</a>
 }
 
 templ AddCustomerButton() {

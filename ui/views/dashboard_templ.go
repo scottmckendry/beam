@@ -797,7 +797,7 @@ func Dashboard() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div id=\"page-content\" data-fragment=\"page-content\"><div id=\"dashboard-stats-section\" data-signals-dashboardstatsloading=\"true\" data-on-load=\"@get('/sse/dashboard/stats')\" class=\"relative\"><div data-show=\"$dashboardstatsloading\"><div class=\"grid gap-4 grid-cols-2 lg:grid-cols-5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div id=\"page-content\" data-fragment=\"page-content\"><div id=\"dashboard-stats-section\" data-on-load=\"@get('/sse/dashboard/stats')\" class=\"relative\"><div class=\"grid gap-4 grid-cols-2 lg:grid-cols-5\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -821,7 +821,7 @@ func Dashboard() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div></div><div id=\"dashboard-activity-section\" data-signals-dashboardactivityloading=\"true\" data-on-load=\"@get('/sse/dashboard/activity')\" class=\"relative mt-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><div id=\"dashboard-activity-section\" data-on-load=\"@get('/sse/dashboard/activity')\" class=\"relative mt-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -883,7 +883,7 @@ func Dashboard() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"space-y-4\"><div data-show=\"$dashboardactivityloading\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"space-y-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -903,7 +903,7 @@ func Dashboard() templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

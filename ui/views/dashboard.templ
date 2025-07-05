@@ -125,18 +125,16 @@ templ Dashboard() {
 	@BaseLayout() {
 		@Navigation("dashboard", "Dashboard", "Overview of your account") {
 			<div id="page-content" data-fragment="page-content">
-				<div id="dashboard-stats-section" data-signals-dashboardstatsloading="true" data-on-load="@get('/sse/dashboard/stats')" class="relative">
-					<div data-show="$dashboardstatsloading">
-						<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
-							@SkeletonStatCard()
-							@SkeletonStatCard()
-							@SkeletonStatCard()
-							@SkeletonStatCard()
-							@SkeletonStatCard()
-						</div>
+				<div id="dashboard-stats-section" data-on-load="@get('/sse/dashboard/stats')" class="relative">
+					<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
+						@SkeletonStatCard()
+						@SkeletonStatCard()
+						@SkeletonStatCard()
+						@SkeletonStatCard()
+						@SkeletonStatCard()
 					</div>
 				</div>
-				<div id="dashboard-activity-section" data-signals-dashboardactivityloading="true" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
+				<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
 					@card.Card() {
 						@card.Header(card.HeaderProps{Class: ""}) {
 							<div class="flex items-center gap-2">
@@ -147,12 +145,10 @@ templ Dashboard() {
 						}
 						@card.Content() {
 							<div class="space-y-4">
-								<div data-show="$dashboardactivityloading">
-									@SkeletonActivityRow()
-									@SkeletonActivityRow()
-									@SkeletonActivityRow()
-									@SkeletonActivityRow()
-								</div>
+								@SkeletonActivityRow()
+								@SkeletonActivityRow()
+								@SkeletonActivityRow()
+								@SkeletonActivityRow()
 							</div>
 						}
 					}

@@ -12,11 +12,11 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
-const simulateSlowEvents = false
+const simulateSlowEvents = true
 
-// getRandomDelay returns a random delay between 500ms and 1500ms
+// getRandomDelay returns a random delay between 100ms and 500ms
 func getRandomDelay() time.Duration {
-	return time.Duration(rand.Float64()*1000+500) * time.Millisecond
+	return time.Duration(rand.Float64()*100+400) * time.Millisecond
 }
 
 // HandleSSEDashboardStats streams the dashboard stats cards via SSE for Datastar
@@ -36,7 +36,7 @@ func (h *Handlers) HandleSSEDashboardStats(w http.ResponseWriter, r *http.Reques
 	buf := &bytes.Buffer{}
 	views.DashboardStats(stats).Render(r.Context(), buf)
 	sse.MergeFragments(
-		`<div id="dashboard-stats-section">`+buf.String()+`</div>`,
+		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
 }
@@ -58,7 +58,7 @@ func (h *Handlers) HandleSSEDashboardActivity(w http.ResponseWriter, r *http.Req
 	buf := &bytes.Buffer{}
 	views.DashboardActivity(activities).Render(r.Context(), buf)
 	sse.MergeFragments(
-		`<div id="dashboard-activity-section">`+buf.String()+`</div>`,
+		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
 }
@@ -78,7 +78,7 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	buf := &bytes.Buffer{}
 	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
 	sse.MergeFragments(
-		`<div id="customer-nav-section">`+buf.String()+`</div>`,
+		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
 }
