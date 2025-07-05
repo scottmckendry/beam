@@ -58,7 +58,7 @@ templ NavigationContent(currentPage string) {
 templ NavigationFooter() {
 	<div class="p-2">
 		<a href="/logout" class="flex items-center p-2 hover:bg-accent rounded-md justify-center">
-			@icon.LogOut(icon.Props{Size: 20})
+			@icon.LogOut(icon.Props{Size: 20, Class: "rotate-180"})
 		</a>
 	</div>
 }

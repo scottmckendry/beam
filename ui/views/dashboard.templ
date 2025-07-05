@@ -1,100 +1,142 @@
 package views
 
 import (
+	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/skeleton"
+	"github.com/dustin/go-humanize"
 )
 
-type ActivityItem struct {
-	Type     string
-	Customer string
-	Action   string
-	Time     string
+templ DashboardStats(s db.GetDashboardStatsRow) {
+	<div class="grid gap-4 grid-cols-2 lg:grid-cols-5" id="dashboard-stats-section">
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Customers</h3>
+				@icon.Building2(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ s.TotalCustomers }</div>
+				<p class="text-xs text-muted-foreground">{ s.ActiveCustomers } active</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Contacts</h3>
+				@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ s.TotalContacts }</div>
+				<p class="text-xs text-muted-foreground">All customers</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Projects</h3>
+				@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ s.TotalProjects }</div>
+				<p class="text-xs text-muted-foreground">GitHub repos</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Revenue</h3>
+				@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">${ s.MonthlyRevenue }</div>
+				if s.RevenueChange > 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+						+{ s.RevenueChange }%
+					</p>
+				}
+				if s.RevenueChange < 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+						-{ s.RevenueChange }%
+					</p>
+				}
+				if s.RevenueChange == 0 {
+					<p class="text-xs text-muted-foreground">
+						No change
+					</p>
+				}
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Invoices</h3>
+				@icon.FileText(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ s.TotalInvoices }</div>
+				<p class="text-xs text-muted-foreground">
+					{ s.PendingInvoices } pending, { s.OverdueInvoices } overdue
+				</p>
+			}
+		}
+	</div>
 }
 
-var recentActivity = []ActivityItem{
-	{Type: "project", Customer: "Acme Corp", Action: "New project created", Time: "2h ago"},
-	{Type: "subscription", Customer: "TechStart Inc", Action: "Subscription renewed", Time: "5h ago"},
-	{Type: "contact", Customer: "Global Systems", Action: "New contact added", Time: "1d ago"},
-	{Type: "invoice", Customer: "DevCorp", Action: "Invoice paid", Time: "2d ago"},
-}
-
-var dashboardStats = map[string]string{
-	"totalCustomers":      "4",
-	"activeCustomers":     "3",
-	"totalContacts":       "10",
-	"totalProjects":       "7",
-	"monthlyRevenue":      "1247",
-	"activeSubscriptions": "3",
-	"totalInvoices":       "12",
-	"pendingInvoices":     "2",
-	"overdueInvoices":     "1",
-	"totalInvoiceAmmount": "348",
-	"paidInvoices":        "9",
+templ DashboardActivity(activities []db.GetRecentActivityRow) {
+	<div class="mt-4" id="dashboard-activity-section">
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: ""}) {
+				<div class="flex items-center gap-2">
+					@icon.Activity(icon.Props{Size: 20})
+					<h3 class="text-lg font-medium">Recent Activity</h3>
+				</div>
+				<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
+			}
+			@card.Content() {
+				<div class="space-y-4">
+					for _, a := range activities {
+						<div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+							<div class="p-2 rounded-full bg-background flex-shrink-0">
+								if a.ActivityType == "project" {
+									@icon.FolderGit2(icon.Props{Size: 16})
+								} else if a.ActivityType == "subscription" {
+									@icon.CreditCard(icon.Props{Size: 16})
+								} else if a.ActivityType == "contact" {
+									@icon.Users(icon.Props{Size: 16})
+								} else if a.ActivityType == "invoice" {
+									@icon.FileText(icon.Props{Size: 16})
+								}
+							</div>
+							<div class="flex-1 min-w-0">
+								<p class="font-medium truncate">{ a.CustomerName }</p>
+								<p class="text-sm text-muted-foreground truncate">{ a.Description }</p>
+							</div>
+							<div class="text-xs text-muted-foreground flex-shrink-0">
+								{ humanize.Time(a.CreatedAt.Time) }
+							</div>
+						</div>
+					}
+				</div>
+			}
+		}
+	</div>
 }
 
 templ Dashboard() {
 	@BaseLayout() {
 		@Navigation("dashboard", "Dashboard", "Overview of your account") {
 			<div id="page-content" data-fragment="page-content">
-				<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-							<h3 class="text-lg font-medium">Customers</h3>
-							@icon.Building2(icon.Props{Size: 20, Class: "text-muted-foreground"})
-						}
-						@card.Content() {
-							<div class="text-2xl font-bold">{ dashboardStats["totalCustomers"] }</div>
-							<p class="text-xs text-muted-foreground">{ dashboardStats["activeCustomers"] } active</p>
-						}
-					}
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-							<h3 class="text-lg font-medium">Contacts</h3>
-							@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
-						}
-						@card.Content() {
-							<div class="text-2xl font-bold">{ dashboardStats["totalContacts"] }</div>
-							<p class="text-xs text-muted-foreground">All customers</p>
-						}
-					}
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-							<h3 class="text-lg font-medium">Projects</h3>
-							@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
-						}
-						@card.Content() {
-							<div class="text-2xl font-bold">{ dashboardStats["totalProjects"] }</div>
-							<p class="text-xs text-muted-foreground">GitHub repos</p>
-						}
-					}
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-							<h3 class="text-lg font-medium">Revenue</h3>
-							@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
-						}
-						@card.Content() {
-							<div class="text-2xl font-bold">${ dashboardStats["monthlyRevenue"] }</div>
-							<p class="text-xs text-muted-foreground">
-								@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
-								+15%
-							</p>
-						}
-					}
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-							<h3 class="text-lg font-medium">Invoices</h3>
-							@icon.FileText(icon.Props{Size: 20, Class: "text-muted-foreground"})
-						}
-						@card.Content() {
-							<div class="text-2xl font-bold">{ dashboardStats["totalInvoices"] }</div>
-							<p class="text-xs text-muted-foreground">
-								{ dashboardStats["pendingInvoices"] } pending, { dashboardStats["overdueInvoices"] } overdue
-							</p>
-						}
-					}
+				<div id="dashboard-stats-section" data-signals-dashboardstatsloading="true" data-on-load="@get('/sse/dashboard/stats')" class="relative">
+					<div data-show="$dashboardstatsloading">
+						<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
+							@SkeletonStatCard()
+							@SkeletonStatCard()
+							@SkeletonStatCard()
+							@SkeletonStatCard()
+							@SkeletonStatCard()
+						</div>
+					</div>
 				</div>
-				<div class="mt-4">
+				<div id="dashboard-activity-section" data-signals-dashboardactivityloading="true" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
 					@card.Card() {
 						@card.Header(card.HeaderProps{Class: ""}) {
 							<div class="flex items-center gap-2">
@@ -105,26 +147,12 @@ templ Dashboard() {
 						}
 						@card.Content() {
 							<div class="space-y-4">
-								for _, activity := range recentActivity {
-									<div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-										<div class="p-2 rounded-full bg-background flex-shrink-0">
-											if activity.Type == "project" {
-												@icon.FolderGit2(icon.Props{Size: 16})
-											} else if activity.Type == "subscription" {
-												@icon.CreditCard(icon.Props{Size: 16})
-											} else if activity.Type == "contact" {
-												@icon.Users(icon.Props{Size: 16})
-											} else if activity.Type == "invoice" {
-												@icon.FileText(icon.Props{Size: 16})
-											}
-										</div>
-										<div class="flex-1 min-w-0">
-											<p class="font-medium truncate">{ activity.Customer }</p>
-											<p class="text-sm text-muted-foreground truncate">{ activity.Action }</p>
-										</div>
-										<div class="text-xs text-muted-foreground flex-shrink-0">{ activity.Time }</div>
-									</div>
-								}
+								<div data-show="$dashboardactivityloading">
+									@SkeletonActivityRow()
+									@SkeletonActivityRow()
+									@SkeletonActivityRow()
+									@SkeletonActivityRow()
+								</div>
 							</div>
 						}
 					}
@@ -132,4 +160,23 @@ templ Dashboard() {
 			</div>
 		}
 	}
+}
+
+templ SkeletonStatCard() {
+	<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-4 space-y-2">
+		@skeleton.Skeleton(skeleton.Props{Class: "h-4 w-24 mb-2"})
+		@skeleton.Skeleton(skeleton.Props{Class: "h-8 w-16 mb-1"})
+		@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-20"})
+	</div>
+}
+
+templ SkeletonActivityRow() {
+	<div class="flex items-center gap-3 p-3 mt-2 rounded-lg bg-muted/50">
+		@skeleton.Skeleton(skeleton.Props{Class: "h-8 w-8 rounded-full"})
+		<div class="flex-1 min-w-0 space-y-1">
+			@skeleton.Skeleton(skeleton.Props{Class: "h-4 w-32"})
+			@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-24"})
+		</div>
+		@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-10"})
+	</div>
 }

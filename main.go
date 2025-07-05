@@ -54,6 +54,8 @@ func main() {
 
 			// Server-Sent Events (Powered by Datastar 🚀🚀)
 			admin.Get("/sse/customers", h.HandleSSECustomerNav)
+			admin.Get("/sse/dashboard/stats", h.HandleSSEDashboardStats)
+			admin.Get("/sse/dashboard/activity", h.HandleSSEDashboardActivity)
 		})
 	})
 

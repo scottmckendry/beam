@@ -43,7 +43,7 @@ CREATE TABLE contacts (
 
 CREATE TABLE activity_log (
     id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    customer_id UUID,
+    customer_id UUID NOT NULL,
     activity_type TEXT NOT NULL,
     action TEXT NOT NULL,
     description TEXT NOT NULL,

@@ -13,7 +13,7 @@ import (
 
 type ActivityLog struct {
 	ID           uuid.UUID
-	CustomerID   interface{}
+	CustomerID   uuid.UUID
 	ActivityType string
 	Action       string
 	Description  string

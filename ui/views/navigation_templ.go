@@ -206,7 +206,7 @@ func NavigationFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icon.LogOut(icon.Props{Size: 20}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icon.LogOut(icon.Props{Size: 20, Class: "rotate-180"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

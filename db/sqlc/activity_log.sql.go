@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"github.com/google/uuid"
 )
 
 const listRecentActivity = `-- name: ListRecentActivity :many
@@ -50,7 +51,7 @@ RETURNING id, customer_id, activity_type, "action", description, created_at
 `
 
 type LogActivityParams struct {
-	CustomerID   interface{}
+	CustomerID   uuid.UUID
 	ActivityType string
 	Action       string
 	Description  string

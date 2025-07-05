@@ -2,12 +2,10 @@
 package handlers
 
 import (
-	"bytes"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	datastar "github.com/starfederation/datastar/sdk/go"
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
@@ -55,20 +53,6 @@ func (h *Handlers) HandleCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	views.Customer(customer).Render(r.Context(), w)
-}
-
-// HandleSSECustomerNav streams the rendered CustomerNavigation component via SSE for Datastar
-func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) {
-	sse := datastar.NewSSE(w, r)
-	customers, err := h.Queries.ListCustomers(r.Context())
-	if err != nil {
-		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
-		return
-	}
-	currentPage := r.URL.Query().Get("page")
-	buf := &bytes.Buffer{}
-	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
-	sse.MergeFragments(`<div id="customer-nav-section">`+buf.String()+`</div>`, datastar.WithUseViewTransitions(true))
 }
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
