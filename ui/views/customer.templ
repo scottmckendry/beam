@@ -42,7 +42,12 @@ templ Customer(c db.GetCustomerRow) {
 							IsActive: true,
 						}) {
 							<h3 class="text-sm font-medium">
-								{ header }
+								if header == "Subscriptions" {
+									<span class="sm:hidden">Subs</span>
+									<span class="hidden sm:inline">Subscriptions</span>
+								} else {
+									{ header }
+								}
 							</h3>
 						}
 					}
@@ -88,7 +93,10 @@ templ CustomerOverview(c db.GetCustomerRow) {
 		}
 		@card.Card() {
 			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Subscriptions</h3>
+				<h3 class="text-lg font-medium">
+					<span class="sm:hidden">Subs</span>
+					<span class="hidden sm:inline">Subscriptions</span>
+				</h3>
 				@icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"})
 			}
 			@card.Content() {

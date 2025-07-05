@@ -72,7 +72,7 @@ func Navigation(currentPage, headerTitle, headerDesc string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</aside><div class=\"flex flex-col flex-1\"><header class=\"h-16 border-b px-4 shrink-0\"><div class=\"h-full flex items-center\"><div class=\"md:hidden\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</aside><div class=\"flex flex-col flex-1\"><header class=\"h-16 border-b px-4 shrink-0 sticky top-0 bg-background z-30\"><div class=\"h-full flex items-center\"><div class=\"md:hidden\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

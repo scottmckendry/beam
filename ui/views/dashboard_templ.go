@@ -659,7 +659,7 @@ func DashboardActivity(activities []db.GetRecentActivityRow) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, a := range activities {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"flex items-center gap-3 p-3 rounded-lg bg-muted/50\"><div class=\"p-2 rounded-full bg-background flex-shrink-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg bg-muted/50\"><div class=\"p-2 rounded-full bg-background\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -684,7 +684,7 @@ func DashboardActivity(activities []db.GetRecentActivityRow) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><div class=\"flex-1 min-w-0\"><p class=\"font-medium truncate\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><div class=\"min-w-0\"><p class=\"font-medium truncate\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -710,7 +710,7 @@ func DashboardActivity(activities []db.GetRecentActivityRow) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</p></div><div class=\"text-xs text-muted-foreground flex-shrink-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</p></div><div class=\"text-xs text-muted-foreground whitespace-nowrap\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
