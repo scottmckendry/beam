@@ -94,8 +94,8 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 			@card.Content() {
 				<div class="space-y-4">
 					for _, a := range activities {
-						<div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-							<div class="p-2 rounded-full bg-background flex-shrink-0">
+						<div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg bg-muted/50">
+							<div class="p-2 rounded-full bg-background">
 								if a.ActivityType == "project" {
 									@icon.FolderGit2(icon.Props{Size: 16})
 								} else if a.ActivityType == "subscription" {
@@ -106,11 +106,11 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 									@icon.FileText(icon.Props{Size: 16})
 								}
 							</div>
-							<div class="flex-1 min-w-0">
+							<div class="min-w-0">
 								<p class="font-medium truncate">{ a.CustomerName }</p>
 								<p class="text-sm text-muted-foreground truncate">{ a.Description }</p>
 							</div>
-							<div class="text-xs text-muted-foreground flex-shrink-0">
+							<div class="text-xs text-muted-foreground whitespace-nowrap">
 								{ humanize.Time(a.CreatedAt.Time) }
 							</div>
 						</div>
