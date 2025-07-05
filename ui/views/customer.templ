@@ -2,7 +2,11 @@ package views
 
 import (
 	"fmt"
+	"strings"
 	"github.com/scottmckendry/beam/db/sqlc"
+	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/components/tabs"
 )
 
 func pluralize(count int64, singular, plural string) string {
@@ -12,17 +16,121 @@ func pluralize(count int64, singular, plural string) string {
 	return plural
 }
 
+var tabHeaders = []string{
+	"Overview",
+	"Contacts",
+	"Subscriptions",
+	"Projects",
+}
+
 templ Customer(c db.GetCustomerRow) {
 	@BaseLayout() {
 		@Navigation("customer-"+c.ID.String(), c.Name, fmt.Sprintf("%d %s • %d %s • %d %s",
 			c.ContactCount, pluralize(c.ContactCount, "contact", "contacts"),
 			c.SubscriptionCount, pluralize(c.SubscriptionCount, "subscription", "subscriptions"),
 			c.ProjectCount, pluralize(c.ProjectCount, "project", "projects"))) {
-			<div id="page-content" data-fragment="page-content">
-				<h2 class="text-2xl font-bold mb-2">{ c.Name }</h2>
-				<p>Customer ID: { c.ID.String() }</p>
-				<p>More customer details here...</p>
-			</div>
+			@tabs.Script()
+			@tabs.Tabs(tabs.Props{
+				ID: "customer-tabs",
+			}) {
+				@tabs.List(tabs.ListProps{
+					Class: "w-full",
+				}) {
+					for _, header := range tabHeaders {
+						@tabs.Trigger(tabs.TriggerProps{
+							Value:    strings.ToLower(header),
+							IsActive: true,
+						}) {
+							<h3 class="text-sm font-medium">
+								{ header }
+							</h3>
+						}
+					}
+				}
+				<div class="w-full mt-2">
+					for i, header := range tabHeaders {
+						@tabs.Content(tabs.ContentProps{
+							Value:    strings.ToLower(header),
+							IsActive: i == 0,
+						}) {
+							<div id={ "customer-" + strings.ToLower(header) } class="p-4" data-on-load={ "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')" }>
+								@tabSkeleton()
+							</div>
+						}
+					}
+				</div>
+			}
 		}
 	}
+}
+
+templ tabSkeleton() {
+	<div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
+		@SkeletonStatCard()
+		@SkeletonStatCard()
+		@SkeletonStatCard()
+		@SkeletonStatCard()
+	</div>
+}
+
+templ CustomerOverview(c db.GetCustomerRow) {
+	<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6" id="customer-overview">
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Contacts</h3>
+				@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ c.ContactCount }</div>
+				// TODO: make this dynamic at some point
+				<p class="text-xs text-muted-foreground">+1 this month</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Subscriptions</h3>
+				@icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
+				<p class="text-xs text-muted-foreground">${ c.SubscriptionRevenue }/month</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Projects</h3>
+				@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
+				<p class="text-xs text-muted-foreground">GitHub repos</p>
+			}
+		}
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				<h3 class="text-lg font-medium">Revenue</h3>
+				@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			}
+			@card.Content() {
+				<div class="text-2xl font-bold">${ c.MonthlyRevenue }</div>
+				if c.RevenueChange > 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+						+{ c.RevenueChange }%
+					</p>
+				}
+				if c.RevenueChange < 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+						-{ c.RevenueChange }%
+					</p>
+				}
+				if c.RevenueChange == 0 {
+					<p class="text-xs text-muted-foreground">
+						No change
+					</p>
+				}
+			}
+		}
+	</div>
 }

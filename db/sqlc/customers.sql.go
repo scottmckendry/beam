@@ -61,27 +61,34 @@ const getCustomer = `-- name: GetCustomer :one
 SELECT
     c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at,
     (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id) AS contact_count,
-    3 AS subscription_count, -- TODO: Replace with actual count from subscriptions table
-    8 AS project_count -- TODO: Replace with actual count from projects table
+    -- TODO: Replace these with actual counts from the respective tables
+    3 AS subscription_count,
+    8 AS project_count,
+    238 AS subscription_revenue,
+    267 AS monthly_revenue,
+    15 AS revenue_change
 FROM customers c
 WHERE c.id = ?
 `
 
 type GetCustomerRow struct {
-	ID                uuid.UUID
-	Name              string
-	Logo              sql.NullString
-	Status            string
-	Email             sql.NullString
-	Phone             sql.NullString
-	Address           sql.NullString
-	Website           sql.NullString
-	Notes             sql.NullString
-	CreatedAt         sql.NullTime
-	UpdatedAt         sql.NullTime
-	ContactCount      int64
-	SubscriptionCount int64
-	ProjectCount      int64
+	ID                  uuid.UUID
+	Name                string
+	Logo                sql.NullString
+	Status              string
+	Email               sql.NullString
+	Phone               sql.NullString
+	Address             sql.NullString
+	Website             sql.NullString
+	Notes               sql.NullString
+	CreatedAt           sql.NullTime
+	UpdatedAt           sql.NullTime
+	ContactCount        int64
+	SubscriptionCount   int64
+	ProjectCount        int64
+	SubscriptionRevenue int64
+	MonthlyRevenue      int64
+	RevenueChange       int64
 }
 
 func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (GetCustomerRow, error) {
@@ -102,6 +109,9 @@ func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (GetCustomerRow
 		&i.ContactCount,
 		&i.SubscriptionCount,
 		&i.ProjectCount,
+		&i.SubscriptionRevenue,
+		&i.MonthlyRevenue,
+		&i.RevenueChange,
 	)
 	return i, err
 }

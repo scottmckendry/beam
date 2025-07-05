@@ -7,8 +7,12 @@ RETURNING *;
 SELECT
     c.*,
     (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id) AS contact_count,
-    3 AS subscription_count, -- TODO: Replace with actual count from subscriptions table
-    8 AS project_count -- TODO: Replace with actual count from projects table
+    -- TODO: Replace these with actual counts from the respective tables
+    3 AS subscription_count,
+    8 AS project_count,
+    238 AS subscription_revenue,
+    267 AS monthly_revenue,
+    15 AS revenue_change
 FROM customers c
 WHERE c.id = ?;
 

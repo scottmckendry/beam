@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	datastar "github.com/starfederation/datastar/sdk/go"
 
 	"github.com/scottmckendry/beam/ui/views"
@@ -78,6 +80,41 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	currentPage := r.URL.Query().Get("page")
 	buf := &bytes.Buffer{}
 	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
+	sse.MergeFragments(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}
+
+// HandleSSECustomerOverview streams the rendered CustomerOverview component via SSE for Datastar
+func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Request) {
+	if simulateSlowEvents {
+		time.Sleep(getRandomDelay())
+	}
+	sse := datastar.NewSSE(w, r)
+	customerID := chi.URLParam(r, "id")
+	if customerID == "" {
+		log.Println("Id is required")
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	cid, err := uuid.Parse(customerID)
+	if err != nil {
+		log.Printf("Invalid customer_id: %v", err)
+		http.Error(w, "Invalid customer_id", http.StatusBadRequest)
+		return
+	}
+
+	customer, err := h.Queries.GetCustomer(r.Context(), cid)
+	if err != nil {
+		log.Printf("Failed to load customer: %v", err)
+		http.Error(w, "Failed to load customer", http.StatusInternalServerError)
+		return
+	}
+
+	buf := &bytes.Buffer{}
+	views.CustomerOverview(customer).Render(r.Context(), buf)
 	sse.MergeFragments(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
