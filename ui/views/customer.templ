@@ -1,12 +1,23 @@
 package views
 
 import (
+	"fmt"
 	"github.com/scottmckendry/beam/db/sqlc"
 )
 
-templ Customer(c db.Customer) {
+func pluralize(count int64, singular, plural string) string {
+	if count == 1 {
+		return singular
+	}
+	return plural
+}
+
+templ Customer(c db.GetCustomerRow) {
 	@BaseLayout() {
-		@Navigation("customer-"+c.ID.String(), c.Name, "Details for "+c.Name) {
+		@Navigation("customer-"+c.ID.String(), c.Name, fmt.Sprintf("%d %s • %d %s • %d %s",
+			c.ContactCount, pluralize(c.ContactCount, "contact", "contacts"),
+			c.SubscriptionCount, pluralize(c.SubscriptionCount, "subscription", "subscriptions"),
+			c.ProjectCount, pluralize(c.ProjectCount, "project", "projects"))) {
 			<div id="page-content" data-fragment="page-content">
 				<h2 class="text-2xl font-bold mb-2">{ c.Name }</h2>
 				<p>Customer ID: { c.ID.String() }</p>

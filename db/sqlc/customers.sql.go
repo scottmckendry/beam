@@ -58,12 +58,35 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 }
 
 const getCustomer = `-- name: GetCustomer :one
-SELECT id, name, logo, status, email, phone, address, website, notes, created_at, updated_at FROM customers WHERE id = ?
+SELECT
+    c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at,
+    (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id) AS contact_count,
+    3 AS subscription_count, -- TODO: Replace with actual count from subscriptions table
+    8 AS project_count -- TODO: Replace with actual count from projects table
+FROM customers c
+WHERE c.id = ?
 `
 
-func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (Customer, error) {
+type GetCustomerRow struct {
+	ID                uuid.UUID
+	Name              string
+	Logo              sql.NullString
+	Status            string
+	Email             sql.NullString
+	Phone             sql.NullString
+	Address           sql.NullString
+	Website           sql.NullString
+	Notes             sql.NullString
+	CreatedAt         sql.NullTime
+	UpdatedAt         sql.NullTime
+	ContactCount      int64
+	SubscriptionCount int64
+	ProjectCount      int64
+}
+
+func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (GetCustomerRow, error) {
 	row := q.db.QueryRowContext(ctx, getCustomer, id)
-	var i Customer
+	var i GetCustomerRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
@@ -76,6 +99,9 @@ func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (Customer, erro
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ContactCount,
+		&i.SubscriptionCount,
+		&i.ProjectCount,
 	)
 	return i, err
 }
