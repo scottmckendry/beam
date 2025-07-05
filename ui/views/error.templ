@@ -1,0 +1,86 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/ui/components/aspectratio"
+	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/icon"
+)
+
+templ errorPage(
+	title string,
+	description string,
+	icon templ.Component,
+	buttonHref string,
+	buttonText string,
+	buttonIcon templ.Component,
+) {
+	@BaseLayout() {
+		<div class="flex justify-center items-center min-h-screen">
+			<div class="w-full max-w-sm">
+				@card.Card() {
+					<div class="flex flex-col flex-1">
+						@card.Header() {
+							@card.Title() {
+								<div class="flex items-center gap-3 mb-2">
+									@icon
+									{ title }
+								</div>
+							}
+							@card.Description() {
+								{ description }
+							}
+						}
+						@card.Content() {
+							@button.Button(button.Props{
+								Class: "gap-2",
+								Href:  buttonHref,
+							}) {
+								@buttonIcon
+								{ buttonText }
+							}
+						}
+						@card.Media(card.MediaProps{
+							Position:    card.MediaPositionBottom,
+							AspectRatio: aspectratio.RatioVideo,
+							Src:         "/public/images/beam.webp",
+						})
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ NonAdmin() {
+	@errorPage(
+		"You're not an admin!",
+		"Your sign-in was successful, but you do not have admin privileges to access this page. Please contact your administrator if you believe this is an error.",
+		icon.Lock(icon.Props{Size: 18}),
+		"/logout",
+		"Logout",
+		icon.LogOut(icon.Props{Size: 16}),
+	)
+}
+
+templ NotFound() {
+	@errorPage(
+		"404 Not Found",
+		"Sorry, the page you are looking for does not exist or has been moved.",
+		icon.TriangleAlert(icon.Props{Size: 18}),
+		"/",
+		"Go Home",
+		icon.House(icon.Props{Size: 16}),
+	)
+}
+
+templ ServerError() {
+	@errorPage(
+		"500 Server Error",
+		"Sorry, something went wrong on our end. Please try again later or contact support if the problem persists.",
+		icon.TriangleAlert(icon.Props{Size: 18}),
+		"/",
+		"Go Home",
+		icon.House(icon.Props{Size: 16}),
+	)
+}

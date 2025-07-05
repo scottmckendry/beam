@@ -71,6 +71,7 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	sse := datastar.NewSSE(w, r)
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
+		log.Printf("Failed to load customers: %v", err)
 		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
 		return
 	}

@@ -22,6 +22,12 @@ func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
 	return &Handlers{Queries: queries, OAuth: env}
 }
 
+// Handles not found requests by rendering a 404 page.
+func (h *Handlers) HandleNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	views.NotFound().Render(r.Context(), w)
+}
+
 // HandleDashboard serves the dashboard page.
 func (h *Handlers) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 	views.Dashboard().Render(r.Context(), w)
@@ -42,13 +48,15 @@ func (h *Handlers) HandleCustomer(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		http.Error(w, "Customer not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		views.NotFound().Render(r.Context(), w)
 		return
 	}
 
 	customer, err := h.Queries.GetCustomer(r.Context(), parsedID)
 	if err != nil {
-		http.Error(w, "Customer not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		views.NotFound().Render(r.Context(), w)
 		return
 	}
 

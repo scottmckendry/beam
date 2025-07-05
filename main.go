@@ -32,17 +32,16 @@ func main() {
 	auth.RegisterRoutes(r)
 
 	// Public routes
-	handlers.RegisterRoutes(r, []handlers.Route{
-		{Method: "GET", Pattern: "/login", Handler: h.HandleLogin},
-		{Method: "GET", Pattern: "/logout", Handler: h.HandleLogout},
-	})
+	r.Get("/login", h.HandleLogin)
+	r.Get("/logout", h.HandleLogout)
+
+	// Static file server for public assets
+	r.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 
 	// Authenticated routes
 	r.Group(func(protected chi.Router) {
 		protected.Use(handlers.AuthMiddleware(auth))
-		handlers.RegisterRoutes(protected, []handlers.Route{
-			{Method: "GET", Pattern: "/no-access", Handler: h.HandleNoAccess},
-		})
+		protected.Get("/no-access", h.HandleNoAccess)
 
 		// Admin routes
 		protected.Group(func(admin chi.Router) {
@@ -57,10 +56,10 @@ func main() {
 			admin.Get("/sse/dashboard/stats", h.HandleSSEDashboardStats)
 			admin.Get("/sse/dashboard/activity", h.HandleSSEDashboardActivity)
 		})
-	})
 
-	// Static file server for public assets
-	r.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
+		// Final catch-all for authenticated routes
+		protected.Get("/*", h.HandleNotFound)
+	})
 
 	if err := http.ListenAndServe(":1337", r); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
