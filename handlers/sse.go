@@ -17,8 +17,17 @@ import (
 const simulateSlowEvents = true
 
 // getRandomDelay returns a random delay between 100ms and 500ms
+// Believe it or not, this actually makes the UI feel more responsive. I prefer it to instant updates - makes the UI feel less jarring.
 func getRandomDelay() time.Duration {
-	return time.Duration(rand.Float64()*100+400) * time.Millisecond
+	return time.Duration(rand.Float64()*400+100) * time.Millisecond
+}
+
+func serveSSEFragment(w http.ResponseWriter, r *http.Request, fragment string) {
+	sse := datastar.NewSSE(w, r)
+	sse.MergeFragments(
+		fragment,
+		datastar.WithUseViewTransitions(true),
+	)
 }
 
 // HandleSSEDashboardStats streams the dashboard stats cards via SSE for Datastar
@@ -34,13 +43,9 @@ func (h *Handlers) HandleSSEDashboardStats(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sse := datastar.NewSSE(w, r)
 	buf := &bytes.Buffer{}
 	views.DashboardStats(stats).Render(r.Context(), buf)
-	sse.MergeFragments(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+	serveSSEFragment(w, r, buf.String())
 }
 
 // HandleSSEDashboardActivity streams the dashboard recent activity via SSE for Datastar
@@ -56,13 +61,9 @@ func (h *Handlers) HandleSSEDashboardActivity(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	sse := datastar.NewSSE(w, r)
 	buf := &bytes.Buffer{}
 	views.DashboardActivity(activities).Render(r.Context(), buf)
-	sse.MergeFragments(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+	serveSSEFragment(w, r, buf.String())
 }
 
 // HandleSSECustomerNav streams the rendered CustomerNavigation component via SSE for Datastar
@@ -70,7 +71,7 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	if simulateSlowEvents {
 		time.Sleep(getRandomDelay())
 	}
-	sse := datastar.NewSSE(w, r)
+
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers: %v", err)
@@ -79,11 +80,9 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	}
 	currentPage := r.URL.Query().Get("page")
 	buf := &bytes.Buffer{}
+
 	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
-	sse.MergeFragments(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+	serveSSEFragment(w, r, buf.String())
 }
 
 // HandleSSECustomerOverview streams the rendered CustomerOverview component via SSE for Datastar
@@ -91,7 +90,6 @@ func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Requ
 	if simulateSlowEvents {
 		time.Sleep(getRandomDelay())
 	}
-	sse := datastar.NewSSE(w, r)
 	customerID := chi.URLParam(r, "id")
 	if customerID == "" {
 		log.Println("Id is required")
@@ -115,8 +113,5 @@ func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Requ
 
 	buf := &bytes.Buffer{}
 	views.CustomerOverview(customer).Render(r.Context(), buf)
-	sse.MergeFragments(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+	serveSSEFragment(w, r, buf.String())
 }
