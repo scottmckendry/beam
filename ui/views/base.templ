@@ -17,34 +17,34 @@ templ BaseLayout() {
 			<title>Beam</title>
 			<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-beta.11/bundles/datastar.js"></script>
 		</head>
-		<body data-on-datastart-see="initModals(evt)">
+		<body data-on-datastar-sse="initComponents(evt)">
 			{ children... }
 		</body>
-		<script nonce={ templ.GetNonce(ctx) }>
-          window.initModals = function(evt) {
-            // Re-initialize components after finished event
-            if (evt.detail?.type === 'finished') {
-              requestAnimationFrame(() => {
-                if (window.templUI) {
-                  Object.values(window.templUI).forEach(comp => {
-                    comp.initAllComponents?.();
-                  });
-                }
-              });
-            }
+		<script>
+			window.initComponents = function(evt) {
+				// Cleanup before new content is loaded
+				if (evt.detail?.type === 'started') {
+					if (window.templUI) {
+						Object.values(window.templUI).forEach(comp => {
+							comp.cleanup?.(document);
+						});
+					}
+				}
 
-            // Cleanup before new content is loaded
-            if (evt.detail?.type === 'started') {
-                requestAnimationFrame(() => {
-                    if (window.templUI) {
-                        Object.values(window.templUI).forEach(comp => {
-                            comp.cleanup?.(document);
-                        });
-                    }
-                });
-            }
-          }
-        </script>
+				// Re-initialize components after finished event
+				if (evt.detail?.type === 'finished') {
+					// setTimeout is required because Datastar's 'finished' event
+					// fires before DOM updates are complete
+					setTimeout(() => {
+						if (window.templUI) {
+							Object.values(window.templUI).forEach(comp => {
+								comp.init?.();
+							});
+						}
+					}, 100);
+				}
+			}
+		</script>
 		<div class="fixed bottom-4 right-4">
 			<a href="https://github.com/scottmckendry/beam" target="_blank" rel="noopener noreferrer">
 				@badge.Badge(badge.Props{
