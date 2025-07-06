@@ -12,6 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/starfederation/datastar v0.21.4
 	github.com/tursodatabase/go-libsql v0.0.0-20250609073118-9c24e0e7fa97
+	github.com/yuin/goldmark v1.7.12
 	golang.org/x/oauth2 v0.30.0
 )
 
