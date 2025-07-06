@@ -144,6 +144,9 @@ func markdownToTailwindHTML(md string) string {
 	html = strings.ReplaceAll(html, "<pre>", "<pre class=\"bg-muted rounded p-2 my-2 overflow-x-auto text-sm\">")
 	html = strings.ReplaceAll(html, "<code>", "<code class=\"bg-muted px-1 rounded text-sm\">")
 	html = strings.ReplaceAll(html, "<blockquote>", "<blockquote class=\"border-l-4 border-muted-foreground pl-4 italic my-2 text-muted-foreground\">")
+	html = strings.ReplaceAll(html, "<table>", "<table class=\"table-auto min-w-full my-4\">")
+	html = strings.ReplaceAll(html, "<th>", "<th class=\"border border-muted p-2 bg-muted font-semibold text-left\">")
+	html = strings.ReplaceAll(html, "<td>", "<td class=\"border border-muted p-2\">")
 	return html
 }
 
