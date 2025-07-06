@@ -9,6 +9,10 @@ import (
 	"github.com/scottmckendry/beam/ui/components/drawer"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/skeleton"
+	"github.com/scottmckendry/beam/ui/components/selectbox"
+	"github.com/scottmckendry/beam/ui/components/textarea"
+	"github.com/scottmckendry/beam/ui/components/popover"
+	"github.com/scottmckendry/beam/ui/components/label"
 )
 
 type NavItemData struct {
@@ -18,12 +22,12 @@ type NavItemData struct {
 }
 
 var navigationItems = []NavItemData{
-	{Icon: icon.LayoutDashboard(icon.Props{Size: 16}), Text: "Dashboard", Href: "/dashboard"},
-	{Icon: icon.FileText(icon.Props{Size: 16}), Text: "Invoices", Href: "/invoices"},
+	{Icon: icon.LayoutDashboard(icon.Props{Size: 18}), Text: "Dashboard", Href: "/dashboard"},
+	{Icon: icon.FileText(icon.Props{Size: 18}), Text: "Invoices", Href: "/invoices"},
 }
 
 // Main navigation component
-templ Navigation(currentPage, headerTitle, headerDesc string) {
+templ Navigation(currentPage, headerTitle, headerDescription string) {
 	<div class="flex h-screen">
 		// Desktop navigation
 		<aside class="w-64 border-r flex flex-col hidden md:flex">
@@ -53,7 +57,7 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 						}
 					</div>
 					<div class="flex-1 flex items-center justify-between">
-						<div>
+						<div data-signals={ "{headerTitle: '" + headerTitle + "', headerDescription: '" + headerDescription + "'}" }>
 							<div class="flex items-center gap-2">
 								if !strings.Contains(currentPage, "customer-") {
 									for _, item := range navigationItems {
@@ -64,9 +68,9 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 								} else {
 									@icon.Building2(icon.Props{Size: 16})
 								}
-								<h2 class="text-xl font-bold">{ headerTitle }</h2>
+								<h2 class="text-xl font-bold" data-text="$headerTitle"></h2>
 							</div>
-							<p class="text-sm text-gray-500">{ headerDesc }</p>
+							<p class="text-sm text-gray-500" data-text="$headerDescription"></p>
 						</div>
 						<div class="relative hidden sm:block">
 							<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -76,15 +80,11 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 						</div>
 						@button.Button(button.Props{
 							Variant: button.VariantSecondary,
-							Class:   "hidden",
-						}) {
-							@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
-							Add New
-						}
-						@button.Button(button.Props{
-							Variant: button.VariantSecondary,
 							Size:    button.SizeIcon,
 							Class:   "sm:hidden",
+							Attributes: templ.Attributes{
+								"data-on-click": "@get('/sse/customers/add')",
+							},
 						}) {
 							@icon.Plus(icon.Props{Size: 16})
 						}
@@ -121,7 +121,11 @@ templ Navigation(currentPage, headerTitle, headerDesc string) {
 					</div>
 				</div>
 			}
-			<div class="flex-1 p-4 md:p-6">
+			@selectbox.Script()
+			@textarea.Script()
+			@popover.Script()
+			@label.Script()
+			<div class="flex-1 p-4 md:p-6" id="inner-content">
 				{ children... }
 			</div>
 		</div>
@@ -146,6 +150,9 @@ templ NavigationContent(currentPage string) {
 				@CustomerNavSkeleton()
 				@CustomerNavSkeleton()
 			</div>
+			<div class="mt-2 px-2">
+				@AddCustomerButton()
+			</div>
 		</div>
 	</div>
 }
@@ -161,22 +168,19 @@ templ NavigationFooter() {
 // Customer-related components
 templ CustomerNavigation(customers []db.Customer, currentPage string) {
 	<div id="customer-nav-section">
-		<div class="space-y-1">
+		<ul class="space-y-1">
 			for _, c := range customers {
 				// TODO: Add image URL if available
 				@CustomerNavItem(c.Name, "/customer/"+c.ID.String(), currentPage == ("customer-"+c.ID.String()), "")
 			}
-		</div>
-		<div class="px-4 py-2">
-			@AddCustomerButton()
-		</div>
+		</ul>
 	</div>
 }
 
 templ CustomerNavItem(name, href string, active bool, image string) {
 	<a
 		href={ href }
-		class={ "flex items-center gap-2 px-4 py-2 mx-2 rounded-md font-medium text-sm",
+		class={ "flex items-center gap-2 p-2 mx-2 rounded-md font-medium text-sm",
 			templ.KV("bg-accent text-accent-foreground", active),
 			templ.KV("hover:bg-accent hover:text-accent-foreground", !active) }
 	>
@@ -192,7 +196,7 @@ templ CustomerNavItem(name, href string, active bool, image string) {
 }
 
 templ CustomerNavSkeleton() {
-	<div class="flex items-center gap-2 mx-2 px-4 py-2 rounded-md">
+	<div class="flex items-center gap-2 mx-2 p-2 rounded-md">
 		@skeleton.Skeleton(skeleton.Props{Class: "h-6 w-8 rounded-full"})
 		<div class="space-y-1.5 w-full">
 			@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-24"})
@@ -219,7 +223,10 @@ templ NavItem(icon templ.Component, text string, href string, active bool) {
 templ AddCustomerButton() {
 	@button.Button(button.Props{
 		Variant: button.VariantOutline,
-		Class:   "w-full bg-transparent",
+		Class:   "w-full bg-transparent hidden md:flex",
+		Attributes: templ.Attributes{
+			"data-on-click": "@get('/sse/customers/add')",
+		},
 	}) {
 		@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
 		Add Customer

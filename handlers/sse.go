@@ -115,3 +115,21 @@ func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Requ
 	views.CustomerOverview(customer).Render(r.Context(), buf)
 	serveSSEFragment(w, r, buf.String())
 }
+
+// HandleSSEGetAddCustomer streams the rendered AddCustomer component via SSE for Datastar, including header signals.
+// This is an on-click element swap, so 'lazy-loading' is not required.
+func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Request) {
+	buf := &bytes.Buffer{}
+	views.AddCustomer().Render(r.Context(), buf)
+
+	headerSignal := []byte(
+		`{"headerTitle":"Add Customer","headerDescription":"Woohoo! Let's add a new customer 🚀"}`,
+	)
+
+	sse := datastar.NewSSE(w, r)
+	sse.MergeSignals(headerSignal)
+	sse.MergeFragments(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}

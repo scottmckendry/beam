@@ -5,8 +5,12 @@ import (
 	"strings"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/card"
+	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/components/input"
+	"github.com/scottmckendry/beam/ui/components/selectbox"
 	"github.com/scottmckendry/beam/ui/components/tabs"
+	"github.com/scottmckendry/beam/ui/components/textarea"
 )
 
 func pluralize(count int64, singular, plural string) string {
@@ -54,6 +58,95 @@ Links to [cool projects](https://github.com/scottmckendry/beam) are also support
 | Row 3    | Data 3   | And even more long text to see how it behaves in a table cell. |
 
 `
+
+templ AddCustomer() {
+	<div id="inner-content" class="p-6">
+		<div class="w-full max-w-4xl mx-auto">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="space-y-6">
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "name-form",
+						}) {
+							Name
+						}
+						@input.Input(input.Props{
+							ID:          "name-form",
+							Type:        input.TypeText,
+							Placeholder: "Customer Name",
+							Required:    true,
+						})
+					}
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "email-form",
+						}) {
+							Email
+						}
+						@input.Input(input.Props{
+							ID:          "email-form",
+							Type:        input.TypeEmail,
+							Placeholder: "mail@example.com",
+							Required:    true,
+						})
+					}
+				</div>
+				<div class="space-y-6">
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "status-form",
+						}) {
+							Status
+						}
+						@selectbox.SelectBox() {
+							@selectbox.Trigger(selectbox.TriggerProps{
+								ID:       "status-form",
+								Name:     "status",
+								Required: true,
+							}) {
+								@selectbox.Value(selectbox.ValueProps{
+									Placeholder: "Select a status",
+								})
+							}
+							@selectbox.Content() {
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "active",
+								}) {
+									Active
+								}
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "inactive",
+								}) {
+									Inactive
+								}
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "prospect",
+								}) {
+									Prospect
+								}
+							}
+						}
+					}
+				</div>
+			</div>
+			<div class="mt-6">
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "notes-form",
+					}) {
+						Notes
+					}
+					@textarea.Textarea(textarea.Props{
+						ID:          "notes-form",
+						Name:        "notes",
+						Placeholder: "Notes for this customer. Markdown supported is supported.",
+						Rows:        8,
+					})
+				}
+			</div>
+		</div>
+	</div>
+}
 
 templ Customer(c db.GetCustomerRow) {
 	@BaseLayout() {

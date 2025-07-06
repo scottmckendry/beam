@@ -22,7 +22,7 @@ func New(queries *db.Queries, env *oauth.OAuth) *Handlers {
 	return &Handlers{Queries: queries, OAuth: env}
 }
 
-// Handles not found requests by rendering a 404 page.
+// HandleNotFound serves a 404 Not Found page when a requested resource is not found.
 func (h *Handlers) HandleNotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	views.NotFound().Render(r.Context(), w)
