@@ -1,11 +1,15 @@
 package views
 
-templ Root(isAdmin bool) {
+import (
+	"github.com/scottmckendry/beam/db/sqlc"
+)
+
+templ Root(isAdmin bool, customers []db.Customer) {
 	if !isAdmin {
 		@NonAdmin()
 	} else {
 		@BaseLayout() {
-			@Navigation("dashboard", "Dashboard", "Overview of your business metrics") {
+			@Navigation("dashboard", "Dashboard", "Overview of your business metrics", customers) {
 				@Dashboard()
 			}
 		}

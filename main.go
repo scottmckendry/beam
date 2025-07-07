@@ -51,7 +51,7 @@ func main() {
 			// Server-Sent Events (Powered by Datastar 🚀🚀)
 			admin.Get("/sse/invoices", h.HandleSSEGetInvoices)
 			admin.Get("/sse/dashboard", h.HandleSSEGetDashboard)
-			admin.Get("/sse/customers", h.HandleSSECustomerNav)
+			admin.Get("/sse/customers/nav", h.HandleSSECustomerNav)
 			admin.Get("/sse/customer/{id}", h.HandleSSEGetCustomer)
 			admin.Get("/sse/customers/add", h.HandleSSEGetAddCustomer)
 			admin.Get("/sse/customer/overview/{id}", h.HandleSSECustomerOverview)
