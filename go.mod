@@ -36,6 +36,7 @@ require (
 	github.com/gohugoio/hugo v0.147.6 // indirect
 	github.com/igrmk/treemap/v2 v2.0.1 // indirect
 	github.com/libsql/sqlite-antlr4-parser v0.0.0-20240327125255-dbf53b6cbf06 // indirect
+	github.com/matryer/try v0.0.0-20161228173917-9ac251b645a2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
@@ -44,6 +45,9 @@ require (
 	github.com/samber/lo v1.47.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.8.0 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/tdewolff/minify v2.3.6+incompatible // indirect
+	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/parse/v2 v2.8.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20250531010427-b6e5de432a8b // indirect
@@ -60,4 +64,5 @@ tool (
 	github.com/a-h/templ/cmd/templ
 	github.com/air-verse/air
 	github.com/axzilla/templui/cmd/templui
+	github.com/tdewolff/minify/cmd/minify
 )

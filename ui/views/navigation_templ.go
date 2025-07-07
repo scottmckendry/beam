@@ -16,11 +16,7 @@ import (
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/drawer"
 	"github.com/scottmckendry/beam/ui/components/icon"
-	"github.com/scottmckendry/beam/ui/components/label"
-	"github.com/scottmckendry/beam/ui/components/popover"
-	"github.com/scottmckendry/beam/ui/components/selectbox"
 	"github.com/scottmckendry/beam/ui/components/skeleton"
-	"github.com/scottmckendry/beam/ui/components/textarea"
 )
 
 type NavItemData struct {
@@ -80,10 +76,6 @@ func Navigation(currentPage, headerTitle, headerDescription string) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = drawer.Script().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -137,7 +129,7 @@ func Navigation(currentPage, headerTitle, headerDescription string) templ.Compon
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("{headerTitle: '" + headerTitle + "', headerDescription: '" + headerDescription + "'}")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 60, Col: 112}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 55, Col: 112}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -305,22 +297,6 @@ func Navigation(currentPage, headerTitle, headerDescription string) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = selectbox.Script().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = textarea.Script().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = popover.Script().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = label.Script().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"flex-1 p-4 md:p-6\" id=\"inner-content\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -376,7 +352,7 @@ func NavigationContent(currentPage string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(`@get('/sse/customers?page=` + currentPage + `')`)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 148, Col: 98}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 139, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -530,7 +506,7 @@ func CustomerNavItem(name, href string, active bool, image string) templ.Compone
 		var templ_7745c5c3_Var15 templ.SafeURL
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(href)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 182, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 173, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -574,7 +550,7 @@ func CustomerNavItem(name, href string, active bool, image string) templ.Compone
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(avatar.Initials(name))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 191, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 182, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -594,7 +570,7 @@ func CustomerNavItem(name, href string, active bool, image string) templ.Compone
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 194, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 185, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -697,7 +673,7 @@ func NavItem(icon templ.Component, text string, href string, active bool) templ.
 		var templ_7745c5c3_Var23 templ.SafeURL
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(href)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 212, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 203, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -731,7 +707,7 @@ func NavItem(icon templ.Component, text string, href string, active bool) templ.
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 218, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/navigation.templ`, Line: 209, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {

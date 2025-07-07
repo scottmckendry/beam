@@ -9,10 +9,6 @@ import (
 	"github.com/scottmckendry/beam/ui/components/drawer"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/skeleton"
-	"github.com/scottmckendry/beam/ui/components/selectbox"
-	"github.com/scottmckendry/beam/ui/components/textarea"
-	"github.com/scottmckendry/beam/ui/components/popover"
-	"github.com/scottmckendry/beam/ui/components/label"
 )
 
 type NavItemData struct {
@@ -43,7 +39,6 @@ templ Navigation(currentPage, headerTitle, headerDescription string) {
 				// Mobile navigation trigger
 				<div class="h-full flex items-center">
 					<div class="md:hidden">
-						@drawer.Script()
 						@drawer.Trigger(drawer.TriggerProps{
 							For: "mobile-nav",
 						}) {
@@ -121,10 +116,6 @@ templ Navigation(currentPage, headerTitle, headerDescription string) {
 					</div>
 				</div>
 			}
-			@selectbox.Script()
-			@textarea.Script()
-			@popover.Script()
-			@label.Script()
 			<div class="flex-1 p-4 md:p-6" id="inner-content">
 				{ children... }
 			</div>

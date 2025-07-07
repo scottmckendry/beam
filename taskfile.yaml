@@ -33,3 +33,7 @@ tasks:
     desc: Decrypt .env.sops to .env using sops
     cmds:
       - sops --input-type binary --output-type binary --decrypt .env.sops > .env
+  minify-js:
+    desc: Bundle and minify public/js/*.js to public/js/components.min.js
+    cmds:
+      - find public/js -type f -name "*.js" ! -name "templui.min.js" | xargs cat | go tool minify -o public/js/templui.min.js --type js

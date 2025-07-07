@@ -154,7 +154,6 @@ templ Customer(c db.GetCustomerRow) {
 			c.ContactCount, pluralize(c.ContactCount, "contact", "contacts"),
 			c.SubscriptionCount, pluralize(c.SubscriptionCount, "subscription", "subscriptions"),
 			c.ProjectCount, pluralize(c.ProjectCount, "project", "projects"))) {
-			@tabs.Script()
 			@tabs.Tabs(tabs.Props{
 				ID: "customer-tabs",
 			}) {
