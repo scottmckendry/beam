@@ -14,10 +14,10 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
-const simulateSlowEvents = true
+const simulateSlowEvents = false
 
 // getRandomDelay returns a random delay between 100ms and 500ms
-// Believe it or not, this actually makes the UI feel more responsive. I prefer it to instant updates - makes the UI feel less jarring.
+// good for testing lazy-loading and view transitions - wehre view transitions are not supported (*cough, cough* Firefox...), this will make things look a bit nicer and less "flickery"
 func getRandomDelay() time.Duration {
 	return time.Duration(rand.Float64()*400+100) * time.Millisecond
 }

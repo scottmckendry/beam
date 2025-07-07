@@ -9,8 +9,8 @@ import (
 
 templ Login() {
 	@BaseLayout() {
-		<div class="flex justify-center items-center min-h-screen">
-			<div class="w-full max-w-sm">
+		<div class="flex justify-center items-center min-h-[80vh] md:min-h-screen">
+			<div class="w-full max-w-md p-6">
 				@card.Card() {
 					@card.Media(card.MediaProps{
 						ID:          "right-media",
