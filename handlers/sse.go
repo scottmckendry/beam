@@ -111,6 +111,7 @@ func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Requ
 func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	views.AddCustomer().Render(r.Context(), buf)
+	views.HeaderIcon("customer").Render(r.Context(), buf)
 
 	headerSignal := []byte(
 		`{"headerTitle":"Add Customer","headerDescription":"Woohoo! Let's add a new customer 🚀"}`,
@@ -127,10 +128,7 @@ func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Reques
 func (h *Handlers) HandleSSEGetInvoices(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	views.Invoices().Render(r.Context(), buf)
-
-	// headerSignal := []byte(
-	// 	`{"headerTitle":"Invoices","headerDescription":"Manage invoices for all customers", "currentPage":"invoices"}`,
-	// )
+	views.HeaderIcon("invoices").Render(r.Context(), buf)
 
 	pageSignals := PageSignals{
 		HeaderTitle:       "Invoices",
@@ -151,10 +149,7 @@ func (h *Handlers) HandleSSEGetInvoices(w http.ResponseWriter, r *http.Request) 
 func (h *Handlers) HandleSSEGetDashboard(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	views.Dashboard().Render(r.Context(), buf)
-
-	// headerSignal := []byte(
-	// 	`{"headerTitle":"Dashboard","headerDescription":"Overview of your business metrics", "currentPage":"dashboard"}`,
-	// )
+	views.HeaderIcon("dashboard").Render(r.Context(), buf)
 
 	pageSignals := PageSignals{
 		HeaderTitle:       "Dashboard",
@@ -190,6 +185,7 @@ func (h *Handlers) HandleSSEGetCustomer(w http.ResponseWriter, r *http.Request) 
 
 	buf := &bytes.Buffer{}
 	views.Customer(c).Render(r.Context(), buf)
+	views.HeaderIcon("customer").Render(r.Context(), buf)
 
 	pageSignals := PageSignals{
 		HeaderTitle: c.Name,
