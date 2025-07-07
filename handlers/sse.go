@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -14,12 +14,10 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
-const simulateSlowEvents = false
-
-// getRandomDelay returns a random delay between 100ms and 500ms
-// good for testing lazy-loading and view transitions - wehre view transitions are not supported (*cough, cough* Firefox...), this will make things look a bit nicer and less "flickery"
-func getRandomDelay() time.Duration {
-	return time.Duration(rand.Float64()*400+100) * time.Millisecond
+type PageSignals struct {
+	HeaderTitle       string `json:"headerTitle"`
+	HeaderDescription string `json:"headerDescription"`
+	CurrentPage       string `json:"currentPage,omitempty"`
 }
 
 func serveSSEFragment(w http.ResponseWriter, r *http.Request, fragment string) {
@@ -30,12 +28,15 @@ func serveSSEFragment(w http.ResponseWriter, r *http.Request, fragment string) {
 	)
 }
 
+func pluralise(count int64, singular, plural string) string {
+	if count == 1 {
+		return singular
+	}
+	return plural
+}
+
 // HandleSSEDashboardStats streams the dashboard stats cards via SSE for Datastar
 func (h *Handlers) HandleSSEDashboardStats(w http.ResponseWriter, r *http.Request) {
-	if simulateSlowEvents {
-		time.Sleep(getRandomDelay())
-	}
-
 	stats, err := h.Queries.GetDashboardStats(r.Context())
 	if err != nil {
 		log.Printf("Failed to load dashboard stats: %v", err)
@@ -50,10 +51,6 @@ func (h *Handlers) HandleSSEDashboardStats(w http.ResponseWriter, r *http.Reques
 
 // HandleSSEDashboardActivity streams the dashboard recent activity via SSE for Datastar
 func (h *Handlers) HandleSSEDashboardActivity(w http.ResponseWriter, r *http.Request) {
-	if simulateSlowEvents {
-		time.Sleep(getRandomDelay())
-	}
-
 	activities, err := h.Queries.GetRecentActivity(r.Context())
 	if err != nil {
 		log.Printf("Failed to load recent activity: %v", err)
@@ -68,10 +65,6 @@ func (h *Handlers) HandleSSEDashboardActivity(w http.ResponseWriter, r *http.Req
 
 // HandleSSECustomerNav streams the rendered CustomerNavigation component via SSE for Datastar
 func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) {
-	if simulateSlowEvents {
-		time.Sleep(getRandomDelay())
-	}
-
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers: %v", err)
@@ -87,9 +80,6 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 
 // HandleSSECustomerOverview streams the rendered CustomerOverview component via SSE for Datastar
 func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Request) {
-	if simulateSlowEvents {
-		time.Sleep(getRandomDelay())
-	}
 	customerID := chi.URLParam(r, "id")
 	if customerID == "" {
 		log.Println("Id is required")
@@ -128,6 +118,97 @@ func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Reques
 
 	sse := datastar.NewSSE(w, r)
 	sse.MergeSignals(headerSignal)
+	sse.MergeFragments(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}
+
+func (h *Handlers) HandleSSEGetInvoices(w http.ResponseWriter, r *http.Request) {
+	buf := &bytes.Buffer{}
+	views.Invoices().Render(r.Context(), buf)
+
+	// headerSignal := []byte(
+	// 	`{"headerTitle":"Invoices","headerDescription":"Manage invoices for all customers", "currentPage":"invoices"}`,
+	// )
+
+	pageSignals := PageSignals{
+		HeaderTitle:       "Invoices",
+		HeaderDescription: "Manage invoices for all customers",
+		CurrentPage:       "invoices",
+	}
+
+	encodedSignals, _ := json.Marshal(pageSignals)
+
+	sse := datastar.NewSSE(w, r)
+	sse.MergeSignals(encodedSignals)
+	sse.MergeFragments(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}
+
+func (h *Handlers) HandleSSEGetDashboard(w http.ResponseWriter, r *http.Request) {
+	buf := &bytes.Buffer{}
+	views.Dashboard().Render(r.Context(), buf)
+
+	// headerSignal := []byte(
+	// 	`{"headerTitle":"Dashboard","headerDescription":"Overview of your business metrics", "currentPage":"dashboard"}`,
+	// )
+
+	pageSignals := PageSignals{
+		HeaderTitle:       "Dashboard",
+		HeaderDescription: "Overview of your business metrics",
+		CurrentPage:       "dashboard",
+	}
+
+	encodedSignals, _ := json.Marshal(pageSignals)
+
+	sse := datastar.NewSSE(w, r)
+	sse.MergeSignals(encodedSignals)
+	sse.MergeFragments(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}
+
+func (h *Handlers) HandleSSEGetCustomer(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		views.NotFound().Render(r.Context(), w)
+		return
+	}
+
+	c, err := h.Queries.GetCustomer(r.Context(), parsedID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		views.NotFound().Render(r.Context(), w)
+		return
+	}
+
+	buf := &bytes.Buffer{}
+	views.Customer(c).Render(r.Context(), buf)
+
+	pageSignals := PageSignals{
+		HeaderTitle: c.Name,
+		HeaderDescription: fmt.Sprintf(
+			"%d %s • %d %s • %d %s",
+			c.ContactCount,
+			pluralise(c.ContactCount, "contact", "contacts"),
+			c.SubscriptionCount,
+			pluralise(c.SubscriptionCount, "subscription", "subscriptions"),
+			c.ProjectCount,
+			pluralise(c.ProjectCount, "project", "projects"),
+		),
+		CurrentPage: c.ID.String(),
+	}
+
+	encodedSignals, _ := json.Marshal(pageSignals)
+
+	sse := datastar.NewSSE(w, r)
+	sse.MergeSignals(encodedSignals)
 	sse.MergeFragments(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),

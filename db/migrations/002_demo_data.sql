@@ -1,14 +1,14 @@
 -- Demo data for customers table
-INSERT INTO customers (id, name, logo, status, email, phone, address, website, notes) VALUES
-('c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Corp', 'acme.png', 'active', 'info@acme.com', '+1-555-1234', '123 Main St, Springfield, USA', 'https://acme.com', 'Key client, prefers email contact');
-INSERT INTO customers (id, name, logo, status, email, phone, address, website, notes) VALUES
-('c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Inc', 'globex.png', 'active', 'contact@globex.com', '+1-555-5678', '456 Elm St, Metropolis, USA', 'https://globex.com', 'Recently onboarded');
-INSERT INTO customers (id, name, logo, status, email, phone, address, website, notes) VALUES
-('c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech', 'initech.png', 'inactive', 'support@initech.com', '+1-555-8765', '789 Oak St, Gotham, USA', 'https://initech.com', 'On hold');
-INSERT INTO customers (id, name, logo, status, email, phone, address, website, notes) VALUES
-('c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Corp', 'umbrella.png', 'active', 'admin@umbrella.com', '+1-555-4321', '321 Pine St, Raccoon City, USA', 'https://umbrella.com', 'VIP');
-INSERT INTO customers (id, name, logo, status, email, phone, address, website, notes) VALUES
-('c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Enterprises', 'wayne.png', 'active', 'hello@wayne.com', '+1-555-2468', '1007 Mountain Dr, Gotham, USA', 'https://wayne.com', 'Long-term partner');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Corp', 'active', 'info@acme.com', '+1-555-1234', '123 Main St, Springfield, USA', 'https://acme.com', 'Key client, prefers email contact');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Inc', 'active', 'contact@globex.com', '+1-555-5678', '456 Elm St, Metropolis, USA', 'https://globex.com', 'Recently onboarded');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech',  'inactive', 'support@initech.com', '+1-555-8765', '789 Oak St, Gotham, USA', 'https://initech.com', 'On hold');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Corp', 'active', 'admin@umbrella.com', '+1-555-4321', '321 Pine St, Raccoon City, USA', 'https://umbrella.com', 'VIP');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Enterprises', 'active', 'hello@wayne.com', '+1-555-2468', '1007 Mountain Dr, Gotham, USA', 'https://wayne.com', 'Long-term partner');
 
 -- Demo data for contacts table
 INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES

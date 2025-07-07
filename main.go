@@ -47,12 +47,12 @@ func main() {
 		protected.Group(func(admin chi.Router) {
 			admin.Use(handlers.AdminMiddleware(auth))
 			admin.Get("/", h.HandleRoot)
-			admin.Get("/dashboard", h.HandleDashboard)
-			admin.Get("/invoices", h.HandleInvoices)
-			admin.Get("/customer/{id}", h.HandleCustomer)
 
 			// Server-Sent Events (Powered by Datastar 🚀🚀)
+			admin.Get("/sse/invoices", h.HandleSSEGetInvoices)
+			admin.Get("/sse/dashboard", h.HandleSSEGetDashboard)
 			admin.Get("/sse/customers", h.HandleSSECustomerNav)
+			admin.Get("/sse/customer/{id}", h.HandleSSEGetCustomer)
 			admin.Get("/sse/customers/add", h.HandleSSEGetAddCustomer)
 			admin.Get("/sse/customer/overview/{id}", h.HandleSSECustomerOverview)
 			admin.Get("/sse/dashboard/stats", h.HandleSSEDashboardStats)

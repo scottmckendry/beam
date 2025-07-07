@@ -122,40 +122,36 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 }
 
 templ Dashboard() {
-	@BaseLayout() {
-		@Navigation("dashboard", "Dashboard", "Overview of your account") {
-			<div id="page-content" data-fragment="page-content">
-				<div id="dashboard-stats-section" data-on-load="@get('/sse/dashboard/stats')" class="relative">
-					<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
-						@SkeletonStatCard()
-						@SkeletonStatCard()
-						@SkeletonStatCard()
-						@SkeletonStatCard()
-						@SkeletonStatCard()
-					</div>
-				</div>
-				<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
-					@card.Card() {
-						@card.Header(card.HeaderProps{Class: ""}) {
-							<div class="flex items-center gap-2">
-								@icon.Activity(icon.Props{Size: 20})
-								<h3 class="text-lg font-medium">Recent Activity</h3>
-							</div>
-							<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
-						}
-						@card.Content() {
-							<div class="space-y-4">
-								@SkeletonActivityRow()
-								@SkeletonActivityRow()
-								@SkeletonActivityRow()
-								@SkeletonActivityRow()
-							</div>
-						}
-					}
-				</div>
+	<div id="inner-content" class="flex-1 p-4 md:p-6">
+		<div id="dashboard-stats-section" data-on-load="@get('/sse/dashboard/stats')" class="relative">
+			<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
+				@SkeletonStatCard()
+				@SkeletonStatCard()
+				@SkeletonStatCard()
+				@SkeletonStatCard()
+				@SkeletonStatCard()
 			</div>
-		}
-	}
+		</div>
+		<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
+			@card.Card() {
+				@card.Header(card.HeaderProps{Class: ""}) {
+					<div class="flex items-center gap-2">
+						@icon.Activity(icon.Props{Size: 20})
+						<h3 class="text-lg font-medium">Recent Activity</h3>
+					</div>
+					<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
+				}
+				@card.Content() {
+					<div class="space-y-4">
+						@SkeletonActivityRow()
+						@SkeletonActivityRow()
+						@SkeletonActivityRow()
+						@SkeletonActivityRow()
+					</div>
+				}
+			}
+		</div>
+	</div>
 }
 
 templ SkeletonStatCard() {

@@ -4,6 +4,10 @@ templ Root(isAdmin bool) {
 	if !isAdmin {
 		@NonAdmin()
 	} else {
-		@Dashboard()
+		@BaseLayout() {
+			@Navigation("dashboard", "Dashboard", "Overview of your business metrics") {
+				@Dashboard()
+			}
+		}
 	}
 }

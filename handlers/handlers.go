@@ -4,9 +4,6 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
-
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/oauth"
 	"github.com/scottmckendry/beam/ui/views"
@@ -28,39 +25,9 @@ func (h *Handlers) HandleNotFound(w http.ResponseWriter, r *http.Request) {
 	views.NotFound().Render(r.Context(), w)
 }
 
-// HandleDashboard serves the dashboard page.
-func (h *Handlers) HandleDashboard(w http.ResponseWriter, r *http.Request) {
-	views.Dashboard().Render(r.Context(), w)
-}
-
-// HandleInvoices serves the invoices page.
-func (h *Handlers) HandleInvoices(w http.ResponseWriter, r *http.Request) {
-	views.Invoices().Render(r.Context(), w)
-}
-
 // HandleNoAccess serves a page indicating that the user does not have access to the requested resource.
 func (h *Handlers) HandleNoAccess(w http.ResponseWriter, r *http.Request) {
 	views.NonAdmin().Render(r.Context(), w)
-}
-
-// HandleCustomer serves the customers page for a specific customer.
-func (h *Handlers) HandleCustomer(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		views.NotFound().Render(r.Context(), w)
-		return
-	}
-
-	customer, err := h.Queries.GetCustomer(r.Context(), parsedID)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		views.NotFound().Render(r.Context(), w)
-		return
-	}
-
-	views.Customer(customer).Render(r.Context(), w)
 }
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
