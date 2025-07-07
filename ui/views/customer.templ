@@ -170,22 +170,11 @@ templ Customer(c db.GetCustomerRow) {
 						Value:    strings.ToLower(header),
 						IsActive: i == 0,
 					}) {
-						<div id={ "customer-" + strings.ToLower(header) } class="p-4" data-on-load={ "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')" }>
-							@tabSkeleton()
-						</div>
+						<div id={ "customer-" + strings.ToLower(header) } class="p-4" data-on-load={ "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')" }></div>
 					}
 				}
 			</div>
 		}
-	</div>
-}
-
-templ tabSkeleton() {
-	<div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
-		@SkeletonStatCard()
-		@SkeletonStatCard()
-		@SkeletonStatCard()
-		@SkeletonStatCard()
 	</div>
 }
 

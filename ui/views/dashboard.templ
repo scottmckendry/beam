@@ -4,7 +4,6 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/skeleton"
 	"github.com/dustin/go-humanize"
 )
 
@@ -124,13 +123,7 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 templ Dashboard() {
 	<div id="inner-content" class="flex-1 p-4 md:p-6">
 		<div id="dashboard-stats-section" data-on-load="@get('/sse/dashboard/stats')" class="relative">
-			<div class="grid gap-4 grid-cols-2 lg:grid-cols-5">
-				@SkeletonStatCard()
-				@SkeletonStatCard()
-				@SkeletonStatCard()
-				@SkeletonStatCard()
-				@SkeletonStatCard()
-			</div>
+			<div class="grid gap-4 grid-cols-2 lg:grid-cols-5"></div>
 		</div>
 		<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
 			@card.Card() {
@@ -142,33 +135,9 @@ templ Dashboard() {
 					<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
 				}
 				@card.Content() {
-					<div class="space-y-4">
-						@SkeletonActivityRow()
-						@SkeletonActivityRow()
-						@SkeletonActivityRow()
-						@SkeletonActivityRow()
-					</div>
+					<div class="space-y-4"></div>
 				}
 			}
 		</div>
-	</div>
-}
-
-templ SkeletonStatCard() {
-	<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-4 space-y-2">
-		@skeleton.Skeleton(skeleton.Props{Class: "h-4 w-24 mb-2"})
-		@skeleton.Skeleton(skeleton.Props{Class: "h-8 w-16 mb-1"})
-		@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-20"})
-	</div>
-}
-
-templ SkeletonActivityRow() {
-	<div class="flex items-center gap-3 p-3 mt-2 rounded-lg bg-muted/50">
-		@skeleton.Skeleton(skeleton.Props{Class: "h-8 w-8 rounded-full"})
-		<div class="flex-1 min-w-0 space-y-1">
-			@skeleton.Skeleton(skeleton.Props{Class: "h-4 w-32"})
-			@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-24"})
-		</div>
-		@skeleton.Skeleton(skeleton.Props{Class: "h-3 w-10"})
 	</div>
 }
