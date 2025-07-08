@@ -12,12 +12,13 @@ import (
 
 templ HeaderIcon(name string) {
 	<div id="header-icon">
-		if name == "dashboard" {
-			@icon.LayoutDashboard(icon.Props{Size: 18})
-		} else if name == "invoices" {
-			@icon.FileText(icon.Props{Size: 18})
-		} else if name == "customer" {
-			@icon.Building2(icon.Props{Size: 18})
+		switch name {
+			case "dashboard":
+				@icon.LayoutDashboard(icon.Props{Size: 18})
+			case "invoices":
+				@icon.FileText(icon.Props{Size: 18})
+			case "customer":
+				@icon.Building2(icon.Props{Size: 18})
 		}
 	</div>
 }

@@ -3,7 +3,6 @@ package views
 import (
 	"strings"
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/input"
@@ -181,64 +180,48 @@ templ Customer(c db.GetCustomerRow) {
 templ CustomerOverview(c db.GetCustomerRow) {
 	<div id="customer-overview">
 		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-					<h3 class="text-lg font-medium">Contacts</h3>
-					@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
-				}
-				@card.Content() {
-					<div class="text-2xl font-bold">{ c.ContactCount }</div>
-					// TODO: make this dynamic at some point
-					<p class="text-xs text-muted-foreground">+1 this month</p>
-				}
+			@StatsCard(StatsCardProps{
+				Title: "Contacts",
+				Icon:  icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+			}) {
+				<div class="text-2xl font-bold">{ c.ContactCount }</div>
+				<p class="text-xs text-muted-foreground">+1 this month</p>
 			}
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-					<h3 class="text-lg font-medium">
-						<span class="sm:hidden">Subs</span>
-						<span class="hidden sm:inline">Subscriptions</span>
-					</h3>
-					@icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"})
-				}
-				@card.Content() {
-					<div class="text-2xl font-bold">{ c.ProjectCount }</div>
-					<p class="text-xs text-muted-foreground">${ c.SubscriptionRevenue }/month</p>
-				}
+			@StatsCard(StatsCardProps{
+				Title: "Subscriptions",
+				Icon:  icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+			}) {
+				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
+				<p class="text-xs text-muted-foreground">${ c.SubscriptionRevenue }/month</p>
 			}
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-					<h3 class="text-lg font-medium">Projects</h3>
-					@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
-				}
-				@card.Content() {
-					<div class="text-2xl font-bold">{ c.ProjectCount }</div>
-					<p class="text-xs text-muted-foreground">GitHub repos</p>
-				}
+			@StatsCard(StatsCardProps{
+				Title: "Projects",
+				Icon:  icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+			}) {
+				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
+				<p class="text-xs text-muted-foreground">GitHub repos</p>
 			}
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-					<h3 class="text-lg font-medium">Revenue</h3>
-					@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
+			@StatsCard(StatsCardProps{
+				Title: "Revenue",
+				Icon:  icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+			}) {
+				<div class="text-2xl font-bold">${ c.MonthlyRevenue }</div>
+				if c.RevenueChange > 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+						+{ c.RevenueChange }%
+					</p>
 				}
-				@card.Content() {
-					<div class="text-2xl font-bold">${ c.MonthlyRevenue }</div>
-					if c.RevenueChange > 0 {
-						<p class="text-xs text-muted-foreground">
-							@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
-							+{ c.RevenueChange }%
-						</p>
-					}
-					if c.RevenueChange < 0 {
-						<p class="text-xs text-muted-foreground">
-							@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
-							-{ c.RevenueChange }%
-						</p>
-					}
-					if c.RevenueChange == 0 {
-						<p class="text-xs text-muted-foreground">
-							No change
-						</p>
-					}
+				if c.RevenueChange < 0 {
+					<p class="text-xs text-muted-foreground">
+						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+						-{ c.RevenueChange }%
+					</p>
+				}
+				if c.RevenueChange == 0 {
+					<p class="text-xs text-muted-foreground">
+						No change
+					</p>
 				}
 			}
 		</div>

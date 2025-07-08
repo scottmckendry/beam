@@ -7,75 +7,78 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+type StatsCardProps struct {
+	Title string
+	Icon  templ.Component
+	Class string
+}
+
+templ StatsCard(props StatsCardProps) {
+	@card.Card() {
+		@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+			<h3 class="text-lg font-medium">{ props.Title }</h3>
+			@props.Icon
+		}
+		@card.Content() {
+			{ children... }
+		}
+	}
+}
+
 templ DashboardStats(s db.GetDashboardStatsRow) {
 	<div class="grid gap-4 grid-cols-2 lg:grid-cols-5" id="dashboard-stats-section">
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Customers</h3>
-				@icon.Building2(icon.Props{Size: 20, Class: "text-muted-foreground"})
-			}
-			@card.Content() {
-				<div class="text-2xl font-bold">{ s.TotalCustomers }</div>
-				<p class="text-xs text-muted-foreground">{ s.ActiveCustomers } active</p>
-			}
+		@StatsCard(StatsCardProps{
+			Title: "Customers",
+			Icon:  icon.Building2(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+		}) {
+			<div class="text-2xl font-bold">{ s.TotalCustomers }</div>
+			<p class="text-xs text-muted-foreground">{ s.ActiveCustomers } active</p>
 		}
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Contacts</h3>
-				@icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"})
-			}
-			@card.Content() {
-				<div class="text-2xl font-bold">{ s.TotalContacts }</div>
-				<p class="text-xs text-muted-foreground">All customers</p>
-			}
+		@StatsCard(StatsCardProps{
+			Title: "Contacts",
+			Icon:  icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+		}) {
+			<div class="text-2xl font-bold">{ s.TotalContacts }</div>
+			<p class="text-xs text-muted-foreground">All customers</p>
 		}
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Projects</h3>
-				@icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"})
-			}
-			@card.Content() {
-				<div class="text-2xl font-bold">{ s.TotalProjects }</div>
-				<p class="text-xs text-muted-foreground">GitHub repos</p>
-			}
+		@StatsCard(StatsCardProps{
+			Title: "Projects",
+			Icon:  icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+		}) {
+			<div class="text-2xl font-bold">{ s.TotalProjects }</div>
+			<p class="text-xs text-muted-foreground">GitHub repos</p>
 		}
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Revenue</h3>
-				@icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"})
-			}
-			@card.Content() {
-				<div class="text-2xl font-bold">${ s.MonthlyRevenue }</div>
-				if s.RevenueChange > 0 {
-					<p class="text-xs text-muted-foreground">
-						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
-						+{ s.RevenueChange }%
-					</p>
-				}
-				if s.RevenueChange < 0 {
-					<p class="text-xs text-muted-foreground">
-						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
-						-{ s.RevenueChange }%
-					</p>
-				}
-				if s.RevenueChange == 0 {
-					<p class="text-xs text-muted-foreground">
-						No change
-					</p>
-				}
-			}
-		}
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-				<h3 class="text-lg font-medium">Invoices</h3>
-				@icon.FileText(icon.Props{Size: 20, Class: "text-muted-foreground"})
-			}
-			@card.Content() {
-				<div class="text-2xl font-bold">{ s.TotalInvoices }</div>
+		@StatsCard(StatsCardProps{
+			Title: "Revenue",
+			Icon:  icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+		}) {
+			<div class="text-2xl font-bold">${ s.MonthlyRevenue }</div>
+			if s.RevenueChange > 0 {
 				<p class="text-xs text-muted-foreground">
-					{ s.PendingInvoices } pending, { s.OverdueInvoices } overdue
+					@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+					+{ s.RevenueChange }%
 				</p>
 			}
+			if s.RevenueChange < 0 {
+				<p class="text-xs text-muted-foreground">
+					@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+					-{ s.RevenueChange }%
+				</p>
+			}
+			if s.RevenueChange == 0 {
+				<p class="text-xs text-muted-foreground">
+					No change
+				</p>
+			}
+		}
+		@StatsCard(StatsCardProps{
+			Title: "Invoices",
+			Icon:  icon.FileText(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+		}) {
+			<div class="text-2xl font-bold">{ s.TotalInvoices }</div>
+			<p class="text-xs text-muted-foreground">
+				{ s.PendingInvoices } pending, { s.OverdueInvoices } overdue
+			</p>
 		}
 	</div>
 }
