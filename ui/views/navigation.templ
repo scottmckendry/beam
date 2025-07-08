@@ -36,7 +36,7 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 			@NavigationFooter()
 		</aside>
 		<div class="flex flex-col flex-1">
-			<header class="h-16 border-b px-4 shrink-0 sticky top-0 bg-background z-30">
+			<header class="h-16 border-b pl-4 pr-2 shrink-0 sticky top-0 bg-background z-30">
 				// Mobile navigation trigger
 				<div class="h-full flex items-center">
 					<div class="md:hidden">
@@ -58,24 +58,28 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 								@HeaderIcon(currentPage)
 								<h2 class="text-xl font-bold" data-text="$headerTitle"></h2>
 							</div>
-							<p class="text-sm text-gray-500" data-text="$headerDescription"></p>
+							<p class="text-sm text-gray-500 whitespace-nowrap" data-text="$headerDescription"></p>
 						</div>
-						<div class="relative hidden sm:block">
-							<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-								@icon.Search(icon.Props{Size: 16})
-							</span>
-							<input class="w-48 lg:w-64 pl-8 pr-2 py-2 text-sm rounded-md border bg-background" placeholder="Search..."/>
+						// TODO: Implement search
+						<div class="flex items-center gap-2">
+							<div class="relative hidden sm:block">
+								<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+									@icon.Search(icon.Props{Size: 16})
+								</span>
+								<input class="w-48 lg:w-64 pl-8 pr-2 py-2 text-sm rounded-md border bg-background" placeholder="Search..."/>
+							</div>
+							@themeSwitcher()
+							@button.Button(button.Props{
+								Variant: button.VariantSecondary,
+								Size:    button.SizeIcon,
+								Class:   "sm:hidden mr-2",
+								Attributes: templ.Attributes{
+									"data-on-click": "@get('/sse/customers/add')",
+								},
+							}) {
+								@icon.Plus(icon.Props{Size: 16})
+							}
 						</div>
-						@button.Button(button.Props{
-							Variant: button.VariantSecondary,
-							Size:    button.SizeIcon,
-							Class:   "sm:hidden",
-							Attributes: templ.Attributes{
-								"data-on-click": "@get('/sse/customers/add')",
-							},
-						}) {
-							@icon.Plus(icon.Props{Size: 16})
-						}
 					</div>
 				</div>
 			</header>
@@ -196,4 +200,31 @@ templ AddCustomerButton() {
 		@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
 		Add Customer
 	}
+}
+
+templ themeSwitcher() {
+	<div data-show="$theme=='dark'">
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+			Class:   "text-muted-foreground",
+			Attributes: templ.Attributes{
+				"data-on-click__viewtransition": "$theme = 'light'",
+			},
+		}) {
+			@icon.Sun(icon.Props{Size: 22})
+		}
+	</div>
+	<div data-show="$theme=='light'">
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+			Class:   "text-muted-foreground",
+			Attributes: templ.Attributes{
+				"data-on-click__viewtransition": "$theme = 'dark'",
+			},
+		}) {
+			@icon.Moon(icon.Props{Size: 22})
+		}
+	</div>
 }

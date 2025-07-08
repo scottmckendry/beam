@@ -36,7 +36,7 @@ func BaseLayout() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" class=\"h-full dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"/public/css/output.css\" rel=\"stylesheet\"><title>Beam</title><script type=\"module\" src=\"https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-beta.11/bundles/datastar.js\"></script><script type=\"module\" src=\"/public/js/templui.min.js\"></script></head><body data-on-datastar-sse=\"initComponents(evt)\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" class=\"h-full\" data-signals=\"{theme: 'dark'}\" data-persist=\"$theme\" data-attr-class=\"$theme=='dark' ? 'h-full dark' : 'h-full'\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"/public/css/output.css\" rel=\"stylesheet\"><title>Beam</title><script type=\"module\" src=\"https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-beta.11/bundles/datastar.js\"></script><script type=\"module\" src=\"/public/js/templui.min.js\"></script></head><body data-on-datastar-sse=\"initComponents(evt)\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
