@@ -91,25 +91,27 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 				<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
 			}
 			@card.Content() {
-				<div class="space-y-4">
+				<div class="relative">
+					<div class="absolute left-6 top-10 bottom-10 w-px bg-border"></div>
 					for _, a := range activities {
-						<div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg bg-muted/50">
-							<div class="p-2 rounded-full bg-background">
-								if a.ActivityType == "project" {
-									@icon.FolderGit2(icon.Props{Size: 16})
-								} else if a.ActivityType == "subscription" {
-									@icon.CreditCard(icon.Props{Size: 16})
-								} else if a.ActivityType == "contact" {
-									@icon.Users(icon.Props{Size: 16})
-								} else if a.ActivityType == "invoice" {
-									@icon.FileText(icon.Props{Size: 16})
+						<div class="relative flex items-center mb-4 p-1 last:mb-0 rounded-md hover:bg-muted">
+							<div class="relative z-10 flex min-w-10 h-10 w-10 items-center justify-center rounded-full bg-muted">
+								switch a.ActivityType {
+									case "project":
+										@icon.FolderGit2(icon.Props{Size: 17})
+									case "subscription":
+										@icon.CreditCard(icon.Props{Size: 17})
+									case "contact":
+										@icon.Users(icon.Props{Size: 17})
+									case "invoice":
+										@icon.FileText(icon.Props{Size: 17})
 								}
 							</div>
-							<div class="min-w-0">
-								<p class="font-medium truncate">{ a.CustomerName }</p>
-								<p class="text-sm text-muted-foreground truncate">{ a.Description }</p>
+							<div class="ml-4 min-w-0">
+								<p class="font-medium">{ a.CustomerName }</p>
+								<p class="text-sm text-muted-foreground">{ a.Description }</p>
 							</div>
-							<div class="text-xs text-muted-foreground whitespace-nowrap">
+							<div class="ml-auto px-2 text-xs text-muted-foreground whitespace-nowrap">
 								{ humanize.Time(a.CreatedAt.Time) }
 							</div>
 						</div>
