@@ -32,8 +32,8 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 				@icon.Rss(icon.Props{Size: 24})
 				<h1 class="text-xl font-bold">beam</h1>
 			</div>
-			@NavigationContent(currentPage, customers)
-			@NavigationFooter()
+			@navigationContent(currentPage, customers)
+			@navigationFooter()
 		</aside>
 		<div class="flex flex-col flex-1">
 			<header class="h-16 border-b pl-4 pr-2 shrink-0 sticky top-0 bg-background z-30">
@@ -105,10 +105,10 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 						}
 					</div>
 					<div class="flex-1 min-h-0">
-						@NavigationContent(currentPage, customers)
+						@navigationContent(currentPage, customers)
 					</div>
 					<div class="mt-auto">
-						@NavigationFooter()
+						@navigationFooter()
 					</div>
 				</div>
 			}
@@ -120,30 +120,30 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 }
 
 // Main navigation section components
-templ NavigationContent(currentPage string, customers []db.Customer) {
+templ navigationContent(currentPage string, customers []db.Customer) {
 	<div class="flex-1 overflow-y-auto px-2">
 		<div class="mt-2">
 			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
 			<div class="space-y-1">
-				@NavItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18}))
-				@NavItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18}))
+				@navItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18}))
+				@navItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18}))
 			</div>
 		</div>
 		<div class="mt-6">
 			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
 			<div id="customer-nav-section">
 				for _, c := range customers {
-					@CustomerNavItem(c)
+					@customerNavItem(c)
 				}
 			</div>
 			<div class="mt-2 px-2">
-				@AddCustomerButton()
+				@addCustomerButton()
 			</div>
 		</div>
 	</div>
 }
 
-templ NavigationFooter() {
+templ navigationFooter() {
 	<div class="p-2">
 		<a href="/logout" class="flex items-center p-2 hover:bg-accent rounded-md justify-center">
 			@icon.LogOut(icon.Props{Size: 20, Class: "rotate-180"})
@@ -155,12 +155,12 @@ templ NavigationFooter() {
 templ CustomerNavigation(customers []db.Customer, currentPage string) {
 	<div id="customer-nav-section" class="space-y-1">
 		for _, c := range customers {
-			@CustomerNavItem(c)
+			@customerNavItem(c)
 		}
 	</div>
 }
 
-templ CustomerNavItem(c db.Customer) {
+templ customerNavItem(c db.Customer) {
 	<a
 		data-attr-class={ "$currentPage == '" + c.ID.String() + "' ? 'flex items-center gap-2 px-2 py-1 mx-2 mb-2 rounded-md font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 py-1 px-2 mx-2 mb-2 rounded-md font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
 		data-on-click__delay.3s={ "@get('" + "/sse/customer/" + c.ID.String() + "')" }
@@ -178,7 +178,7 @@ templ CustomerNavItem(c db.Customer) {
 }
 
 // Helper components
-templ NavItem(text string, uri string, icon templ.Component) {
+templ navItem(text string, uri string, icon templ.Component) {
 	<a
 		data-attr-class={ "$currentPage == '" + strings.ToLower(text) + "' ? 'flex items-center gap-2 px-4 py-2 mx-2 rounded font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 px-4 py-2 mx-2 rounded font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
 		data-on-click={ "@get('" + uri + "')" }
@@ -189,7 +189,7 @@ templ NavItem(text string, uri string, icon templ.Component) {
 	</a>
 }
 
-templ AddCustomerButton() {
+templ addCustomerButton() {
 	@button.Button(button.Props{
 		Variant: button.VariantOutline,
 		Class:   "w-full bg-transparent hidden md:flex",

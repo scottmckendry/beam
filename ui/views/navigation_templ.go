@@ -115,11 +115,11 @@ func Navigation(currentPage, headerTitle, headerDescription string, customers []
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavigationContent(currentPage, customers).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navigationContent(currentPage, customers).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavigationFooter().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navigationFooter().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -286,7 +286,7 @@ func Navigation(currentPage, headerTitle, headerDescription string, customers []
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = NavigationContent(currentPage, customers).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = navigationContent(currentPage, customers).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -294,7 +294,7 @@ func Navigation(currentPage, headerTitle, headerDescription string, customers []
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = NavigationFooter().Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = navigationFooter().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -328,7 +328,7 @@ func Navigation(currentPage, headerTitle, headerDescription string, customers []
 }
 
 // Main navigation section components
-func NavigationContent(currentPage string, customers []db.Customer) templ.Component {
+func navigationContent(currentPage string, customers []db.Customer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -353,11 +353,11 @@ func NavigationContent(currentPage string, customers []db.Customer) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -366,7 +366,7 @@ func NavigationContent(currentPage string, customers []db.Customer) templ.Compon
 			return templ_7745c5c3_Err
 		}
 		for _, c := range customers {
-			templ_7745c5c3_Err = CustomerNavItem(c).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = customerNavItem(c).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -375,7 +375,7 @@ func NavigationContent(currentPage string, customers []db.Customer) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AddCustomerButton().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = addCustomerButton().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -387,7 +387,7 @@ func NavigationContent(currentPage string, customers []db.Customer) templ.Compon
 	})
 }
 
-func NavigationFooter() templ.Component {
+func navigationFooter() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -451,7 +451,7 @@ func CustomerNavigation(customers []db.Customer, currentPage string) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		for _, c := range customers {
-			templ_7745c5c3_Err = CustomerNavItem(c).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = customerNavItem(c).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -464,7 +464,7 @@ func CustomerNavigation(customers []db.Customer, currentPage string) templ.Compo
 	})
 }
 
-func CustomerNavItem(c db.Customer) templ.Component {
+func customerNavItem(c db.Customer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -571,7 +571,7 @@ func CustomerNavItem(c db.Customer) templ.Component {
 }
 
 // Helper components
-func NavItem(text string, uri string, icon templ.Component) templ.Component {
+func navItem(text string, uri string, icon templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -643,7 +643,7 @@ func NavItem(text string, uri string, icon templ.Component) templ.Component {
 	})
 }
 
-func AddCustomerButton() templ.Component {
+func addCustomerButton() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
