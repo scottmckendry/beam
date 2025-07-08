@@ -1,7 +1,6 @@
 package views
 
 import (
-	"github.com/scottmckendry/beam/ui/components/aspectratio"
 	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/icon"
@@ -40,11 +39,9 @@ templ errorPage(
 								{ buttonText }
 							}
 						}
-						@card.Media(card.MediaProps{
-							Position:    card.MediaPositionBottom,
-							AspectRatio: aspectratio.RatioVideo,
-							Src:         "/public/images/beam.webp",
-						})
+						<div class="w-full aspect-video overflow-hidden rounded-b-lg bg-muted flex items-center justify-center mt-2">
+							<img src="/public/images/beam.webp" alt="Error page image" class="object-cover w-full h-full"/>
+						</div>
 					</div>
 				}
 			</div>

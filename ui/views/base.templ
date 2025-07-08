@@ -2,7 +2,7 @@ package views
 
 import (
 	"github.com/scottmckendry/beam/ui/components/badge"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icons"
 )
 
 const version = "v0.1.0"
@@ -24,10 +24,10 @@ templ BaseLayout() {
 		<div class="fixed bottom-4 right-4">
 			<a href="https://github.com/scottmckendry/beam" target="_blank" rel="noopener noreferrer">
 				@badge.Badge(badge.Props{
-					Class:   "flex gap-1 items-center shadow-md",
+					Class:   "flex gap-2 items-center shadow-md",
 					Variant: badge.VariantSecondary,
 				}) {
-					@icon.Github(icon.Props{Size: 14})
+					@icons.GitHub(14)
 					{ version }
 				}
 			</a>

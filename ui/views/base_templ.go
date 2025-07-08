@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/scottmckendry/beam/ui/components/badge"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icons"
 )
 
 const version = "v0.1.0"
@@ -60,7 +60,7 @@ func BaseLayout() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Github(icon.Props{Size: 14}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icons.GitHub(14).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -80,7 +80,7 @@ func BaseLayout() templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = badge.Badge(badge.Props{
-			Class:   "flex gap-1 items-center shadow-md",
+			Class:   "flex gap-2 items-center shadow-md",
 			Variant: badge.VariantSecondary,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

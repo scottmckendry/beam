@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/scottmckendry/beam/ui/components/aspectratio"
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/icon"
@@ -64,17 +63,7 @@ func Login() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = card.Media(card.MediaProps{
-					ID:          "right-media",
-					Alt:         "Right side image",
-					Position:    card.MediaPositionTop,
-					AspectRatio: aspectratio.RatioVideo,
-					Src:         "/public/images/beam.webp",
-				}).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <div class=\"flex flex-col flex-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"w-full aspect-video overflow-hidden rounded-t-lg bg-muted flex items-center justify-center\"><img src=\"/public/images/beam.webp\" alt=\"Right side image\" class=\"object-cover w-full h-full\"></div><div class=\"flex flex-col flex-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -48,7 +48,8 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 								Size:    button.SizeIcon,
 								Class:   "-ml-2 pr-2",
 							}) {
-								@icon.PanelLeftOpen(icon.Props{Size: 24})
+								// TODO: check back on this soon - templui #293
+								@icon.PanelLeftOpen(icon.Props{Size: 24, Class: "size-[24px]"})
 							}
 						}
 					</div>
@@ -71,7 +72,6 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 							@themeSwitcher()
 							@button.Button(button.Props{
 								Variant: button.VariantSecondary,
-								Size:    button.SizeIcon,
 								Class:   "sm:hidden mr-2",
 								Attributes: templ.Attributes{
 									"data-on-click": "@get('/sse/customers/add')",
@@ -96,12 +96,11 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 						</div>
 						@button.Button(button.Props{
 							Variant: button.VariantGhost,
-							Size:    button.SizeIcon,
 							Attributes: templ.Attributes{
 								"data-drawer-close": "mobile-nav",
 							},
 						}) {
-							@icon.PanelLeftClose(icon.Props{Size: 24})
+							@icon.PanelLeftClose(icon.Props{Size: 24, Class: "size-[24px]"})
 						}
 					</div>
 					<div class="flex-1 min-h-0">
@@ -206,25 +205,23 @@ templ themeSwitcher() {
 	<div data-show="$theme=='dark'">
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
-			Size:    button.SizeIcon,
 			Class:   "text-muted-foreground",
 			Attributes: templ.Attributes{
 				"data-on-click__viewtransition": "$theme = 'light'",
 			},
 		}) {
-			@icon.Sun(icon.Props{Size: 22})
+			@icon.Sun(icon.Props{Size: 22, Class: "size-[22px]"})
 		}
 	</div>
 	<div data-show="$theme=='light'">
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
-			Size:    button.SizeIcon,
 			Class:   "text-muted-foreground",
 			Attributes: templ.Attributes{
 				"data-on-click__viewtransition": "$theme = 'dark'",
 			},
 		}) {
-			@icon.Moon(icon.Props{Size: 22})
+			@icon.Moon(icon.Props{Size: 22, Class: "size-[22px]"})
 		}
 	</div>
 }

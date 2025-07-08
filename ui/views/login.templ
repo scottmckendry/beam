@@ -1,7 +1,6 @@
 package views
 
 import (
-	"github.com/scottmckendry/beam/ui/components/aspectratio"
 	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/icon"
@@ -12,13 +11,9 @@ templ Login() {
 		<div class="flex justify-center items-center min-h-[80vh] md:min-h-screen">
 			<div class="w-full max-w-md p-6">
 				@card.Card() {
-					@card.Media(card.MediaProps{
-						ID:          "right-media",
-						Alt:         "Right side image",
-						Position:    card.MediaPositionTop,
-						AspectRatio: aspectratio.RatioVideo,
-						Src:         "/public/images/beam.webp",
-					})
+					<div class="w-full aspect-video overflow-hidden rounded-t-lg bg-muted flex items-center justify-center">
+						<img src="/public/images/beam.webp" alt="Right side image" class="object-cover w-full h-full"/>
+					</div>
 					<div class="flex flex-col flex-1">
 						@card.Header() {
 							@card.Title() {
