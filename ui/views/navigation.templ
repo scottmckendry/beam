@@ -45,11 +45,9 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 						}) {
 							@button.Button(button.Props{
 								Variant: button.VariantGhost,
-								Size:    button.SizeIcon,
 								Class:   "-ml-2 pr-2",
 							}) {
-								// TODO: check back on this soon - templui #293
-								@icon.PanelLeftOpen(icon.Props{Size: 24, Class: "size-[24px]"})
+								@icon.PanelLeftOpen(icon.Props{Class: "size-[24px]"})
 							}
 						}
 					</div>
@@ -77,7 +75,7 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 									"data-on-click": "@get('/sse/customers/add')",
 								},
 							}) {
-								@icon.Plus(icon.Props{Size: 16})
+								@icon.Plus()
 							}
 						</div>
 					</div>
@@ -100,7 +98,7 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 								"data-drawer-close": "mobile-nav",
 							},
 						}) {
-							@icon.PanelLeftClose(icon.Props{Size: 24, Class: "size-[24px]"})
+							@icon.PanelLeftClose(icon.Props{Class: "size-[24px]"})
 						}
 					</div>
 					<div class="flex-1 min-h-0">
@@ -202,26 +200,26 @@ templ addCustomerButton() {
 }
 
 templ themeSwitcher() {
-	<div data-show="$theme=='dark'">
+	<div data-show="$_theme=='dark'">
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
 			Class:   "text-muted-foreground",
 			Attributes: templ.Attributes{
-				"data-on-click__viewtransition": "$theme = 'light'",
+				"data-on-click__viewtransition": "$_theme = 'light'",
 			},
 		}) {
-			@icon.Sun(icon.Props{Size: 22, Class: "size-[22px]"})
+			@icon.Sun(icon.Props{Class: "size-[22px]"})
 		}
 	</div>
-	<div data-show="$theme=='light'">
+	<div data-show="$_theme=='light'">
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
 			Class:   "text-muted-foreground",
 			Attributes: templ.Attributes{
-				"data-on-click__viewtransition": "$theme = 'dark'",
+				"data-on-click__viewtransition": "$_theme = 'dark'",
 			},
 		}) {
-			@icon.Moon(icon.Props{Size: 22, Class: "size-[22px]"})
+			@icon.Moon(icon.Props{Class: "size-[22px]"})
 		}
 	</div>
 }
