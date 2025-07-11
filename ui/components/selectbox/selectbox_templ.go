@@ -307,7 +307,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 					templ.Attributes{
 						"data-content-id":          contentID,
 						"data-multiple":            strconv.FormatBool(p.Multiple),
-						"data-show-pills":          strconv.FormatBool(p.ShowPills),
+						"data-pills":               strconv.FormatBool(p.ShowPills),
 						"data-selected-count-text": p.SelectedCountText,
 						"tabindex":                 "0",
 						"required":                 strconv.FormatBool(p.Required),
