@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	datastar "github.com/starfederation/datastar/sdk/go"
+	"github.com/starfederation/datastar/sdk/go/datastar"
 
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -20,10 +20,10 @@ type PageSignals struct {
 	CurrentPage       string `json:"currentPage,omitempty"`
 }
 
-func serveSSEFragment(w http.ResponseWriter, r *http.Request, fragment string) {
+func serveSSEElement(w http.ResponseWriter, r *http.Request, elements string) {
 	sse := datastar.NewSSE(w, r)
-	sse.MergeFragments(
-		fragment,
+	sse.PatchElements(
+		elements,
 		datastar.WithUseViewTransitions(true),
 	)
 }
@@ -46,7 +46,7 @@ func (h *Handlers) HandleSSEDashboardStats(w http.ResponseWriter, r *http.Reques
 
 	buf := &bytes.Buffer{}
 	views.DashboardStats(stats).Render(r.Context(), buf)
-	serveSSEFragment(w, r, buf.String())
+	serveSSEElement(w, r, buf.String())
 }
 
 // HandleSSEDashboardActivity streams the dashboard recent activity via SSE for Datastar
@@ -60,7 +60,7 @@ func (h *Handlers) HandleSSEDashboardActivity(w http.ResponseWriter, r *http.Req
 
 	buf := &bytes.Buffer{}
 	views.DashboardActivity(activities).Render(r.Context(), buf)
-	serveSSEFragment(w, r, buf.String())
+	serveSSEElement(w, r, buf.String())
 }
 
 // HandleSSECustomerNav streams the rendered CustomerNavigation component via SSE for Datastar
@@ -75,7 +75,7 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	buf := &bytes.Buffer{}
 
 	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
-	serveSSEFragment(w, r, buf.String())
+	serveSSEElement(w, r, buf.String())
 }
 
 // HandleSSEGetAddCustomer streams the rendered AddCustomer component via SSE for Datastar, including header signals.
@@ -93,8 +93,8 @@ func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Reques
 	encodedSignals, _ := json.Marshal(pageSignals)
 
 	sse := datastar.NewSSE(w, r)
-	sse.MergeSignals(encodedSignals)
-	sse.MergeFragments(
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
@@ -114,8 +114,8 @@ func (h *Handlers) HandleSSEGetInvoices(w http.ResponseWriter, r *http.Request) 
 	encodedSignals, _ := json.Marshal(pageSignals)
 
 	sse := datastar.NewSSE(w, r)
-	sse.MergeSignals(encodedSignals)
-	sse.MergeFragments(
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
@@ -135,8 +135,8 @@ func (h *Handlers) HandleSSEGetDashboard(w http.ResponseWriter, r *http.Request)
 	encodedSignals, _ := json.Marshal(pageSignals)
 
 	sse := datastar.NewSSE(w, r)
-	sse.MergeSignals(encodedSignals)
-	sse.MergeFragments(
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
@@ -179,8 +179,8 @@ func (h *Handlers) HandleSSEGetCustomer(w http.ResponseWriter, r *http.Request) 
 	encodedSignals, _ := json.Marshal(pageSignals)
 
 	sse := datastar.NewSSE(w, r)
-	sse.MergeSignals(encodedSignals)
-	sse.MergeFragments(
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
