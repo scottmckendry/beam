@@ -49,14 +49,14 @@ func main() {
 			admin.Get("/", h.HandleRoot)
 
 			// Server-Sent Events (Powered by Datastar 🚀🚀)
-			admin.Get("/sse/invoices", h.HandleSSEGetInvoices)
-			admin.Get("/sse/dashboard", h.HandleSSEGetDashboard)
-			admin.Get("/sse/customers/nav", h.HandleSSECustomerNav)
-			admin.Get("/sse/customer/{id}", h.HandleSSEGetCustomer)
-			admin.Get("/sse/customers/add", h.HandleSSEGetAddCustomer)
-			admin.Get("/sse/customers/add-submit", h.HandleSSEAddCustomer)
-			admin.Get("/sse/dashboard/stats", h.HandleSSEDashboardStats)
-			admin.Get("/sse/dashboard/activity", h.HandleSSEDashboardActivity)
+			admin.Get("/sse/invoices", h.InvoicesSSE)
+			admin.Get("/sse/dashboard", h.DashboardSSE)
+			admin.Get("/sse/customers/nav", h.CustomerNavSSE)
+			admin.Get("/sse/customer/{id}", h.GetCustomerSSE)
+			admin.Get("/sse/customers/add", h.AddCustomerSSE)
+			admin.Get("/sse/customers/add-submit", h.SubmitAddCustomerSSE)
+			admin.Get("/sse/dashboard/stats", h.DashboardStatsSSE)
+			admin.Get("/sse/dashboard/activity", h.DashboardActivitySSE)
 		})
 
 		// Final catch-all for authenticated routes
