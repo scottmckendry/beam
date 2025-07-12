@@ -1,18 +1,18 @@
 CREATE TABLE IF NOT EXISTS migrations (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     name TEXT NOT NULL UNIQUE,
     applied DATETIME NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     email TEXT NOT NULL UNIQUE,
     github_id TEXT NOT NULL UNIQUE,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE customers (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     name TEXT NOT NULL,
     logo TEXT,
     status TEXT NOT NULL DEFAULT 'active',
@@ -26,7 +26,7 @@ CREATE TABLE customers (
 );
 
 CREATE TABLE contacts (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     customer_id UUID NOT NULL,
     name TEXT NOT NULL,
     role TEXT,
@@ -42,7 +42,7 @@ CREATE TABLE contacts (
 
 
 CREATE TABLE activity_log (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     customer_id UUID NOT NULL,
     activity_type TEXT NOT NULL,
     action TEXT NOT NULL,

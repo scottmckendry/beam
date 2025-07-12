@@ -1,6 +1,6 @@
 -- name: CreateMigrationsTable :exec
 CREATE TABLE IF NOT EXISTS migrations (
-    id UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    id UUID PRIMARY KEY DEFAULT (uuid()),
     name TEXT NOT NULL UNIQUE,
     applied DATETIME NOT NULL DEFAULT (datetime('now'))
 );
