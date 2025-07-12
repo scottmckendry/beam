@@ -18,38 +18,6 @@ var tabHeaders = []string{
 	"Projects",
 }
 
-var notesExample = `
-This is an example of customer notes. You can use markdown syntax here. Such as:
-- **Bold text**
-- *Italic text*
-- [ ] Checkboxes
-
----
-
-# More features
-
-> Blockquoutes
-> With Tailwind classes applied.
-
-## Subheadings
-
-- [x] Task 1
-- [ ] Task 2
-
-### Links
-
-Links to [cool projects](https://github.com/scottmckendry/beam) are also supported.
-
-## Tables
-
-| Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
-| Row 1    | Data 1   | Some really long data that might wrap to the next line if it's too long |
-| Row 2    | Data 2   | More long text. There's a lot of text here to demonstrate how it wraps in a table cell. |
-| Row 3    | Data 3   | And even more long text to see how it behaves in a table cell. |
-
-`
-
 templ AddCustomer() {
 	<div id="inner-content" class="p-6">
 		<div class="w-full max-w-4xl mx-auto">
@@ -188,8 +156,9 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				<p class="text-xs text-muted-foreground">+1 this month</p>
 			}
 			@StatsCard(StatsCardProps{
-				Title: "Subscriptions",
-				Icon:  icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"}),
+				Title:      "Subscriptions",
+				ShortTitle: "Subs",
+				Icon:       icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"}),
 			}) {
 				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
 				<p class="text-xs text-muted-foreground">${ c.SubscriptionRevenue }/month</p>
@@ -226,7 +195,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			}
 		</div>
 		<div class="mt-6">
-			@mdNotes(notesExample)
+			@mdNotes(c.Notes.String)
 		</div>
 	</div>
 }
