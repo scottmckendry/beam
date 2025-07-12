@@ -21,9 +21,9 @@ var tabHeaders = []string{
 
 templ AddCustomer() {
 	<div id="inner-content" class="p-6">
-		<div class="w-full max-w-3xl mx-auto">
+		<form class="w-full max-w-3xl mx-auto">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div>
+				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "name",
 					}) {
@@ -31,15 +31,13 @@ templ AddCustomer() {
 					}
 					@input.Input(input.Props{
 						ID:          "name",
+						Name:        "name",
 						Type:        input.TypeText,
 						Placeholder: "Customer Name",
 						Required:    true,
-						Attributes: templ.Attributes{
-							"data-bind": "customer.name",
-						},
 					})
-				</div>
-				<div>
+				}
+				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "email",
 					}) {
@@ -47,29 +45,22 @@ templ AddCustomer() {
 					}
 					@input.Input(input.Props{
 						ID:          "email",
+						Name:        "email",
 						Type:        input.TypeEmail,
 						Placeholder: "mail@example.com",
 						Required:    true,
-						Attributes: templ.Attributes{
-							"data-bind": "customer.email",
-						},
 					})
-				</div>
-				<div>
+				}
+				@form.Item() {
 					@form.Label(form.LabelProps{
 						For: "status",
 					}) {
 						Status
 					}
-					@selectbox.SelectBox(selectbox.Props{
-						Attributes: templ.Attributes{
-							"data-bind": "customer.status",
-						},
-					}) {
+					@selectbox.SelectBox() {
 						@selectbox.Trigger(selectbox.TriggerProps{
-							ID:       "status",
-							Name:     "status",
-							Required: true,
+							ID:   "status",
+							Name: "status",
 						}) {
 							@selectbox.Value(selectbox.ValueProps{
 								Placeholder: "Select a status",
@@ -77,7 +68,8 @@ templ AddCustomer() {
 						}
 						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
 							@selectbox.Item(selectbox.ItemProps{
-								Value: "active",
+								Value:    "active",
+								Selected: true, // make default selected
 							}) {
 								Active
 							}
@@ -93,9 +85,9 @@ templ AddCustomer() {
 							}
 						}
 					}
-				</div>
+				}
 			</div>
-			<div class="mt-6">
+			@form.Item(form.ItemProps{Class: "mt-6"}) {
 				@form.Label(form.LabelProps{
 					For: "notes",
 				}) {
@@ -106,22 +98,17 @@ templ AddCustomer() {
 					Name:        "notes",
 					Placeholder: "Markdown supported",
 					Rows:        8,
-					Attributes: templ.Attributes{
-						"data-bind": "customer.notes",
-					},
 				})
-			</div>
-			<div class="mt-6">
-				@button.Button(button.Props{
-					Class: "w-full",
-					Attributes: templ.Attributes{
-						"data-on-click": "@get('/sse/customers/add-submit')",
-					},
-				}) {
-					Add Customer
-				}
-			</div>
-		</div>
+			}
+			@button.Button(button.Props{
+				Class: "w-full mt-6",
+				Attributes: templ.Attributes{
+					"data-on-click": "@get('/sse/customer/add-submit', {contentType: 'form'})",
+				},
+			}) {
+				Add Customer
+			}
+		</form>
 	</div>
 }
 

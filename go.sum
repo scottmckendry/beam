@@ -22,8 +22,8 @@ github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYW
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
 github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c h1:651/eoCRnQ7YtSjAnSzRucrJz+3iGEFt+ysraELS81M=
 github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/axzilla/templui v0.81.1 h1:UOdtZrcGPfjU+mEKYeSlM1exAYftNfkUDXhMvr+P+bA=
-github.com/axzilla/templui v0.81.1/go.mod h1:41lCME2kuxNRVBNH0HqFy45G+4wLO29bcxSV/T7Bjlg=
+github.com/axzilla/templui v0.82.0 h1:nh++ndx2njPBl4O1kgu1C0xDFAAw0Ngazprdtwav6Q4=
+github.com/axzilla/templui v0.82.0/go.mod h1:1fWcPD3rjB4ZtzmKHKOWCx7eQhPsTIF1a8GIW6/vDY0=
 github.com/bep/clocks v0.5.0 h1:hhvKVGLPQWRVsBP/UB7ErrHYIO42gINVbvqxvYTPVps=
 github.com/bep/clocks v0.5.0/go.mod h1:SUq3q+OOq41y2lRQqH5fsOoxN8GbxSiT6jvoVVLCVhU=
 github.com/bep/debounce v1.2.1 h1:v67fRdBA9UQu2NhLFXrSg0Brw7CexQekrBwDMM8bzeY=

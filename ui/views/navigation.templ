@@ -114,7 +114,7 @@ templ navigationContent(currentPage string, customers []db.Customer) {
 			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
 			<div class="space-y-1">
 				@navItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18}))
-				@navItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18}))
+				@navItem("Invoices", "/sse/invoice", icon.FileText(icon.Props{Size: 18}))
 			</div>
 		</div>
 		<div class="mt-6">
@@ -182,7 +182,7 @@ templ addCustomerButton() {
 		Variant: button.VariantOutline,
 		Class:   "w-full bg-transparent",
 		Attributes: templ.Attributes{
-			"data-on-click":     "@get('/sse/customers/add')",
+			"data-on-click":     "@get('/sse/customer/add')",
 			"data-drawer-close": "mobile-nav",
 		},
 	}) {

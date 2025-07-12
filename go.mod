@@ -23,7 +23,7 @@ require (
 	github.com/air-verse/air v1.62.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/axzilla/templui v0.81.1 // indirect
+	github.com/axzilla/templui v0.82.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/starfederation/datastar/sdk/go/datastar"
 
+	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/views"
 )
 
@@ -53,8 +55,18 @@ func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 		views.NotFound().Render(r.Context(), w)
 		return
 	}
-	c, err := h.Queries.GetCustomer(r.Context(), parsedID)
+	h.renderCustomerOverviewSSE(w, r, parsedID)
+}
+
+// Helper to render customer overview via SSE
+func (h *Handlers) renderCustomerOverviewSSE(
+	w http.ResponseWriter,
+	r *http.Request,
+	customerID uuid.UUID,
+) {
+	c, err := h.Queries.GetCustomer(r.Context(), customerID)
 	if err != nil {
+		log.Printf("GetCustomer failed for ID=%v: %v", customerID, err)
 		w.WriteHeader(http.StatusNotFound)
 		views.NotFound().Render(r.Context(), w)
 		return
@@ -85,22 +97,37 @@ func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) {
-	type DatastarPayload struct {
-		Customer struct {
-			Name   string `json:"name"`
-			Email  string `json:"email"`
-			Status string `json:"status"`
-			Notes  string `json:"notes"`
-		} `json:"customer"`
-	}
-	var payload DatastarPayload
-	datastarParam := r.URL.Query().Get("datastar")
-	if err := json.Unmarshal([]byte(datastarParam), &payload); err != nil {
-		log.Printf("Error parsing customer data: %v", err)
-		http.Error(w, "Invalid customer data", http.StatusBadRequest)
+	name := r.URL.Query().Get("name")
+	email := r.URL.Query().Get("email")
+	status := r.URL.Query().Get("status")
+	notes := r.URL.Query().Get("notes")
+
+	if name == "" || email == "" {
+		log.Printf("Missing required fields: name or email")
+		http.Error(w, "Missing required fields: name and email", http.StatusBadRequest)
 		return
 	}
-	customer := payload.Customer
-	log.Printf("Extracted customer data: %+v", customer)
-	// Now you can use customer.Name, customer.Email, etc.
+
+	params := db.CreateCustomerParams{
+		Name:    name,
+		Logo:    sql.NullString{},
+		Status:  status,
+		Email:   sql.NullString{String: email, Valid: email != ""},
+		Phone:   sql.NullString{},
+		Address: sql.NullString{},
+		Website: sql.NullString{},
+		Notes:   sql.NullString{String: notes, Valid: notes != ""},
+	}
+
+	customer, err := h.Queries.CreateCustomer(r.Context(), params)
+	if err != nil {
+		log.Printf("Error adding customer: %v", err)
+		http.Error(w, "Failed to add customer", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderCustomerOverviewSSE(w, r, customer.ID)
+
+	// refresh the customer navigation
+	h.CustomerNavSSE(w, r)
 }

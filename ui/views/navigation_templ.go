@@ -326,7 +326,7 @@ func navigationContent(currentPage string, customers []db.Customer) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = navItem("Invoices", "/sse/invoices", icon.FileText(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navItem("Invoices", "/sse/invoice", icon.FileText(icon.Props{Size: 18})).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -659,7 +659,7 @@ func addCustomerButton() templ.Component {
 			Variant: button.VariantOutline,
 			Class:   "w-full bg-transparent",
 			Attributes: templ.Attributes{
-				"data-on-click":     "@get('/sse/customers/add')",
+				"data-on-click":     "@get('/sse/customer/add')",
 				"data-drawer-close": "mobile-nav",
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
