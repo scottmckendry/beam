@@ -36,4 +36,4 @@ tasks:
   minify-js:
     desc: Bundle and minify public/js/*.js to public/js/components.min.js
     cmds:
-      - find public/js -type f -name "*.js" ! -name "templui.min.js" | xargs cat | go tool minify -o public/js/templui.min.js --type js
+      - find public/js -type f -name "*.js" ! -name "beam.min.js" | xargs cat | go tool minify -o public/js/beam.min.js --type js

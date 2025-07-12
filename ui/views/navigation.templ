@@ -200,26 +200,19 @@ templ addCustomerButton() {
 }
 
 templ themeSwitcher() {
-	<div data-show="$_theme=='dark'">
-		@button.Button(button.Props{
-			Variant: button.VariantGhost,
-			Class:   "text-muted-foreground",
-			Attributes: templ.Attributes{
-				"data-on-click__viewtransition": "$_theme = 'light'",
-			},
-		}) {
+	@button.Button(button.Props{
+		Variant: button.VariantGhost,
+		Class:   "text-muted-foreground",
+		Attributes: templ.Attributes{
+			"id":   "theme-toggle-btn",
+			"type": "button",
+		},
+	}) {
+		<span id="theme-icon-sun" style="display:none;">
 			@icon.Sun(icon.Props{Class: "size-[22px]"})
-		}
-	</div>
-	<div data-show="$_theme=='light'">
-		@button.Button(button.Props{
-			Variant: button.VariantGhost,
-			Class:   "text-muted-foreground",
-			Attributes: templ.Attributes{
-				"data-on-click__viewtransition": "$_theme = 'dark'",
-			},
-		}) {
+		</span>
+		<span id="theme-icon-moon" style="display:none;">
 			@icon.Moon(icon.Props{Class: "size-[22px]"})
-		}
-	</div>
+		</span>
+	}
 }
