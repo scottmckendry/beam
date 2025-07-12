@@ -67,11 +67,9 @@ templ AddCustomer() {
 						},
 					}) {
 						@selectbox.Trigger(selectbox.TriggerProps{
-							ID:        "status",
-							Name:      "status",
-							Required:  true,
-							ShowPills: true,
-							Multiple:  true,
+							ID:       "status",
+							Name:     "status",
+							Required: true,
 						}) {
 							@selectbox.Value(selectbox.ValueProps{
 								Placeholder: "Select a status",

@@ -15,9 +15,9 @@ import (
 )
 
 type PageSignals struct {
-	HeaderTitle       string `json:"headerTitle"`
-	HeaderDescription string `json:"headerDescription"`
-	CurrentPage       string `json:"currentPage,omitempty"`
+	HeaderTitle       string `json:"_headerTitle"`
+	HeaderDescription string `json:"_headerDescription"`
+	CurrentPage       string `json:"_currentPage,omitempty"`
 }
 
 func serveSSEElement(w http.ResponseWriter, r *http.Request, elements string) {
