@@ -8,15 +8,24 @@ import (
 )
 
 type StatsCardProps struct {
-	Title string
-	Icon  templ.Component
-	Class string
+	Title      string
+	ShortTitle string
+	Icon       templ.Component
+	Class      string
 }
 
 templ StatsCard(props StatsCardProps) {
 	@card.Card() {
 		@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-			<h3 class="text-lg font-medium">{ props.Title }</h3>
+			<h3 class="text-lg font-medium">
+				if props.ShortTitle != "" {
+					<span class="sm:hidden">{ props.ShortTitle }</span>
+					<span class="hidden sm:inline">{ props.Title }</span>
+				} else {
+					<span class="sm:hidden">{ props.Title }</span>
+					<span class="hidden sm:inline">{ props.Title }</span>
+				}
+			</h3>
 			@props.Icon
 		}
 		@card.Content() {
