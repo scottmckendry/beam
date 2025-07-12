@@ -54,7 +54,7 @@ func main() {
 			admin.Get("/sse/customers/nav", h.HandleSSECustomerNav)
 			admin.Get("/sse/customer/{id}", h.HandleSSEGetCustomer)
 			admin.Get("/sse/customers/add", h.HandleSSEGetAddCustomer)
-			admin.Get("/sse/customer/overview/{id}", h.HandleSSECustomerOverview)
+			admin.Get("/sse/customers/add-submit", h.HandleSSEAddCustomer)
 			admin.Get("/sse/dashboard/stats", h.HandleSSEDashboardStats)
 			admin.Get("/sse/dashboard/activity", h.HandleSSEDashboardActivity)
 		})

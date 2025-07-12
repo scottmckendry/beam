@@ -78,34 +78,6 @@ func (h *Handlers) HandleSSECustomerNav(w http.ResponseWriter, r *http.Request) 
 	serveSSEFragment(w, r, buf.String())
 }
 
-// HandleSSECustomerOverview streams the rendered CustomerOverview component via SSE for Datastar
-func (h *Handlers) HandleSSECustomerOverview(w http.ResponseWriter, r *http.Request) {
-	customerID := chi.URLParam(r, "id")
-	if customerID == "" {
-		log.Println("Id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
-		return
-	}
-
-	cid, err := uuid.Parse(customerID)
-	if err != nil {
-		log.Printf("Invalid customer_id: %v", err)
-		http.Error(w, "Invalid customer_id", http.StatusBadRequest)
-		return
-	}
-
-	customer, err := h.Queries.GetCustomer(r.Context(), cid)
-	if err != nil {
-		log.Printf("Failed to load customer: %v", err)
-		http.Error(w, "Failed to load customer", http.StatusInternalServerError)
-		return
-	}
-
-	buf := &bytes.Buffer{}
-	views.CustomerOverview(customer).Render(r.Context(), buf)
-	serveSSEFragment(w, r, buf.String())
-}
-
 // HandleSSEGetAddCustomer streams the rendered AddCustomer component via SSE for Datastar, including header signals.
 func (h *Handlers) HandleSSEGetAddCustomer(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
@@ -212,4 +184,29 @@ func (h *Handlers) HandleSSEGetCustomer(w http.ResponseWriter, r *http.Request) 
 		buf.String(),
 		datastar.WithUseViewTransitions(true),
 	)
+}
+
+// HandleSSEAddCustomer adds a new customer via SSE for Datastar.
+func (h *Handlers) HandleSSEAddCustomer(w http.ResponseWriter, r *http.Request) {
+	type DatastarPayload struct {
+		Customer struct {
+			Name   string `json:"name"`
+			Email  string `json:"email"`
+			Status string `json:"status"`
+			Notes  string `json:"notes"`
+		} `json:"customer"`
+	}
+
+	var payload DatastarPayload
+	datastarParam := r.URL.Query().Get("datastar")
+	if err := json.Unmarshal([]byte(datastarParam), &payload); err != nil {
+		log.Printf("Error parsing customer data: %v", err)
+		http.Error(w, "Invalid customer data", http.StatusBadRequest)
+		return
+	}
+
+	customer := payload.Customer
+	log.Printf("Extracted customer data: %+v", customer)
+
+	// Now you can use customer.Name, customer.Email, etc.
 }

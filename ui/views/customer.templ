@@ -9,6 +9,7 @@ import (
 	"github.com/scottmckendry/beam/ui/components/selectbox"
 	"github.com/scottmckendry/beam/ui/components/tabs"
 	"github.com/scottmckendry/beam/ui/components/textarea"
+	"github.com/scottmckendry/beam/ui/components/button"
 )
 
 var tabHeaders = []string{
@@ -20,87 +21,106 @@ var tabHeaders = []string{
 
 templ AddCustomer() {
 	<div id="inner-content" class="p-6">
-		<div class="w-full max-w-4xl mx-auto">
+		<div class="w-full max-w-3xl mx-auto">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div class="space-y-6">
-					@form.Item() {
-						@form.Label(form.LabelProps{
-							For: "name-form",
-						}) {
-							Name
-						}
-						@input.Input(input.Props{
-							ID:          "name-form",
-							Type:        input.TypeText,
-							Placeholder: "Customer Name",
-							Required:    true,
-						})
+				<div>
+					@form.Label(form.LabelProps{
+						For: "name",
+					}) {
+						Name
 					}
-					@form.Item() {
-						@form.Label(form.LabelProps{
-							For: "email-form",
-						}) {
-							Email
-						}
-						@input.Input(input.Props{
-							ID:          "email-form",
-							Type:        input.TypeEmail,
-							Placeholder: "mail@example.com",
-							Required:    true,
-						})
-					}
+					@input.Input(input.Props{
+						ID:          "name",
+						Type:        input.TypeText,
+						Placeholder: "Customer Name",
+						Required:    true,
+						Attributes: templ.Attributes{
+							"data-bind": "customer.name",
+						},
+					})
 				</div>
-				<div class="space-y-6">
-					@form.Item() {
-						@form.Label(form.LabelProps{
-							For: "status-form",
+				<div>
+					@form.Label(form.LabelProps{
+						For: "email",
+					}) {
+						Email
+					}
+					@input.Input(input.Props{
+						ID:          "email",
+						Type:        input.TypeEmail,
+						Placeholder: "mail@example.com",
+						Required:    true,
+						Attributes: templ.Attributes{
+							"data-bind": "customer.email",
+						},
+					})
+				</div>
+				<div>
+					@form.Label(form.LabelProps{
+						For: "status",
+					}) {
+						Status
+					}
+					@selectbox.SelectBox(selectbox.Props{
+						Attributes: templ.Attributes{
+							"data-bind": "customer.status",
+						},
+					}) {
+						@selectbox.Trigger(selectbox.TriggerProps{
+							ID:        "status",
+							Name:      "status",
+							Required:  true,
+							ShowPills: true,
+							Multiple:  true,
 						}) {
-							Status
+							@selectbox.Value(selectbox.ValueProps{
+								Placeholder: "Select a status",
+							})
 						}
-						@selectbox.SelectBox() {
-							@selectbox.Trigger(selectbox.TriggerProps{
-								ID:       "status-form",
-								Name:     "status",
-								Required: true,
+						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+							@selectbox.Item(selectbox.ItemProps{
+								Value: "active",
 							}) {
-								@selectbox.Value(selectbox.ValueProps{
-									Placeholder: "Select a status",
-								})
+								Active
 							}
-							@selectbox.Content() {
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "active",
-								}) {
-									Active
-								}
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "inactive",
-								}) {
-									Inactive
-								}
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "prospect",
-								}) {
-									Prospect
-								}
+							@selectbox.Item(selectbox.ItemProps{
+								Value: "inactive",
+							}) {
+								Inactive
+							}
+							@selectbox.Item(selectbox.ItemProps{
+								Value: "prospect",
+							}) {
+								Prospect
 							}
 						}
 					}
 				</div>
 			</div>
 			<div class="mt-6">
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "notes-form",
-					}) {
-						Notes
-					}
-					@textarea.Textarea(textarea.Props{
-						ID:          "notes-form",
-						Name:        "notes",
-						Placeholder: "Notes for this customer. Markdown supported is supported.",
-						Rows:        8,
-					})
+				@form.Label(form.LabelProps{
+					For: "notes",
+				}) {
+					Notes
+				}
+				@textarea.Textarea(textarea.Props{
+					ID:          "notes",
+					Name:        "notes",
+					Placeholder: "Markdown supported",
+					Rows:        8,
+					Attributes: templ.Attributes{
+						"data-bind": "customer.notes",
+					},
+				})
+			</div>
+			<div class="mt-6">
+				@button.Button(button.Props{
+					Class: "w-full",
+					Attributes: templ.Attributes{
+						"data-on-click": "@get('/sse/customers/add-submit')",
+					},
+				}) {
+					Add Customer
 				}
 			</div>
 		</div>
@@ -137,7 +157,8 @@ templ Customer(c db.GetCustomerRow) {
 						Value:    strings.ToLower(header),
 						IsActive: i == 0,
 					}) {
-						<div id={ "customer-" + strings.ToLower(header) } class="p-4" data-on-load={ "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')" }></div>
+						// TODO: make this dynamic based on the header
+						@CustomerOverview(c)
 					}
 				}
 			</div>
