@@ -68,15 +68,6 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 								<input class="w-48 lg:w-64 pl-8 pr-2 py-2 text-sm rounded-md border bg-background" placeholder="Search..."/>
 							</div>
 							@themeSwitcher()
-							@button.Button(button.Props{
-								Variant: button.VariantSecondary,
-								Class:   "sm:hidden mr-2",
-								Attributes: templ.Attributes{
-									"data-on-click": "@get('/sse/customers/add')",
-								},
-							}) {
-								@icon.Plus()
-							}
 						</div>
 					</div>
 				</div>
@@ -189,9 +180,10 @@ templ navItem(text string, uri string, icon templ.Component) {
 templ addCustomerButton() {
 	@button.Button(button.Props{
 		Variant: button.VariantOutline,
-		Class:   "w-full bg-transparent hidden md:flex",
+		Class:   "w-full bg-transparent",
 		Attributes: templ.Attributes{
-			"data-on-click": "@get('/sse/customers/add')",
+			"data-on-click":     "@get('/sse/customers/add')",
+			"data-drawer-close": "mobile-nav",
 		},
 	}) {
 		@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
