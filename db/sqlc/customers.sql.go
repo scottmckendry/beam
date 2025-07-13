@@ -57,6 +57,16 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 	return i, err
 }
 
+const deleteCustomer = `-- name: DeleteCustomer :exec
+DELETE FROM customers
+WHERE id = ?
+`
+
+func (q *Queries) DeleteCustomer(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteCustomer, id)
+	return err
+}
+
 const getCustomer = `-- name: GetCustomer :one
 SELECT
     c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at,
@@ -153,4 +163,52 @@ func (q *Queries) ListCustomers(ctx context.Context) ([]Customer, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCustomer = `-- name: UpdateCustomer :one
+UPDATE customers
+SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?
+WHERE id = ?
+RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at
+`
+
+type UpdateCustomerParams struct {
+	Name    string
+	Logo    sql.NullString
+	Status  string
+	Email   sql.NullString
+	Phone   sql.NullString
+	Address sql.NullString
+	Website sql.NullString
+	Notes   sql.NullString
+	ID      uuid.UUID
+}
+
+func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) (Customer, error) {
+	row := q.db.QueryRowContext(ctx, updateCustomer,
+		arg.Name,
+		arg.Logo,
+		arg.Status,
+		arg.Email,
+		arg.Phone,
+		arg.Address,
+		arg.Website,
+		arg.Notes,
+		arg.ID,
+	)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Logo,
+		&i.Status,
+		&i.Email,
+		&i.Phone,
+		&i.Address,
+		&i.Website,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

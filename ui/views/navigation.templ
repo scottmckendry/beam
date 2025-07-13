@@ -151,7 +151,7 @@ templ CustomerNavigation(customers []db.Customer, currentPage string) {
 templ customerNavItem(c db.Customer) {
 	<a
 		data-attr-class={ "$_currentPage == '" + c.ID.String() + "' ? 'flex items-center gap-2 px-2 py-1 mx-2 mb-2 rounded-md font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 py-1 px-2 mx-2 mb-2 rounded-md font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
-		data-on-click={ "@get('" + "/sse/customer/" + c.ID.String() + "')" }
+		data-on-click={ "@get('/sse/customer/" + c.ID.String() + "')" }
 		data-drawer-close="mobile-nav"
 	>
 		@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {

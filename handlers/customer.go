@@ -131,3 +131,99 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	// refresh the customer navigation
 	h.CustomerNavSSE(w, r)
 }
+
+func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		log.Printf("Invalid customer ID: %v", err)
+		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		return
+	}
+
+	c, err := h.Queries.GetCustomer(r.Context(), parsedID)
+	if err != nil {
+		log.Printf("GetCustomer failed for ID=%v: %v", parsedID, err)
+		http.Error(w, "Customer not found", http.StatusNotFound)
+		return
+	}
+
+	buf := &bytes.Buffer{}
+	views.EditCustomer(c).Render(r.Context(), buf)
+	views.HeaderIcon("customer").Render(r.Context(), buf)
+
+	pageSignals := PageSignals{
+		HeaderTitle:       "Edit Customer",
+		HeaderDescription: fmt.Sprintf("Editing %s", c.Name),
+		CurrentPage:       c.ID.String(),
+	}
+	encodedSignals, _ := json.Marshal(pageSignals)
+
+	sse := datastar.NewSSE(w, r)
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
+}
+
+func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		log.Printf("Invalid customer ID: %v", err)
+		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		return
+	}
+
+	name := r.URL.Query().Get("name")
+	email := r.URL.Query().Get("email")
+	status := r.URL.Query().Get("status")
+	notes := r.URL.Query().Get("notes")
+
+	if name == "" || email == "" {
+		log.Printf("Missing required fields: name or email")
+		http.Error(w, "Missing required fields: name and email", http.StatusBadRequest)
+		return
+	}
+
+	params := db.UpdateCustomerParams{
+		ID:     parsedID,
+		Name:   name,
+		Status: status,
+		Email:  sql.NullString{String: email, Valid: email != ""},
+		Notes:  sql.NullString{String: notes, Valid: notes != ""},
+	}
+
+	_, err = h.Queries.UpdateCustomer(r.Context(), params)
+	if err != nil {
+		log.Printf("Error updating customer: %v", err)
+		http.Error(w, "Failed to update customer", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderCustomerOverviewSSE(w, r, parsedID)
+	// refresh the customer navigation
+	h.CustomerNavSSE(w, r)
+}
+
+func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		log.Printf("Invalid customer ID: %v", err)
+		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		return
+	}
+
+	err = h.Queries.DeleteCustomer(r.Context(), parsedID)
+	if err != nil {
+		log.Printf("Error deleting customer: %v", err)
+		http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
+		return
+	}
+
+	// render dashboard, refresh customer navigation
+	h.DashboardSSE(w, r)
+	h.CustomerNavSSE(w, r)
+}

@@ -3,13 +3,14 @@ package views
 import (
 	"strings"
 	"github.com/scottmckendry/beam/db/sqlc"
+	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/input"
 	"github.com/scottmckendry/beam/ui/components/selectbox"
 	"github.com/scottmckendry/beam/ui/components/tabs"
 	"github.com/scottmckendry/beam/ui/components/textarea"
-	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/dropdown"
 )
 
 var tabHeaders = []string{
@@ -19,97 +20,35 @@ var tabHeaders = []string{
 	"Projects",
 }
 
+type CustomerFormProps struct {
+	Name        string
+	Email       string
+	Status      string
+	Notes       string
+	ButtonLabel string
+	ActionURL   string
+}
+
 templ AddCustomer() {
-	<div id="inner-content" class="p-6">
-		<form class="w-full max-w-3xl mx-auto">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "name",
-					}) {
-						Name
-					}
-					@input.Input(input.Props{
-						ID:          "name",
-						Name:        "name",
-						Type:        input.TypeText,
-						Placeholder: "Customer Name",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "email",
-					}) {
-						Email
-					}
-					@input.Input(input.Props{
-						ID:          "email",
-						Name:        "email",
-						Type:        input.TypeEmail,
-						Placeholder: "mail@example.com",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "status",
-					}) {
-						Status
-					}
-					@selectbox.SelectBox() {
-						@selectbox.Trigger(selectbox.TriggerProps{
-							ID:   "status",
-							Name: "status",
-						}) {
-							@selectbox.Value(selectbox.ValueProps{
-								Placeholder: "Select a status",
-							})
-						}
-						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "active",
-								Selected: true, // make default selected
-							}) {
-								Active
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value: "inactive",
-							}) {
-								Inactive
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value: "prospect",
-							}) {
-								Prospect
-							}
-						}
-					}
-				}
-			</div>
-			@form.Item(form.ItemProps{Class: "mt-6"}) {
-				@form.Label(form.LabelProps{
-					For: "notes",
-				}) {
-					Notes
-				}
-				@textarea.Textarea(textarea.Props{
-					ID:          "notes",
-					Name:        "notes",
-					Placeholder: "Markdown supported",
-					Rows:        8,
-				})
-			}
-			@button.Button(button.Props{
-				Class: "w-full mt-6",
-				Attributes: templ.Attributes{
-					"data-on-click": "@get('/sse/customer/add-submit', {contentType: 'form'})",
-				},
-			}) {
-				Add Customer
-			}
-		</form>
-	</div>
+	@customerForm(CustomerFormProps{
+		Name:        "",
+		Email:       "",
+		Status:      "active",
+		Notes:       "",
+		ButtonLabel: "Add Customer",
+		ActionURL:   "@get('/sse/customer/add-submit', {contentType: 'form'})",
+	})
+}
+
+templ EditCustomer(c db.GetCustomerRow) {
+	@customerForm(CustomerFormProps{
+		Name:        c.Name,
+		Email:       c.Email.String,
+		Status:      c.Status,
+		Notes:       c.Notes.String,
+		ButtonLabel: "Update Customer",
+		ActionURL:   "@get('/sse/customer/edit-submit/" + c.ID.String() + "', {contentType: 'form'})",
+	})
 }
 
 templ Customer(c db.GetCustomerRow) {
@@ -143,7 +82,7 @@ templ Customer(c db.GetCustomerRow) {
 						IsActive: i == 0,
 					}) {
 						// TODO: make this dynamic based on the header
-						@CustomerOverview(c)
+						@customerOverview(c)
 					}
 				}
 			</div>
@@ -151,8 +90,46 @@ templ Customer(c db.GetCustomerRow) {
 	</div>
 }
 
-templ CustomerOverview(c db.GetCustomerRow) {
+templ customerOverview(c db.GetCustomerRow) {
 	<div id="customer-overview">
+		<div class="flex items-center gap-2 mt-6">
+			@button.Button(button.Props{
+				Class: "btn btn-primary",
+			}) {
+				@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
+				Add Contact
+			}
+			@dropdown.Dropdown() {
+				@dropdown.Trigger() {
+					@button.Button(button.Props{
+						Variant: button.VariantOutline,
+					}) {
+						@icon.Ellipsis(icon.Props{Size: 16})
+						<span>More Actions</span>
+					}
+				}
+				@dropdown.Content(dropdown.ContentProps{
+					Width: "w-48",
+					Align: "right",
+				}) {
+					@dropdown.Item() {
+						<span class="flex items-center" data-on-click={ "@get('/sse/customer/edit/" + c.ID.String() + "')" }>
+							@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
+							Edit Customer
+						</span>
+					}
+					@dropdown.Separator()
+					@dropdown.Item(dropdown.ItemProps{
+						Class: "text-destructive",
+					}) {
+						<span class="flex items-center" data-on-click={ "@get('/sse/customer/delete/" + c.ID.String() + "')" }>
+							@icon.Trash(icon.Props{Size: 16, Class: "mr-2"})
+							Delete Customer
+						</span>
+					}
+				}
+			}
+		</div>
 		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
 			@StatsCard(StatsCardProps{
 				Title: "Contacts",
@@ -203,5 +180,103 @@ templ CustomerOverview(c db.GetCustomerRow) {
 		<div class="mt-6">
 			@mdNotes(c.Notes.String)
 		</div>
+	</div>
+}
+
+templ customerForm(p CustomerFormProps) {
+	<div id="inner-content" class="p-6">
+		<form class="w-full max-w-3xl mx-auto">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "name",
+					}) {
+						Name
+					}
+					@input.Input(input.Props{
+						ID:          "name",
+						Name:        "name",
+						Type:        input.TypeText,
+						Value:       p.Name,
+						Placeholder: "Customer Name",
+						Required:    true,
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "email",
+					}) {
+						Email
+					}
+					@input.Input(input.Props{
+						ID:          "email",
+						Name:        "email",
+						Type:        input.TypeEmail,
+						Value:       p.Email,
+						Placeholder: "mail@example.com",
+						Required:    true,
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "status",
+					}) {
+						Status
+					}
+					@selectbox.SelectBox() {
+						@selectbox.Trigger(selectbox.TriggerProps{
+							ID:   "status",
+							Name: "status",
+						}) {
+							@selectbox.Value(selectbox.ValueProps{
+								Placeholder: "Select a status",
+							})
+						}
+						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+							@selectbox.Item(selectbox.ItemProps{
+								Value:    "active",
+								Selected: p.Status == "active",
+							}) {
+								Active
+							}
+							@selectbox.Item(selectbox.ItemProps{
+								Value:    "inactive",
+								Selected: p.Status == "inactive",
+							}) {
+								Inactive
+							}
+							@selectbox.Item(selectbox.ItemProps{
+								Value:    "prospect",
+								Selected: p.Status == "prospect",
+							}) {
+								Prospect
+							}
+						}
+					}
+				}
+			</div>
+			@form.Item(form.ItemProps{Class: "mt-6"}) {
+				@form.Label(form.LabelProps{
+					For: "notes",
+				}) {
+					Notes
+				}
+				@textarea.Textarea(textarea.Props{
+					ID:          "notes",
+					Name:        "notes",
+					Placeholder: "Markdown supported",
+					Rows:        8,
+					Value:       p.Notes,
+				})
+			}
+			@button.Button(button.Props{
+				Class: "w-full mt-6",
+				Attributes: templ.Attributes{
+					"data-on-click": p.ActionURL,
+				},
+			}) {
+				{ p.ButtonLabel }
+			}
+		</form>
 	</div>
 }

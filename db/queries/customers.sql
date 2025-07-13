@@ -3,6 +3,16 @@ INSERT INTO customers (name, logo, status, email, phone, address, website, notes
 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
+-- name: UpdateCustomer :one
+UPDATE customers
+SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?
+WHERE id = ?
+RETURNING *;
+
+-- name: DeleteCustomer :exec
+DELETE FROM customers
+WHERE id = ?;
+
 -- name: GetCustomer :one
 SELECT
     c.*,

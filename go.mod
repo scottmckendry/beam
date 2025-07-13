@@ -10,11 +10,14 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/securecookie v1.1.2
 	github.com/joho/godotenv v1.5.1
-	github.com/starfederation/datastar v1.0.0-RC.1
+	github.com/starfederation/datastar v1.0.0-beta.11
 	github.com/tursodatabase/go-libsql v0.0.0-20250609073118-9c24e0e7fa97
 	github.com/yuin/goldmark v1.7.12
 	golang.org/x/oauth2 v0.30.0
 )
+
+// pin the release canditate version of datastar (prevents falling back to the beta versions)
+replace github.com/starfederation/datastar => github.com/starfederation/datastar v1.0.0-RC.1
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
