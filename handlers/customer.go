@@ -20,6 +20,13 @@ func (h *Handlers) CustomerNavSSE(w http.ResponseWriter, r *http.Request) {
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers: %v", err)
+		h.Notify(
+			NotifyError,
+			"View Error",
+			"An error occurred while loading the customer navigation.",
+			w,
+			r,
+		)
 		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
 		return
 	}
@@ -67,6 +74,7 @@ func (h *Handlers) renderCustomerOverviewSSE(
 	c, err := h.Queries.GetCustomer(r.Context(), customerID)
 	if err != nil {
 		log.Printf("GetCustomer failed for ID=%v: %v", customerID, err)
+		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
 		w.WriteHeader(http.StatusNotFound)
 		views.NotFound().Render(r.Context(), w)
 		return
@@ -104,6 +112,7 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 
 	if name == "" || email == "" {
 		log.Printf("Missing required fields: name or email")
+		h.Notify(NotifyError, "Missing Fields", "Name and email are required.", w, r)
 		http.Error(w, "Missing required fields: name and email", http.StatusBadRequest)
 		return
 	}
@@ -122,10 +131,12 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	customer, err := h.Queries.CreateCustomer(r.Context(), params)
 	if err != nil {
 		log.Printf("Error adding customer: %v", err)
+		h.Notify(NotifyError, "Add Failed", "An error occurred while adding the customer.", w, r)
 		http.Error(w, "Failed to add customer", http.StatusInternalServerError)
 		return
 	}
 
+	h.Notify(NotifySuccess, "Customer Added", "Customer has been successfully added.", w, r)
 	h.renderCustomerOverviewSSE(w, r, customer.ID)
 
 	// refresh the customer navigation
@@ -144,6 +155,7 @@ func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
 	c, err := h.Queries.GetCustomer(r.Context(), parsedID)
 	if err != nil {
 		log.Printf("GetCustomer failed for ID=%v: %v", parsedID, err)
+		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
 		http.Error(w, "Customer not found", http.StatusNotFound)
 		return
 	}
@@ -183,6 +195,7 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 
 	if name == "" || email == "" {
 		log.Printf("Missing required fields: name or email")
+		h.Notify(NotifyError, "Missing Fields", "Name and email are required.", w, r)
 		http.Error(w, "Missing required fields: name and email", http.StatusBadRequest)
 		return
 	}
@@ -198,10 +211,24 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	_, err = h.Queries.UpdateCustomer(r.Context(), params)
 	if err != nil {
 		log.Printf("Error updating customer: %v", err)
+		h.Notify(
+			NotifyError,
+			"Update Failed",
+			"An error occurred while updating the customer.",
+			w,
+			r,
+		)
 		http.Error(w, "Failed to update customer", http.StatusInternalServerError)
 		return
 	}
 
+	h.Notify(
+		NotifySuccess,
+		"Customer Updated",
+		fmt.Sprintf("%s has been successfully updated.", name),
+		w,
+		r,
+	)
 	h.renderCustomerOverviewSSE(w, r, parsedID)
 	// refresh the customer navigation
 	h.CustomerNavSSE(w, r)
@@ -213,17 +240,32 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Invalid customer ID: %v", err)
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
 		return
 	}
 
-	err = h.Queries.DeleteCustomer(r.Context(), parsedID)
+	c, err := h.Queries.DeleteCustomer(r.Context(), parsedID)
 	if err != nil {
 		log.Printf("Error deleting customer: %v", err)
 		http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
+		h.Notify(
+			NotifyError,
+			"Delete Failed",
+			"An error occurred while trying to delete the customer.",
+			w,
+			r,
+		)
 		return
 	}
 
 	// render dashboard, refresh customer navigation
+	h.Notify(
+		NotifySuccess,
+		"Customer Deleted",
+		fmt.Sprintf("Customer %s has been successfully deleted.", c.Name),
+		w,
+		r,
+	)
 	h.DashboardSSE(w, r)
 	h.CustomerNavSSE(w, r)
 }

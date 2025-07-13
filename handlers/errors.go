@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"github.com/scottmckendry/beam/ui/views"
 	"net/http"
+
+	"github.com/scottmckendry/beam/ui/views"
 )
 
 // HandleNotFound serves a 404 Not Found page when a requested resource is not found.

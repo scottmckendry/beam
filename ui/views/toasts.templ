@@ -1,0 +1,41 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/ui/components/toast"
+)
+
+func createToastProps(title, description string, variant toast.Variant) toast.Props {
+	return toast.Props{
+		Title:         title,
+		Description:   description,
+		Variant:       variant,
+		Position:      toast.PositionTopRight,
+		Dismissible:   true,
+		ShowIndicator: true,
+		Icon:          true,
+	}
+}
+
+templ InfoToast(title, description string) {
+	<div id="notification-area">
+		@toast.Toast(createToastProps(title, description, toast.VariantDefault))
+	</div>
+}
+
+templ ErrorToast(title, description string) {
+	<div id="notification-area">
+		@toast.Toast(createToastProps(title, description, toast.VariantError))
+	</div>
+}
+
+templ SuccessToast(title, description string) {
+	<div id="notification-area">
+		@toast.Toast(createToastProps(title, description, toast.VariantSuccess))
+	</div>
+}
+
+templ WarningToast(title, description string) {
+	<div id="notification-area">
+		@toast.Toast(createToastProps(title, description, toast.VariantWarning))
+	</div>
+}

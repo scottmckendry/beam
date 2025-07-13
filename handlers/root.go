@@ -12,6 +12,7 @@ func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers: %v", err)
+		h.Notify(NotifyError, "Customer Load Error", "Failed to load customers.", w, r)
 		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
 		return
 	}

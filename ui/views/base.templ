@@ -21,6 +21,8 @@ templ BaseLayout() {
 		<body data-on-datastar-sse="initComponents(evt)">
 			{ children... }
 		</body>
+		// notification area (for toasts and other popups)
+		<div id="notification-area"></div>
 		<div class="fixed bottom-4 right-4">
 			<a href="https://github.com/scottmckendry/beam" target="_blank" rel="noopener noreferrer">
 				@badge.Badge(badge.Props{

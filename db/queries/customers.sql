@@ -9,9 +9,10 @@ SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website =
 WHERE id = ?
 RETURNING *;
 
--- name: DeleteCustomer :exec
+-- name: DeleteCustomer :one
 DELETE FROM customers
-WHERE id = ?;
+WHERE id = ?
+RETURNING *;
 
 -- name: GetCustomer :one
 SELECT

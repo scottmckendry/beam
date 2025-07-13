@@ -12,7 +12,11 @@ import (
 
 func (h *Handlers) InvoicesSSE(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
-	views.Invoices().Render(r.Context(), buf)
+	if err := views.Invoices().Render(r.Context(), buf); err != nil {
+		h.Notify(NotifyError, "Invoice Error", "Failed to load invoices.", w, r)
+		http.Error(w, "Failed to load invoices", http.StatusInternalServerError)
+		return
+	}
 	views.HeaderIcon("invoices").Render(r.Context(), buf)
 	pageSignals := PageSignals{
 		HeaderTitle:       "Invoices",
