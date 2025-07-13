@@ -109,6 +109,8 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 						<div class="relative flex items-center mb-4 p-1 last:mb-0 rounded-md hover:bg-muted">
 							<div class="relative z-10 flex min-w-10 h-10 w-10 items-center justify-center rounded-full bg-muted">
 								switch a.ActivityType {
+									case "customer":
+										@icon.Building2(icon.Props{Size: 17})
 									case "project":
 										@icon.FolderGit2(icon.Props{Size: 17})
 									case "subscription":

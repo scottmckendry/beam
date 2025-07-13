@@ -122,6 +122,7 @@ templ customerOverview(c db.GetCustomerRow) {
 					@dropdown.Item(dropdown.ItemProps{
 						Class: "text-destructive",
 					}) {
+						// TODO: add confirmation dialog before deleting
 						<span class="flex items-center" data-on-click={ "@get('/sse/customer/delete/" + c.ID.String() + "')" }>
 							@icon.Trash(icon.Props{Size: 16, Class: "mr-2"})
 							Delete Customer

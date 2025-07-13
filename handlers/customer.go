@@ -102,6 +102,14 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.Notify(NotifySuccess, "Customer Added", "Customer has been successfully added.", w, r)
+	h.logActivity(
+		r,
+		customer.ID,
+		"customer",
+		"customer_created",
+		fmt.Sprintf("New customer \"%s\" created", customer.Name),
+	)
+
 	h.renderCustomerOverviewSSE(w, r, customer.ID)
 
 	// refresh the customer navigation
@@ -196,6 +204,14 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 		w,
 		r,
 	)
+	h.logActivity(
+		r,
+		parsedID,
+		"customer",
+		"customer_updated",
+		fmt.Sprintf("Customer %s updated", name),
+	)
+
 	h.renderCustomerOverviewSSE(w, r, parsedID)
 	// refresh the customer navigation
 	h.CustomerNavSSE(w, r)
@@ -234,7 +250,16 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 		w,
 		r,
 	)
+	h.logActivity(
+		r,
+		c.ID,
+		"customer",
+		"customer_deleted",
+		fmt.Sprintf("Customer %s deleted", c.Name),
+	)
 	h.DashboardSSE(w, r)
+
+	// refresh the customer navigation
 	h.CustomerNavSSE(w, r)
 }
 
