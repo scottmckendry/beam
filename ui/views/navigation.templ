@@ -140,7 +140,7 @@ templ navigationFooter() {
 }
 
 // Customer-related components
-templ CustomerNavigation(customers []db.Customer, currentPage string) {
+templ CustomerNavigation(customers []db.Customer) {
 	<div id="customer-nav-section" class="space-y-1">
 		for _, c := range customers {
 			@customerNavItem(c)

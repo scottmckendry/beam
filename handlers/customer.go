@@ -31,9 +31,8 @@ func (h *Handlers) CustomerNavSSE(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to load customers", http.StatusInternalServerError)
 		return
 	}
-	currentPage := r.URL.Query().Get("page")
 	buf := &bytes.Buffer{}
-	views.CustomerNavigation(customers, currentPage).Render(r.Context(), buf)
+	views.CustomerNavigation(customers).Render(r.Context(), buf)
 	ServeSSEElement(w, r, buf.String())
 }
 
@@ -163,6 +162,7 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// TODO: struct?
 	name := r.URL.Query().Get("name")
 	email := r.URL.Query().Get("email")
 	status := r.URL.Query().Get("status")
