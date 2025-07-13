@@ -16,6 +16,7 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
+// CustomerNavSSE renders the list of customers for the navigation sidebar
 func (h *Handlers) CustomerNavSSE(w http.ResponseWriter, r *http.Request) {
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
@@ -36,6 +37,7 @@ func (h *Handlers) CustomerNavSSE(w http.ResponseWriter, r *http.Request) {
 	ServeSSEElement(w, r, buf.String())
 }
 
+// AddCustomerSSE renders the form to add a new customer via SSE
 func (h *Handlers) AddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	views.AddCustomer().Render(r.Context(), buf)
@@ -54,6 +56,7 @@ func (h *Handlers) AddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// GetCustomerSSE retrieves a customer by ID and renders the overview page via SSE
 func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
@@ -65,45 +68,7 @@ func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	h.renderCustomerOverviewSSE(w, r, parsedID)
 }
 
-// Helper to render customer overview via SSE
-func (h *Handlers) renderCustomerOverviewSSE(
-	w http.ResponseWriter,
-	r *http.Request,
-	customerID uuid.UUID,
-) {
-	c, err := h.Queries.GetCustomer(r.Context(), customerID)
-	if err != nil {
-		log.Printf("GetCustomer failed for ID=%v: %v", customerID, err)
-		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
-		w.WriteHeader(http.StatusNotFound)
-		views.NotFound().Render(r.Context(), w)
-		return
-	}
-	buf := &bytes.Buffer{}
-	views.Customer(c).Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
-	pageSignals := PageSignals{
-		HeaderTitle: c.Name,
-		HeaderDescription: fmt.Sprintf(
-			"%d %s • %d %s • %d %s",
-			c.ContactCount,
-			Pluralise(c.ContactCount, "contact", "contacts"),
-			c.SubscriptionCount,
-			Pluralise(c.SubscriptionCount, "subscription", "subscriptions"),
-			c.ProjectCount,
-			Pluralise(c.ProjectCount, "project", "projects"),
-		),
-		CurrentPage: c.ID.String(),
-	}
-	encodedSignals, _ := json.Marshal(pageSignals)
-	sse := datastar.NewSSE(w, r)
-	sse.PatchSignals(encodedSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
-}
-
+// SubmitAddCustomerSSE handles the submission of the add customer form, upon success it will render the customer overview page and refresh the customer navigation
 func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	email := r.URL.Query().Get("email")
@@ -143,6 +108,7 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	h.CustomerNavSSE(w, r)
 }
 
+// EditCustomerFormSSE renders the form to edit an existing customer via SSE
 func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
@@ -179,6 +145,7 @@ func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// EditCustomerSubmitSSE handles the submission of the edit customer, upon success it will render the customer overview page and refresh the customer navigation
 func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
@@ -234,6 +201,7 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	h.CustomerNavSSE(w, r)
 }
 
+// DeleteCustomerSSE handles the deletion of a customer - if successful, it will render the dashboard and refresh the customer navigation
 func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
@@ -268,4 +236,43 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	)
 	h.DashboardSSE(w, r)
 	h.CustomerNavSSE(w, r)
+}
+
+// renderCustomerOverviewSSE is a helper function to render the customer overview page this is shared by multiple handlers
+func (h *Handlers) renderCustomerOverviewSSE(
+	w http.ResponseWriter,
+	r *http.Request,
+	customerID uuid.UUID,
+) {
+	c, err := h.Queries.GetCustomer(r.Context(), customerID)
+	if err != nil {
+		log.Printf("GetCustomer failed for ID=%v: %v", customerID, err)
+		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
+		w.WriteHeader(http.StatusNotFound)
+		views.NotFound().Render(r.Context(), w)
+		return
+	}
+	buf := &bytes.Buffer{}
+	views.Customer(c).Render(r.Context(), buf)
+	views.HeaderIcon("customer").Render(r.Context(), buf)
+	pageSignals := PageSignals{
+		HeaderTitle: c.Name,
+		HeaderDescription: fmt.Sprintf(
+			"%d %s • %d %s • %d %s",
+			c.ContactCount,
+			Pluralise(c.ContactCount, "contact", "contacts"),
+			c.SubscriptionCount,
+			Pluralise(c.SubscriptionCount, "subscription", "subscriptions"),
+			c.ProjectCount,
+			Pluralise(c.ProjectCount, "project", "projects"),
+		),
+		CurrentPage: c.ID.String(),
+	}
+	encodedSignals, _ := json.Marshal(pageSignals)
+	sse := datastar.NewSSE(w, r)
+	sse.PatchSignals(encodedSignals)
+	sse.PatchElements(
+		buf.String(),
+		datastar.WithUseViewTransitions(true),
+	)
 }
