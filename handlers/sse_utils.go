@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -12,8 +11,6 @@ import (
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
 	"github.com/starfederation/datastar/sdk/go/datastar"
-
-	"github.com/scottmckendry/beam/db/sqlc"
 )
 
 type PageSignals struct {
@@ -45,27 +42,6 @@ func (h *Handlers) renderSSE(w http.ResponseWriter, r *http.Request, opts SSEOpt
 	// TODO: remove the replace mode - depending on the outcome of #999
 	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true), datastar.WithModeReplace())
 	return nil
-}
-
-// logActivity inserts a new activity log entry for a customer
-// TODO: make activity types type-safe with constants or an enum
-// TODO: pass a struct for activity details instead of multiple strings
-func (h *Handlers) logActivity(
-	r *http.Request,
-	customerID uuid.UUID,
-	activityType,
-	action, description string,
-) {
-	activity := db.LogActivityParams{
-		CustomerID:   customerID,
-		ActivityType: activityType,
-		Action:       action,
-		Description:  description,
-	}
-	_, err := h.Queries.LogActivity(r.Context(), activity)
-	if err != nil {
-		log.Printf("Failed to log customer activity: %v", err)
-	}
 }
 
 // mapFormToStruct maps form values to a struct using field names as keys

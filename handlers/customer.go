@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,8 +9,8 @@ import (
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/starfederation/datastar/sdk/go/datastar"
 
+	al "github.com/scottmckendry/beam/activitylog"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -70,13 +69,7 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.Notify(NotifySuccess, "Customer Added", "Customer has been successfully added.", w, r)
-	h.logActivity(
-		r,
-		customer.ID,
-		"customer",
-		"customer_created",
-		fmt.Sprintf("New customer \"%s\" created", customer.Name),
-	)
+	al.LogCustomerCreated(r.Context(), h.Queries, customer)
 
 	c, err := h.Queries.GetCustomer(r.Context(), customer.ID)
 	if err != nil {
@@ -158,15 +151,14 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.Notify(NotifySuccess, "Customer Updated", fmt.Sprintf("%s has been successfully updated.", params.Name), w, r)
-	h.logActivity(r, parsedID, "customer", "customer_updated", fmt.Sprintf("Customer %s updated", params.Name))
+	c, _ := h.Queries.GetCustomer(r.Context(), parsedID)
+	al.LogCustomerUpdated(r.Context(), h.Queries, c)
 
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers for navigation: %v", err)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
-
-	c, _ := h.Queries.GetCustomer(r.Context(), parsedID)
 
 	h.renderSSE(w, r, SSEOpts{
 		Signals: buildCustomerPageSignals(c),
@@ -198,25 +190,23 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.Notify(NotifySuccess, "Customer Deleted", fmt.Sprintf("Customer %s has been successfully deleted.", c.Name), w, r)
+
 	// INFO: this will fail while we still have delete cascade constraints in place - see TODO in the the init migration
-	h.logActivity(r, c.ID, "customer", "customer_deleted", fmt.Sprintf("Customer %s deleted", c.Name))
+	al.LogCustomerDeleted(r.Context(), h.Queries, c)
 
 	// render dashboard, refresh customer navigation
 	h.DashboardSSE(w, r)
 
-	buf := &bytes.Buffer{}
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers for navigation: %v", err)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
-	views.CustomerNavigation(customers).Render(r.Context(), buf)
-	sse := datastar.NewSSE(w, r)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-		datastar.WithModeReplace(),
-	)
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerNavigation(customers),
+		},
+	})
 }
 
 // getCustomerByID fetches a customer by ID from the URL param and handles errors consistently
