@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/starfederation/datastar/sdk/go/datastar"
@@ -17,21 +18,20 @@ import (
 
 // AddCustomerSSE renders the form to add a new customer via SSE
 func (h *Handlers) AddCustomerSSE(w http.ResponseWriter, r *http.Request) {
-	buf := &bytes.Buffer{}
-	views.AddCustomer().Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
 	pageSignals := PageSignals{
 		HeaderTitle:       "Add Customer",
 		HeaderDescription: "Woohoo! Let's add a new customer 🚀",
 		CurrentPage:       "none",
 	}
 	encodedSignals, _ := json.Marshal(pageSignals)
-	sse := datastar.NewSSE(w, r)
-	sse.PatchSignals(encodedSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+
+	h.renderSSE(w, r, SSEOpts{
+		Signals: encodedSignals,
+		Views: []templ.Component{
+			views.AddCustomer(),
+			views.HeaderIcon("customer"),
+		},
+	})
 }
 
 // GetCustomerSSE retrieves a customer by ID and renders the overview page via SSE
@@ -40,22 +40,21 @@ func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	buf := &bytes.Buffer{}
-	views.Customer(c).Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
 	pageSignals := buildCustomerPageSignals(c)
-	sse := datastar.NewSSE(w, r)
-	sse.PatchSignals(pageSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+
+	h.renderSSE(w, r, SSEOpts{
+		Signals: pageSignals,
+		Views: []templ.Component{
+			views.Customer(c),
+			views.HeaderIcon("customer"),
+		},
+	})
 }
 
 // SubmitAddCustomerSSE handles the submission of the add customer form, upon success it will render the customer overview page and refresh the customer navigation
 func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	var params db.CreateCustomerParams
-	if err := MapFormToStruct(r, &params); err != nil {
+	if err := mapFormToStruct(r, &params); err != nil {
 		log.Printf("Error mapping form to struct: %v", err)
 		http.Error(w, "Invalid form submission", http.StatusBadRequest)
 		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
@@ -88,31 +87,22 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	buf := &bytes.Buffer{}
-	views.Customer(c).Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
-
-	// update the navigation
+	// get the updated customer list for navigation
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers for navigation: %v", err)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
-	views.CustomerNavigation(customers).Render(r.Context(), buf)
 
-	sse := datastar.NewSSE(w, r)
-
-	pageSignals := buildCustomerPageSignals(c)
-	sse.PatchSignals(pageSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-		// TODO: Morph should be working here, but for whatever reason it isn't.
-		// Hence, we use replace to ensure that the customer navigation is updated correctly
-		// revisit this later once the following issue is resolved:
-		// https://github.com/starfederation/datastar/issues/999
-		datastar.WithModeReplace(),
-	)
+	// render the customer overview page with the new customer, along with a navigation refresh
+	h.renderSSE(w, r, SSEOpts{
+		Signals: buildCustomerPageSignals(c),
+		Views: []templ.Component{
+			views.Customer(c),
+			views.HeaderIcon("customer"),
+			views.CustomerNavigation(customers),
+		},
+	})
 }
 
 // EditCustomerFormSSE renders the form to edit an existing customer via SSE
@@ -122,10 +112,6 @@ func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buf := &bytes.Buffer{}
-	views.EditCustomer(c).Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
-
 	pageSignals := PageSignals{
 		HeaderTitle:       "Edit Customer",
 		HeaderDescription: fmt.Sprintf("Editing %s", c.Name),
@@ -133,12 +119,13 @@ func (h *Handlers) EditCustomerFormSSE(w http.ResponseWriter, r *http.Request) {
 	}
 	encodedSignals, _ := json.Marshal(pageSignals)
 
-	sse := datastar.NewSSE(w, r)
-	sse.PatchSignals(encodedSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+	h.renderSSE(w, r, SSEOpts{
+		Signals: encodedSignals,
+		Views: []templ.Component{
+			views.EditCustomer(c),
+			views.HeaderIcon("customer"),
+		},
+	})
 }
 
 // EditCustomerSubmitSSE handles the submission of the edit customer, upon success it will render the customer overview page and refresh the customer navigation
@@ -152,12 +139,15 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	var params db.UpdateCustomerParams
-	if err := MapFormToStruct(r, &params); err != nil {
+	if err := mapFormToStruct(r, &params); err != nil {
 		log.Printf("Error mapping form to struct: %v", err)
 		http.Error(w, "Invalid form submission", http.StatusBadRequest)
 		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
 		return
 	}
+
+	// set the correct ID - this is zeroed out in the form
+	params.ID = parsedID
 
 	_, err = h.Queries.UpdateCustomer(r.Context(), params)
 	if err != nil {
@@ -170,27 +160,22 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	h.Notify(NotifySuccess, "Customer Updated", fmt.Sprintf("%s has been successfully updated.", params.Name), w, r)
 	h.logActivity(r, parsedID, "customer", "customer_updated", fmt.Sprintf("Customer %s updated", params.Name))
 
-	buf := &bytes.Buffer{}
-	c, _ := h.getCustomerByID(w, r, "id")
-	views.Customer(c).Render(r.Context(), buf)
-	views.HeaderIcon("customer").Render(r.Context(), buf)
-
-	// update the navigation
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
 		log.Printf("Failed to load customers for navigation: %v", err)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
-	views.CustomerNavigation(customers).Render(r.Context(), buf)
 
-	sse := datastar.NewSSE(w, r)
-	pageSignals := buildCustomerPageSignals(c)
-	sse.PatchSignals(pageSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-		datastar.WithModeReplace(),
-	)
+	c, _ := h.Queries.GetCustomer(r.Context(), parsedID)
+
+	h.renderSSE(w, r, SSEOpts{
+		Signals: buildCustomerPageSignals(c),
+		Views: []templ.Component{
+			views.Customer(c),
+			views.HeaderIcon("customer"),
+			views.CustomerNavigation(customers),
+		},
+	})
 }
 
 // DeleteCustomerSSE handles the deletion of a customer - if successful, it will render the dashboard and refresh the customer navigation
@@ -235,11 +220,7 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 }
 
 // getCustomerByID fetches a customer by ID from the URL param and handles errors consistently
-func (h *Handlers) getCustomerByID(
-	w http.ResponseWriter,
-	r *http.Request,
-	idParam string,
-) (db.GetCustomerRow, bool) {
+func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idParam string) (db.GetCustomerRow, bool) {
 	id := chi.URLParam(r, idParam)
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
@@ -267,11 +248,11 @@ func buildCustomerPageSignals(c db.GetCustomerRow) []byte {
 		HeaderDescription: fmt.Sprintf(
 			"%d %s • %d %s • %d %s",
 			c.ContactCount,
-			Pluralise(c.ContactCount, "contact", "contacts"),
+			pluralise(c.ContactCount, "contact", "contacts"),
 			c.SubscriptionCount,
-			Pluralise(c.SubscriptionCount, "subscription", "subscriptions"),
+			pluralise(c.SubscriptionCount, "subscription", "subscriptions"),
 			c.ProjectCount,
-			Pluralise(c.ProjectCount, "project", "projects"),
+			pluralise(c.ProjectCount, "project", "projects"),
 		),
 		CurrentPage: c.ID.String(),
 	}

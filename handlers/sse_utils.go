@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/a-h/templ"
 	"github.com/google/uuid"
 	"github.com/starfederation/datastar/sdk/go/datastar"
 
@@ -20,19 +22,29 @@ type PageSignals struct {
 	CurrentPage       string `json:"_currentPage,omitempty"`
 }
 
-func ServeSSEElement(w http.ResponseWriter, r *http.Request, elements string) {
-	sse := datastar.NewSSE(w, r)
-	sse.PatchElements(
-		elements,
-		datastar.WithUseViewTransitions(true),
-	)
+type SSEOpts struct {
+	Signals []byte
+	Views   []templ.Component
 }
 
-func Pluralise(count int64, singular, plural string) string {
-	if count == 1 {
-		return singular
+// renderSSE renders a collection of templ.Components to a Server-Sent Events (SSE) response.
+// Optionally accepts signals to patch into the SSE stream.
+func (h *Handlers) renderSSE(w http.ResponseWriter, r *http.Request, opts SSEOpts) error {
+	buf := &bytes.Buffer{}
+	for _, view := range opts.Views {
+		if err := view.Render(r.Context(), buf); err != nil {
+			return fmt.Errorf("failed to render view: %w", err)
+		}
 	}
-	return plural
+
+	sse := datastar.NewSSE(w, r)
+	if opts.Signals != nil {
+		sse.PatchSignals(opts.Signals)
+	}
+
+	// TODO: remove the replace mode - depending on the outcome of #999
+	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true), datastar.WithModeReplace())
+	return nil
 }
 
 // logActivity inserts a new activity log entry for a customer
@@ -56,9 +68,9 @@ func (h *Handlers) logActivity(
 	}
 }
 
-// MapFormToStruct maps form values to a struct using field names as keys
-// It automatically handles sql.NullString conversions
-func MapFormToStruct(r *http.Request, dest any) error {
+// mapFormToStruct maps form values to a struct using field names as keys
+// handles uuid.UUID and sql.NullString types specifically
+func mapFormToStruct(r *http.Request, dest any) error {
 	v := reflect.ValueOf(dest)
 	if v.Kind() != reflect.Ptr || v.IsNil() {
 		return fmt.Errorf("destination must be a non-nil pointer")
@@ -75,6 +87,20 @@ func MapFormToStruct(r *http.Request, dest any) error {
 		formKey := strings.ToLower(field.Name)
 		formValue := r.FormValue(formKey)
 
+		// Handle uuid.UUID fields
+		if field.Type == reflect.TypeOf(uuid.UUID{}) {
+			if formValue == "" {
+				fieldValue.Set(reflect.Zero(field.Type))
+				continue
+			}
+			parsedUUID, err := uuid.Parse(formValue)
+			if err != nil {
+				return fmt.Errorf("invalid UUID for field %s: %w", field.Name, err)
+			}
+			fieldValue.Set(reflect.ValueOf(parsedUUID))
+			continue
+		}
+
 		// Handle sql.NullString fields
 		if field.Type == reflect.TypeOf(sql.NullString{}) {
 			fieldValue.Set(reflect.ValueOf(sql.NullString{
@@ -88,4 +114,12 @@ func MapFormToStruct(r *http.Request, dest any) error {
 	}
 
 	return nil
+}
+
+// pluralize returns the plural form of a word based on the count.
+func pluralise(count int64, singular, plural string) string {
+	if count == 1 {
+		return singular
+	}
+	return plural
 }

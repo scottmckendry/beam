@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -17,18 +16,7 @@ var (
 	NotifySuccess = NotificationType(views.SuccessToast)
 )
 
-func (h *Handlers) Notify(
-	notifyType NotificationType,
-	title string,
-	description string,
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-	buf := &bytes.Buffer{}
+func (h *Handlers) Notify(notifyType NotificationType, title string, description string, w http.ResponseWriter, r *http.Request) {
 	notification := notifyType(title, description)
-	if err := notification.Render(r.Context(), buf); err != nil {
-		http.Error(w, "Failed to render notification", http.StatusInternalServerError)
-		return
-	}
-	ServeSSEElement(w, r, buf.String())
+	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{notification, views.HeaderIcon("notifications")}})
 }

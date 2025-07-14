@@ -1,12 +1,11 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
 
-	"github.com/starfederation/datastar/sdk/go/datastar"
+	"github.com/a-h/templ"
 
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -19,9 +18,8 @@ func (h *Handlers) DashboardStatsSSE(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to load dashboard stats", http.StatusInternalServerError)
 		return
 	}
-	buf := &bytes.Buffer{}
-	views.DashboardStats(stats).Render(r.Context(), buf)
-	ServeSSEElement(w, r, buf.String())
+
+	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{views.DashboardStats(stats)}})
 }
 
 func (h *Handlers) DashboardActivitySSE(w http.ResponseWriter, r *http.Request) {
@@ -32,25 +30,23 @@ func (h *Handlers) DashboardActivitySSE(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Failed to load recent activity", http.StatusInternalServerError)
 		return
 	}
-	buf := &bytes.Buffer{}
-	views.DashboardActivity(activities).Render(r.Context(), buf)
-	ServeSSEElement(w, r, buf.String())
+
+	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{views.DashboardActivity(activities)}})
 }
 
 func (h *Handlers) DashboardSSE(w http.ResponseWriter, r *http.Request) {
-	buf := &bytes.Buffer{}
-	views.Dashboard().Render(r.Context(), buf)
-	views.HeaderIcon("dashboard").Render(r.Context(), buf)
 	pageSignals := PageSignals{
 		HeaderTitle:       "Dashboard",
 		HeaderDescription: "Overview of your business metrics",
 		CurrentPage:       "dashboard",
 	}
 	encodedSignals, _ := json.Marshal(pageSignals)
-	sse := datastar.NewSSE(w, r)
-	sse.PatchSignals(encodedSignals)
-	sse.PatchElements(
-		buf.String(),
-		datastar.WithUseViewTransitions(true),
-	)
+
+	h.renderSSE(w, r, SSEOpts{
+		Signals: encodedSignals,
+		Views: []templ.Component{
+			views.Dashboard(),
+			views.HeaderIcon("dashboard"),
+		},
+	})
 }
