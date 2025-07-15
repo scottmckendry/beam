@@ -148,6 +148,8 @@ templ CustomerNavigation(customers []db.Customer) {
 	</div>
 }
 
+// TODO: data-drawer-close breaks after the navigation is refreshed. (on mobile)
+// Can be replicated either by adding a new customer or editing an existing one.
 templ customerNavItem(c db.Customer) {
 	<a
 		data-attr-class={ "$_currentPage == '" + c.ID.String() + "' ? 'flex items-center gap-2 px-2 py-1 mx-2 mb-2 rounded-md font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 py-1 px-2 mx-2 mb-2 rounded-md font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }

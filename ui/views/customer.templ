@@ -25,11 +25,13 @@ var tabHeaders = []string{
 	"Projects",
 }
 
-// TODO: add website, phone, address fields to customer form
 type CustomerFormProps struct {
 	Name        string
 	Email       string
 	Status      string
+	Address     string
+	Phone       string
+	Website     string
 	Notes       string
 	ButtonLabel string
 	ActionURL   string
@@ -40,6 +42,9 @@ templ AddCustomer() {
 		Name:        "",
 		Email:       "",
 		Status:      "active",
+		Address:     "",
+		Phone:       "",
+		Website:     "",
 		Notes:       "",
 		ButtonLabel: "Add Customer",
 		ActionURL:   "@get('/sse/customer/add-submit', {contentType: 'form'})",
@@ -51,6 +56,9 @@ templ EditCustomer(c db.GetCustomerRow) {
 		Name:        c.Name,
 		Email:       c.Email.String,
 		Status:      c.Status,
+		Address:     c.Address.String,
+		Phone:       c.Phone.String,
+		Website:     c.Website.String,
 		Notes:       c.Notes.String,
 		ButtonLabel: "Update Customer",
 		ActionURL:   "@get('/sse/customer/edit-submit/" + c.ID.String() + "', {contentType: 'form'})",
@@ -106,7 +114,7 @@ templ customerOverview(c db.GetCustomerRow) {
 			}
 			@button.Button(button.Props{
 				Variant: button.VariantSecondary,
-				Class:   "hidden sm:block",
+				Class:   "hidden sm:flex",
 			}) {
 				@icon.FileText()
 				Create Invoice
@@ -375,6 +383,48 @@ templ customerForm(p CustomerFormProps) {
 						Value:       p.Email,
 						Placeholder: "mail@example.com",
 						Required:    true,
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "address",
+					}) {
+						Address
+					}
+					@input.Input(input.Props{
+						ID:          "address",
+						Name:        "address",
+						Type:        input.TypeText,
+						Value:       p.Address,
+						Placeholder: "123 Main St, City, Country",
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "phone",
+					}) {
+						Phone
+					}
+					@input.Input(input.Props{
+						ID:          "phone",
+						Name:        "phone",
+						Type:        input.TypeTel,
+						Value:       p.Phone,
+						Placeholder: "+64 21 123 4567",
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "website",
+					}) {
+						Website
+					}
+					@input.Input(input.Props{
+						ID:          "website",
+						Name:        "website",
+						Type:        input.TypeURL,
+						Value:       p.Website,
+						Placeholder: "https://example.com",
 					})
 				}
 				@form.Item() {
