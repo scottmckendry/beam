@@ -1,16 +1,17 @@
 package views
 
 import (
-	"strings"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/button"
+	"github.com/scottmckendry/beam/ui/components/dropdown"
 	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/input"
+	"github.com/scottmckendry/beam/ui/components/modal"
 	"github.com/scottmckendry/beam/ui/components/selectbox"
 	"github.com/scottmckendry/beam/ui/components/tabs"
 	"github.com/scottmckendry/beam/ui/components/textarea"
-	"github.com/scottmckendry/beam/ui/components/dropdown"
+	"strings"
 )
 
 var tabHeaders = []string{
@@ -81,8 +82,9 @@ templ Customer(c db.GetCustomerRow) {
 						Value:    strings.ToLower(header),
 						IsActive: i == 0,
 					}) {
-						// TODO: make this dynamic based on the header
-						@customerOverview(c)
+						if i == 0 {
+							@customerOverview(c)
+						}
 					}
 				}
 			</div>
@@ -92,11 +94,11 @@ templ Customer(c db.GetCustomerRow) {
 
 templ customerOverview(c db.GetCustomerRow) {
 	<div id="customer-overview">
-		<div class="flex items-center gap-2 mt-6">
+		<div class="flex items-center gap-4 mt-6">
 			@button.Button(button.Props{
 				Class: "btn btn-primary",
 			}) {
-				@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
+				@icon.Plus(icon.Props{Size: 16})
 				Add Contact
 			}
 			@dropdown.Dropdown() {
@@ -122,12 +124,59 @@ templ customerOverview(c db.GetCustomerRow) {
 					@dropdown.Item(dropdown.ItemProps{
 						Class: "text-destructive",
 					}) {
-						// TODO: add confirmation dialog before deleting
-						<span class="flex items-center" data-on-click={ "@get('/sse/customer/delete/" + c.ID.String() + "')" }>
-							@icon.Trash(icon.Props{Size: 16, Class: "mr-2"})
-							Delete Customer
-						</span>
+						@modal.Trigger(modal.TriggerProps{
+							For: "delete-customer-modal",
+						}) {
+							<span class="flex items-center">
+								@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+								Delete Customer
+							</span>
+						}
 					}
+				}
+			}
+			// TODO: genericise this modal so it can be reused for the myriad
+			// of other delete actions in the app
+			@modal.Modal(modal.Props{
+				ID:    "delete-customer-modal",
+				Class: "max-w-md mx-4",
+			}) {
+				@modal.Header() {
+					Are you sure?
+				}
+				@modal.Body() {
+					<p class="text-sm text-muted-foreground">
+						Are you sure you want to delete <strong>{ c.Name }</strong>? This action cannot be undone.
+					</p>
+					<p class="text-xs text-destructive mt-2">
+						All associated data will be permanently removed.
+					</p>
+				}
+				@modal.Footer() {
+					<div class="flex gap-2">
+						@modal.Close(modal.CloseProps{
+							For: "delete-customer-modal",
+						}) {
+							@button.Button(button.Props{
+								Variant: button.VariantSecondary,
+							}) {
+								Cancel
+							}
+						}
+						@modal.Close(modal.CloseProps{
+							For: "delete-customer-modal",
+						}) {
+							@button.Button(button.Props{
+								Variant: button.VariantDestructive,
+								Attributes: templ.Attributes{
+									"data-on-click": "@get('/sse/customer/delete/" + c.ID.String() + "')",
+								},
+							}) {
+								@icon.Trash2(icon.Props{Size: 16})
+								Delete
+							}
+						}
+					</div>
 				}
 			}
 		</div>
