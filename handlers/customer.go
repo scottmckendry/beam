@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -275,9 +276,15 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	})
 
 	// Delete the logo file from the filesystem
-	err = os.Remove(fmt.Sprintf("public/uploads/logos/%s*", customerID.String()))
+	matches, err := filepath.Glob(fmt.Sprintf("public/uploads/logos/%s*", customerID.String()))
 	if err != nil {
-		log.Printf("Error deleting logo file: %v", err)
+		log.Printf("Error finding logo files: %v", err)
+		return
+	}
+	for _, match := range matches {
+		if err := os.Remove(match); err != nil {
+			log.Printf("Error deleting logo file %s: %v", match, err)
+		}
 	}
 }
 
@@ -285,10 +292,10 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 // TODO:
 // 1. Figure out how to handle cases where the filename stays the same but the content changes (image doesn't change after refresh)
 // 2. Not a big issue for logos, but public assets are, by nature, public. Need to consider the implications of this.
-// 3. The entire base64 string is included in logging. Need to trim this down to just the first 100 characters or so to avoid bloating logs with large images.
 func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	customerID, err := uuid.Parse(id)
+
 	if err != nil {
 		log.Printf("Invalid customer ID: %v", err)
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
@@ -373,6 +380,7 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	updated, _ := h.Queries.GetCustomer(r.Context(), customerID)
 	customers, _ := h.Queries.ListCustomers(r.Context())
 	h.renderSSE(w, r, SSEOpts{
+		Signals: []byte(`{"logo": ""}`),
 		Views: []templ.Component{
 			views.Customer(updated),
 			views.CustomerNavigation(customers),
