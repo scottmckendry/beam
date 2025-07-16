@@ -144,8 +144,10 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// set the correct ID - this is zeroed out in the form
-	params.ID = parsedID
+	// prevent non-form fields from being overwritten
+	c, _ := h.getCustomerByID(w, r, "id")
+	params.ID = c.ID
+	params.Logo = c.Logo
 
 	_, err = h.Queries.UpdateCustomer(r.Context(), params)
 	if err != nil {
@@ -156,7 +158,7 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.Notify(NotifySuccess, "Customer Updated", fmt.Sprintf("%s has been successfully updated.", params.Name), w, r)
-	c, _ := h.Queries.GetCustomer(r.Context(), parsedID)
+	c, _ = h.Queries.GetCustomer(r.Context(), parsedID)
 	al.LogCustomerUpdated(r.Context(), h.Queries, c)
 
 	customers, err := h.Queries.ListCustomers(r.Context())
