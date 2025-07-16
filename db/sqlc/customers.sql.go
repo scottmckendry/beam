@@ -227,3 +227,19 @@ func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) 
 	)
 	return i, err
 }
+
+const updateCustomerLogo = `-- name: UpdateCustomerLogo :exec
+UPDATE customers
+SET logo = ?
+WHERE id = ?
+`
+
+type UpdateCustomerLogoParams struct {
+	Logo sql.NullString
+	ID   uuid.UUID
+}
+
+func (q *Queries) UpdateCustomerLogo(ctx context.Context, arg UpdateCustomerLogoParams) error {
+	_, err := q.db.ExecContext(ctx, updateCustomerLogo, arg.Logo, arg.ID)
+	return err
+}

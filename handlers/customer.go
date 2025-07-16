@@ -1,10 +1,15 @@
 package handlers
 
 import (
+	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -229,6 +234,115 @@ func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idPar
 		return db.GetCustomerRow{}, false
 	}
 	return c, true
+}
+
+// UploadCustomerLogoSSE handles the upload of a customer logo, saves it, updates the DB, and returns an SSE response.
+// TODO:
+// 1. Refresh the navigation at the same time as the customer overview
+// 2. Figure out how to handle cases where the filename stays the same but the content changes (image doesn't change after refresh)
+// 3. Allow the logo to be removed (set to NULL in the DB)
+// 4. Not a big issue for logos, but public assets are, by nature, public. Need to consider the implications of this.
+// 5. The entire base64 string is included in logging. Need to trim this down to just the first 100 characters or so to avoid bloating logs with large images.
+func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	customerID, err := uuid.Parse(id)
+	if err != nil {
+		log.Printf("Invalid customer ID: %v", err)
+		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
+		return
+	}
+
+	// Parse JSON body
+	var payload struct {
+		Logo      []string `json:"logo"`
+		LogoMimes []string `json:"logoMimes"`
+		LogoNames []string `json:"logoNames"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		log.Printf("Error decoding JSON: %v", err)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the JSON payload.", w, r)
+		return
+	}
+	if len(payload.Logo) == 0 || payload.Logo[0] == "" {
+		http.Error(w, "No logo data provided", http.StatusBadRequest)
+		h.Notify(NotifyError, "Upload Failed", "No logo data provided in the request.", w, r)
+		return
+	}
+
+	// Determine file extension
+	ext := ".png"
+	if len(payload.LogoMimes) > 0 && payload.LogoMimes[0] != "" {
+		switch payload.LogoMimes[0] {
+		case "image/jpeg":
+			ext = ".jpg"
+		case "image/png":
+			ext = ".png"
+		case "image/gif":
+			ext = ".gif"
+		case "image/webp":
+			ext = ".webp"
+		}
+	} else if len(payload.LogoNames) > 0 && payload.LogoNames[0] != "" {
+		ext = path.Ext(payload.LogoNames[0])
+		if ext == "" {
+			ext = ".png"
+		}
+	}
+
+	// Decode base64
+	data, err := decodeBase64Image(payload.Logo[0])
+	if err != nil {
+		log.Printf("Error decoding base64: %v", err)
+		http.Error(w, "Invalid image data", http.StatusBadRequest)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the image data.", w, r)
+		return
+	}
+
+	// Save file
+	logoPath := fmt.Sprintf("public/uploads/logos/%s%s", customerID.String(), ext)
+	if err := os.WriteFile(logoPath, data, 0644); err != nil {
+		log.Printf("Error saving file: %v", err)
+		http.Error(w, "Failed to save logo", http.StatusInternalServerError)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while uploading the logo.", w, r)
+		return
+	}
+
+	// Update DB with relative path
+	urlPath := fmt.Sprintf("public/uploads/logos/%s%s", customerID.String(), ext)
+	params := db.UpdateCustomerLogoParams{
+		ID:   customerID,
+		Logo: sql.NullString{String: urlPath, Valid: true},
+	}
+
+	if err := h.Queries.UpdateCustomerLogo(r.Context(), params); err != nil {
+		log.Printf("Error updating customer logo: %v", err)
+		http.Error(w, "Failed to update customer logo", http.StatusInternalServerError)
+		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the customer logo.", w, r)
+		return
+	}
+
+	h.Notify(NotifySuccess, "Logo Uploaded", "Customer logo has been successfully uploaded.", w, r)
+
+	// Refresh the customer overview page
+	updated, _ := h.Queries.GetCustomer(r.Context(), customerID)
+	h.renderSSE(w, r, SSEOpts{
+		Signals: buildCustomerPageSignals(updated),
+		Views: []templ.Component{
+			views.Customer(updated),
+		},
+	})
+}
+
+// decodeBase64Image decodes a base64 string, stripping any data URL prefix if present.
+func decodeBase64Image(s string) ([]byte, error) {
+	// Remove data URL prefix if present
+	if idx := strings.Index(s, ","); idx != -1 {
+		s = s[idx+1:]
+	}
+	return base64.StdEncoding.DecodeString(s)
 }
 
 // buildCustomerPageSignals constructs the page signals for a customer overview

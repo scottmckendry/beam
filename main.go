@@ -57,6 +57,7 @@ func main() {
 			admin.Get("/sse/customer/delete/{id}", h.DeleteCustomerSSE)
 			admin.Get("/sse/customer/edit/{id}", h.EditCustomerFormSSE)
 			admin.Get("/sse/customer/edit-submit/{id}", h.EditCustomerSubmitSSE)
+			admin.Post("/sse/customer/upload-logo/{id}", h.UploadCustomerLogoSSE)
 			admin.Get("/sse/dashboard/stats", h.DashboardStatsSSE)
 			admin.Get("/sse/dashboard/activity", h.DashboardActivitySSE)
 		})

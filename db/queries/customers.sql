@@ -29,3 +29,8 @@ WHERE c.id = ?;
 
 -- name: ListCustomers :many
 SELECT * FROM customers ORDER BY created_at DESC;
+
+-- name: UpdateCustomerLogo :exec
+UPDATE customers
+SET logo = ?
+WHERE id = ?;
