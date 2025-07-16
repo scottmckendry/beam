@@ -405,6 +405,14 @@ templ customerOverview(c db.GetCustomerRow) {
 						@icon.Upload()
 						Upload Logo
 					}
+					@button.Button(button.Props{
+						Variant: button.VariantDestructive,
+						Attributes: templ.Attributes{
+							"data-on-click": "@get('/sse/customer/delete-logo/" + c.ID.String() + "')",
+						},
+					}) {
+						@icon.Trash2()
+					}
 				</div>
 			}
 		}

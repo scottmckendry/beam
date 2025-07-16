@@ -236,13 +236,54 @@ func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idPar
 	return c, true
 }
 
+// DeleteCustomerLogoSSE handles the deletion of a customer logo, sets it to NULL in the DB, and returns an SSE response.
+func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	customerID, err := uuid.Parse(id)
+	if err != nil {
+		log.Printf("Invalid customer ID: %v", err)
+		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
+		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
+		return
+	}
+
+	// Update DB to set logo to NULL
+	params := db.UpdateCustomerLogoParams{
+		ID:   customerID,
+		Logo: sql.NullString{String: "", Valid: false}, // Set logo to NULL
+	}
+
+	if err := h.Queries.UpdateCustomerLogo(r.Context(), params); err != nil {
+		log.Printf("Error updating customer logo: %v", err)
+		http.Error(w, "Failed to update customer logo", http.StatusInternalServerError)
+		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the customer logo.", w, r)
+		return
+	}
+
+	h.Notify(NotifySuccess, "Logo Deleted", "Customer logo has been successfully deleted.", w, r)
+
+	// Refresh the customer overview page
+	updated, _ := h.Queries.GetCustomer(r.Context(), customerID)
+	customers, _ := h.Queries.ListCustomers(r.Context())
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.Customer(updated),
+			views.CustomerNavigation(customers),
+		},
+	})
+
+	// Delete the logo file from the filesystem
+	err = os.Remove(fmt.Sprintf("public/uploads/logos/%s*", customerID.String()))
+	if err != nil {
+		log.Printf("Error deleting logo file: %v", err)
+	}
+}
+
 // UploadCustomerLogoSSE handles the upload of a customer logo, saves it, updates the DB, and returns an SSE response.
 // TODO:
-// 1. Refresh the navigation at the same time as the customer overview
-// 2. Figure out how to handle cases where the filename stays the same but the content changes (image doesn't change after refresh)
-// 3. Allow the logo to be removed (set to NULL in the DB)
-// 4. Not a big issue for logos, but public assets are, by nature, public. Need to consider the implications of this.
-// 5. The entire base64 string is included in logging. Need to trim this down to just the first 100 characters or so to avoid bloating logs with large images.
+// 1. Figure out how to handle cases where the filename stays the same but the content changes (image doesn't change after refresh)
+// 2. Not a big issue for logos, but public assets are, by nature, public. Need to consider the implications of this.
+// 3. The entire base64 string is included in logging. Need to trim this down to just the first 100 characters or so to avoid bloating logs with large images.
 func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	customerID, err := uuid.Parse(id)
@@ -328,10 +369,11 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 
 	// Refresh the customer overview page
 	updated, _ := h.Queries.GetCustomer(r.Context(), customerID)
+	customers, _ := h.Queries.ListCustomers(r.Context())
 	h.renderSSE(w, r, SSEOpts{
-		Signals: buildCustomerPageSignals(updated),
 		Views: []templ.Component{
 			views.Customer(updated),
+			views.CustomerNavigation(customers),
 		},
 	})
 }
