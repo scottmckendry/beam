@@ -10,7 +10,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
-	"github.com/starfederation/datastar/sdk/go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 type PageSignals struct {
