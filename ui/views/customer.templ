@@ -9,7 +9,6 @@ import (
 	"github.com/scottmckendry/beam/ui/components/badge"
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/dropdown"
 	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
 	"github.com/scottmckendry/beam/ui/components/input"
@@ -114,46 +113,38 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				@icon.FileText()
 				Create Invoice
 			}
-			@dropdown.Dropdown() {
-				@dropdown.Trigger() {
-					@button.Button(button.Props{
-						Variant: button.VariantOutline,
-					}) {
-						@icon.Ellipsis(icon.Props{Size: 16})
-						<span>More Actions</span>
-					}
-				}
-				@dropdown.Content(dropdown.ContentProps{
-					Width: "w-48",
-					Align: "right",
-				}) {
-					@dropdown.Item(dropdown.ItemProps{Class: "block sm:hidden"}) {
-						<span class="flex items-center">
-							@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
-							Create Invoice
-						</span>
-					}
-					@dropdown.Item() {
-						<span class="flex items-center" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
-							@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
-							Edit Customer
-						</span>
-					}
-					@dropdown.Separator()
-					@dropdown.Item(dropdown.ItemProps{
-						Class: "text-destructive",
-					}) {
-						@modal.Trigger(modal.TriggerProps{
-							For: "delete-customer-modal",
-						}) {
-							<span class="flex items-center">
-								@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-								Delete Customer
-							</span>
-						}
-					}
-				}
-			}
+			<div id="actions-dropdown" class="dropdown-menu">
+				<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
+					@icon.Ellipsis(icon.Props{Size: 16})
+					<span>More Actions</span>
+				</button>
+				<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="min-w-48 right-0">
+					<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
+						<div role="group" aria-labelledby="customer-actions">
+							<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
+									Create Invoice
+								</span>
+							</div>
+							<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
+									Edit Customer
+								</span>
+							</div>
+							<div role="menuitem" class="text-destructive">
+								@modal.Trigger(modal.TriggerProps{For: "delete-customer-modal"}) {
+									<span class="flex items-center">
+										@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+										Delete Customer
+									</span>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			// TODO: genericise this modal so it can be reused for the myriad
 			// of other delete actions in the app
 			@modal.Modal(modal.Props{
