@@ -18,5 +18,5 @@ var (
 
 func (h *Handlers) Notify(notifyType NotificationType, title string, description string, w http.ResponseWriter, r *http.Request) {
 	notification := notifyType(title, description)
-	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{notification, views.HeaderIcon("notifications")}})
+	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{notification}})
 }
