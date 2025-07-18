@@ -73,10 +73,13 @@ templ Customer(c db.GetCustomerRow) {
 			@tabs.List(tabs.ListProps{
 				Class: "w-full",
 			}) {
-				for _, header := range tabHeaders {
+				for i, header := range tabHeaders {
 					@tabs.Trigger(tabs.TriggerProps{
 						Value:    strings.ToLower(header),
-						IsActive: true,
+						IsActive: i == 0,
+						Attributes: templ.Attributes{
+							"data-on-click": "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')",
+						},
 					}) {
 						<h3 class="text-sm font-medium">
 							if header == "Subscriptions" {
@@ -96,7 +99,7 @@ templ Customer(c db.GetCustomerRow) {
 						IsActive: i == 0,
 					}) {
 						if i == 0 {
-							@customerOverview(c)
+							@CustomerOverview(c)
 						}
 					}
 				}
@@ -105,8 +108,8 @@ templ Customer(c db.GetCustomerRow) {
 	</div>
 }
 
-templ customerOverview(c db.GetCustomerRow) {
-	<div id="customer-overview">
+templ CustomerOverview(c db.GetCustomerRow) {
+	<div id="customer-tab-content">
 		<div class="flex flex-wrap items-center gap-3 mt-6">
 			@button.Button(button.Props{}) {
 				@icon.Plus()

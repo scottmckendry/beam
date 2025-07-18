@@ -217,6 +217,20 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GetCustomerOverviewSSE retrieves a customer overview by ID and renders it via SSE
+func (h *Handlers) GetCustomerOverviewSSE(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.getCustomerByID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerOverview(c),
+		},
+	})
+}
+
 // getCustomerByID fetches a customer by ID from the URL param and handles errors consistently
 func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idParam string) (db.GetCustomerRow, bool) {
 	id := chi.URLParam(r, idParam)
