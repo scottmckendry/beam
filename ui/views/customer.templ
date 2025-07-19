@@ -10,7 +10,6 @@ import (
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/icon"
-	"github.com/scottmckendry/beam/ui/components/modal"
 )
 
 var tabHeaders = []string{
@@ -130,61 +129,30 @@ templ CustomerOverview(c db.GetCustomerRow) {
 								</span>
 							</div>
 							<div role="menuitem" class="text-destructive">
-								@modal.Trigger(modal.TriggerProps{For: "delete-customer-modal"}) {
-									<span class="flex items-center">
-										@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-										Delete Customer
-									</span>
-								}
+								<button type="button" onclick="document.getElementById('delete-modal').showModal()" class="flex items-center w-full">
+									@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+									Delete Customer
+								</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			// TODO: genericise this modal so it can be reused for the myriad
-			// of other delete actions in the app
-			@modal.Modal(modal.Props{
-				ID:    "delete-customer-modal",
-				Class: "max-w-md mx-4",
-			}) {
-				@modal.Header() {
-					Are you sure?
-				}
-				@modal.Body() {
-					<p class="text-sm text-muted-foreground">
-						Are you sure you want to delete <strong>{ c.Name }</strong>? This action cannot be undone.
-					</p>
-					<p class="text-xs text-destructive mt-2">
-						All associated data will be permanently removed.
-					</p>
-				}
-				@modal.Footer() {
-					<div class="flex gap-2">
-						@modal.Close(modal.CloseProps{
-							For: "delete-customer-modal",
-						}) {
-							@button.Button(button.Props{
-								Variant: button.VariantSecondary,
-							}) {
-								Cancel
-							}
-						}
-						@modal.Close(modal.CloseProps{
-							For: "delete-customer-modal",
-						}) {
-							@button.Button(button.Props{
-								Variant: button.VariantDestructive,
-								Attributes: templ.Attributes{
-									"data-on-click": fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()),
-								},
-							}) {
-								@icon.Trash2()
-								Delete
-							}
-						}
-					</div>
-				}
-			}
+			<dialog id="delete-modal" class="dialog max-w-md mx-4" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-description">
+				<article>
+					<header>
+						<h2 id="delete-modal-title">Are you sure?</h2>
+						<p id="delete-modal-description">This action cannot be undone. This will permanently delete <strong>{ c.Name }</strong> and remove all associated data from our servers.</p>
+					</header>
+					<footer class="flex gap-2 justify-end">
+						<button class="btn-outline" type="button" onclick="document.getElementById('delete-modal').close()">Cancel</button>
+						<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()) }>
+							@icon.Trash2()
+							Delete
+						</button>
+					</footer>
+				</article>
+			</dialog>
 		</div>
 		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
 			@StatsCard(StatsCardProps{
@@ -254,20 +222,13 @@ templ CustomerOverview(c db.GetCustomerRow) {
 									{ avatar.Initials(c.Name) }
 								}
 							}
-							@modal.Trigger(modal.TriggerProps{
-								For: "edit-logo-modal",
-							}) {
-								@button.Button(button.Props{
-									Size:  button.SizeIcon,
-									Class: "absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6",
-									Attributes: templ.Attributes{
-										"title":         "Edit Logo",
-										"data-on-click": "$logo = ''",
-									},
-								}) {
-									@icon.Pencil(icon.Props{Class: "size-[12px]"})
-								}
-							}
+							<button
+								class="btn absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6"
+								title="Edit Logo"
+								data-on-click="$logo = '', document.getElementById('edit-logo-dialog').showModal()"
+							>
+								@icon.Pencil(icon.Props{Class: "size-[12px]"})
+							</button>
 						</div>
 						<div>
 							<h3 class="text-xl font-semibold">{ c.Name }</h3>
@@ -346,54 +307,31 @@ templ CustomerOverview(c db.GetCustomerRow) {
 		<div class="mt-4">
 			@mdNotes(c.Notes.String)
 		</div>
-		@modal.Modal(modal.Props{
-			ID:    "edit-logo-modal",
-			Class: "max-w-md mx-4",
-		}) {
-			@modal.Header() {
-				Upload Logo
-			}
-			@modal.Body() {
-				<p class="text-sm text-muted-foreground mb-4">
-					Upload a new logo for this customer. Recommended size is 200x200px.
-				</p>
-				<div class="grid gap-2">
-					<label for="logo-upload">Logo</label>
-					<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
-					<p class="text-muted-foreground text-sm">Upload a new logo (200x200px recommended).</p>
-				</div>
-			}
-			@modal.Footer() {
-				<div class="flex gap-2">
-					@modal.Close(modal.CloseProps{
-						For: "edit-logo-modal",
-					}) {
-						@button.Button(button.Props{
-							Variant: button.VariantSecondary,
-						}) {
-							Cancel
-						}
-					}
-					@button.Button(button.Props{
-						Attributes: templ.Attributes{
-							"data-on-click":      fmt.Sprintf("@post('/sse/customer/upload-logo/%s', {contentType: 'form'})", c.ID.String()),
-							"data-attr-disabled": "!$logo.length",
-						},
-					}) {
+		<dialog id="edit-logo-dialog" class="dialog" aria-labelledby="edit-logo-dialog-title" aria-describedby="edit-logo-dialog-description" onclick="this.close()">
+			<article onclick="event.stopPropagation()">
+				<header>
+					<h2 id="edit-logo-dialog-title">Upload Logo</h2>
+					<p id="edit-logo-dialog-description">Upload a new logo for this customer. Recommended size is 200x200px.</p>
+				</header>
+				<section>
+					<form class="form grid gap-4" enctype="multipart/form-data">
+						<div class="grid gap-2">
+							<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
+						</div>
+					</form>
+				</section>
+				<footer class="flex gap-1 justify-end flex-row">
+					<button class="btn-outline" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+					<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
 						@icon.Upload()
 						Upload Logo
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantDestructive,
-						Attributes: templ.Attributes{
-							"data-on-click": fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()),
-						},
-					}) {
+					</button>
+					<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
 						@icon.Trash2()
-					}
-				</div>
-			}
-		}
+					</button>
+				</footer>
+			</article>
+		</dialog>
 	</div>
 }
 
