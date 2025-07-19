@@ -9,12 +9,8 @@ import (
 	"github.com/scottmckendry/beam/ui/components/badge"
 	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/form"
 	"github.com/scottmckendry/beam/ui/components/icon"
-	"github.com/scottmckendry/beam/ui/components/input"
 	"github.com/scottmckendry/beam/ui/components/modal"
-	"github.com/scottmckendry/beam/ui/components/selectbox"
-	"github.com/scottmckendry/beam/ui/components/textarea"
 )
 
 var tabHeaders = []string{
@@ -361,16 +357,11 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				<p class="text-sm text-muted-foreground mb-4">
 					Upload a new logo for this customer. Recommended size is 200x200px.
 				</p>
-				@input.Input(input.Props{
-					ID:       "logo-upload",
-					Name:     "logo",
-					Type:     input.TypeFile,
-					Required: true,
-					Attributes: templ.Attributes{
-						"accept":    "image/*",
-						"data-bind": "logo",
-					},
-				})
+				<div class="grid gap-2">
+					<label for="logo-upload">Logo</label>
+					<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
+					<p class="text-muted-foreground text-sm">Upload a new logo (200x200px recommended).</p>
+				</div>
 			}
 			@modal.Footer() {
 				<div class="flex gap-2">
@@ -408,140 +399,42 @@ templ CustomerOverview(c db.GetCustomerRow) {
 
 templ customerForm(p CustomerFormProps) {
 	<div id="inner-content" class="p-6">
-		<form class="w-full max-w-3xl mx-auto">
+		<form class="form grid gap-6 w-full max-w-3xl mx-auto" data-on-submit={ p.ActionURL }>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "name",
-					}) {
-						Name
-					}
-					@input.Input(input.Props{
-						ID:          "name",
-						Name:        "name",
-						Type:        input.TypeText,
-						Value:       p.Name,
-						Placeholder: "Customer Name",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "email",
-					}) {
-						Email
-					}
-					@input.Input(input.Props{
-						ID:          "email",
-						Name:        "email",
-						Type:        input.TypeEmail,
-						Value:       p.Email,
-						Placeholder: "mail@example.com",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "address",
-					}) {
-						Address
-					}
-					@input.Input(input.Props{
-						ID:          "address",
-						Name:        "address",
-						Type:        input.TypeText,
-						Value:       p.Address,
-						Placeholder: "123 Main St, City, Country",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "phone",
-					}) {
-						Phone
-					}
-					@input.Input(input.Props{
-						ID:          "phone",
-						Name:        "phone",
-						Type:        input.TypeTel,
-						Value:       p.Phone,
-						Placeholder: "+64 21 123 4567",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "website",
-					}) {
-						Website
-					}
-					@input.Input(input.Props{
-						ID:          "website",
-						Name:        "website",
-						Type:        input.TypeURL,
-						Value:       p.Website,
-						Placeholder: "https://example.com",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "status",
-					}) {
-						Status
-					}
-					@selectbox.SelectBox() {
-						@selectbox.Trigger(selectbox.TriggerProps{
-							ID:   "status",
-							Name: "status",
-						}) {
-							@selectbox.Value(selectbox.ValueProps{
-								Placeholder: "Select a status",
-							})
-						}
-						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "active",
-								Selected: p.Status == "active",
-							}) {
-								Active
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "inactive",
-								Selected: p.Status == "inactive",
-							}) {
-								Inactive
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "prospect",
-								Selected: p.Status == "prospect",
-							}) {
-								Prospect
-							}
-						}
-					}
-				}
+				<div class="grid gap-2">
+					<label for="name">Name</label>
+					<input type="text" id="name" name="name" placeholder="Customer Name" value={ p.Name } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" placeholder="mail@example.com" value={ p.Email } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="address">Address</label>
+					<input type="text" id="address" name="address" placeholder="123 Main St, City, Country" value={ p.Address }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="phone">Phone</label>
+					<input type="tel" id="phone" name="phone" placeholder="+64 21 123 4567" value={ p.Phone }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="website">Website</label>
+					<input type="url" id="website" name="website" placeholder="https://example.com" value={ p.Website }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="status">Status</label>
+					<select id="status" name="status" class="w-full">
+						<option value="active" selected={ p.Status == "active" }>Active</option>
+						<option value="inactive" selected={ p.Status == "inactive" }>Inactive</option>
+						<option value="prospect" selected={ p.Status == "prospect" }>Prospect</option>
+					</select>
+				</div>
 			</div>
-			@form.Item(form.ItemProps{Class: "mt-6"}) {
-				@form.Label(form.LabelProps{
-					For: "notes",
-				}) {
-					Notes
-				}
-				@textarea.Textarea(textarea.Props{
-					ID:          "notes",
-					Name:        "notes",
-					Placeholder: "Markdown supported",
-					Rows:        8,
-					Value:       p.Notes,
-				})
-			}
-			@button.Button(button.Props{
-				Class: "w-full mt-6",
-				Attributes: templ.Attributes{
-					"data-on-click": p.ActionURL,
-				},
-			}) {
-				{ p.ButtonLabel }
-			}
+			<div class="grid gap-2 mt-6">
+				<label for="notes">Notes</label>
+				<textarea id="notes" name="notes" placeholder="Markdown supported" rows="8">{ p.Notes }</textarea>
+			</div>
+			<button type="submit" class="btn w-full mt-6">{ p.ButtonLabel }</button>
 		</form>
 	</div>
 }
