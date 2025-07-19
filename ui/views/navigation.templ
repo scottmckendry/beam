@@ -5,7 +5,6 @@ import (
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/avatar"
-	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/icon"
 )
 
@@ -149,35 +148,19 @@ templ navItem(text string, uri string, icon templ.Component) {
 	</a>
 }
 
-templ addCustomerButton() {
-	<a href="#add-customer">
-		@button.Button(button.Props{
-			Variant: button.VariantOutline,
-			Class:   "w-full bg-transparent",
-			Attributes: templ.Attributes{
-				"data-on-click": "@get('/sse/customer/add')",
-			},
-		}) {
-			@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
-			Add Customer
-		}
-	</a>
+	templ addCustomerButton() {
+	<button type="button" class="btn btn-outline w-full bg-transparent flex items-center" data-on-click="@get('/sse/customer/add')">
+		@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
+		Add Customer
+	</button>
 }
-
-templ themeSwitcher() {
-	@button.Button(button.Props{
-		Variant: button.VariantGhost,
-		Class:   "text-muted-foreground",
-		Attributes: templ.Attributes{
-			"id":   "theme-toggle-btn",
-			"type": "button",
-		},
-	}) {
+	templ themeSwitcher() {
+	<button id="theme-toggle-btn" type="button" class="btn btn-ghost text-muted-foreground">
 		<span id="theme-icon-sun" style="display:none;">
 			@icon.Sun(icon.Props{Class: "size-[22px]"})
 		</span>
 		<span id="theme-icon-moon" style="display:none;">
 			@icon.Moon(icon.Props{Class: "size-[22px]"})
 		</span>
-	}
+	</button>
 }

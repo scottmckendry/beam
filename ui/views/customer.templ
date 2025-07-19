@@ -7,7 +7,6 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/avatar"
 	"github.com/scottmckendry/beam/ui/components/badge"
-	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/icon"
 )
@@ -96,18 +95,15 @@ templ Customer(c db.GetCustomerRow) {
 
 templ CustomerOverview(c db.GetCustomerRow) {
 	<div id="customer-tab-content">
-		<div class="flex flex-wrap items-center gap-3 mt-6">
-			@button.Button(button.Props{}) {
+		<div class="flex flex-wrap items-center gap-3 mt-4">
+			<button type="button" class="btn flex items-center gap-2">
 				@icon.Plus()
 				Add Contact
-			}
-			@button.Button(button.Props{
-				Variant: button.VariantSecondary,
-				Class:   "hidden sm:flex",
-			}) {
+			</button>
+			<button type="button" class="btn btn-secondary hidden sm:flex items-center gap-2">
 				@icon.FileText()
 				Create Invoice
-			}
+			</button>
 			<div id="actions-dropdown" class="dropdown-menu">
 				<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
 					@icon.Ellipsis(icon.Props{Size: 16})

@@ -2,7 +2,6 @@ package views
 
 import (
 	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/button"
 	"github.com/scottmckendry/beam/ui/components/icon"
 )
 
@@ -24,15 +23,11 @@ templ Login() {
 							}
 						}
 						@card.Content() {
-							@button.Button(button.Props{
-								Class: "gap-2",
-								Href:  "/login/github",
-							}) {
-								@icon.Github(icon.Props{
-									Size: 16})
-								Login with GitHub
-							}
-						}
+						<a href="/login/github" class="btn flex items-center gap-2">
+							@icon.Github(icon.Props{
+								Size: 16})
+							Login with GitHub
+						</a>						}
 					</div>
 				}
 			</div>
