@@ -39,8 +39,7 @@ func (h *Handlers) renderSSE(w http.ResponseWriter, r *http.Request, opts SSEOpt
 		sse.PatchSignals(opts.Signals)
 	}
 
-	// TODO: remove the replace mode - depending on the outcome of #999
-	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true), datastar.WithModeReplace())
+	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true))
 	return nil
 }
 
