@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/scottmckendry/beam/ui/components/icon"
 )
 
@@ -197,16 +196,16 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			}
 		</div>
 		<div class="grid gap-4 md:grid-cols-2 mt-4">
-			@card.Card(card.Props{Class: ""}) {
-				@card.Header() {
-					@card.Title() {
+			<div class="card block">
+				<div class="card-header flex flex-col space-y-1.5 px-6">
+					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
 						Customer Information
-					}
-					@card.Description() {
+					</h3>
+					<p class="card-description text-sm text-muted-foreground">
 						Basic details and contact information
-					}
-				}
-				@card.Content(card.ContentProps{Class: "space-y-4 pt-3"}) {
+					</p>
+				</div>
+				<div class="card-content p-6 pt-3 space-y-4">
 					<div class="flex items-center gap-4">
 						<div class="relative group">
 							if c.Logo.String != "" {
@@ -259,19 +258,18 @@ templ CustomerOverview(c db.GetCustomerRow) {
 							</a>
 						</div>
 					</div>
-				}
-			}
-			@card.Card() {
-				@card.Header() {
-					@card.Title() {
+				</div>
+			</div>
+			<div class="card block">
+				<div class="card-header flex flex-col space-y-1.5 px-6">
+					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
 						Account Summary
-					}
-					@card.Description() {
+					</h3>
+					<p class="card-description text-sm text-muted-foreground">
 						Key account metrics and status
-					}
-				}
-				// TODO: replace hardcoded values with actual data
-				@card.Content(card.ContentProps{Class: "space-y-4 pt-4"}) {
+					</p>
+				</div>
+				<div class="card-content p-6 pt-4 space-y-4">
 					<hr/>
 					<div class="flex justify-between items-center">
 						<span class="text-sm font-medium">Customer Since</span>
@@ -293,8 +291,8 @@ templ CustomerOverview(c db.GetCustomerRow) {
 						<span class="text-sm font-medium">Projects</span>
 						<span class="text-sm text-muted-foreground">4 Active, 2 Maintenance</span>
 					</div>
-				}
-			}
+				</div>
+			</div>
 		</div>
 		<div class="mt-4">
 			@mdNotes(c.Notes.String)

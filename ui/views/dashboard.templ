@@ -3,7 +3,6 @@ package views
 import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/components/icon"
-	"github.com/scottmckendry/beam/ui/components/card"
 	"github.com/dustin/go-humanize"
 )
 
@@ -15,8 +14,8 @@ type StatsCardProps struct {
 }
 
 templ StatsCard(props StatsCardProps) {
-	@card.Card() {
-		@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+	<div class="card">
+		<header class="flex flex-row items-center justify-between space-y-0 pb-2">
 			<h3 class="text-lg font-medium">
 				if props.ShortTitle != "" {
 					<span class="sm:hidden">{ props.ShortTitle }</span>
@@ -27,11 +26,11 @@ templ StatsCard(props StatsCardProps) {
 				}
 			</h3>
 			@props.Icon
-		}
-		@card.Content() {
+		</header>
+		<section>
 			{ children... }
-		}
-	}
+		</section>
+	</div>
 }
 
 templ DashboardStats(s db.GetDashboardStatsRow) {
@@ -94,15 +93,15 @@ templ DashboardStats(s db.GetDashboardStatsRow) {
 
 templ DashboardActivity(activities []db.GetRecentActivityRow) {
 	<div class="mt-4" id="dashboard-activity-section">
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: ""}) {
+		<div class="card">
+			<header>
 				<div class="flex items-center gap-2">
 					@icon.Activity(icon.Props{Size: 20})
 					<h3 class="text-lg font-medium">Recent Activity</h3>
 				</div>
 				<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
-			}
-			@card.Content() {
+			</header>
+			<section>
 				<div class="relative">
 					<div class="absolute left-6 top-10 bottom-10 w-px bg-border"></div>
 					for _, a := range activities {
@@ -131,8 +130,8 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 						</div>
 					}
 				</div>
-			}
-		}
+			</section>
+		</div>
 	</div>
 }
 
@@ -142,18 +141,17 @@ templ Dashboard() {
 			<div class="grid gap-4 grid-cols-2 lg:grid-cols-5"></div>
 		</div>
 		<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: ""}) {
+<div class="card min-w-0 w-full">				<header>
 					<div class="flex items-center gap-2">
 						@icon.Activity(icon.Props{Size: 20})
 						<h3 class="text-lg font-medium">Recent Activity</h3>
 					</div>
 					<p class="text-sm text-muted-foreground">Latest updates across all customers</p>
-				}
-				@card.Content() {
+				</header>
+				<section>
 					<div class="space-y-4"></div>
-				}
-			}
+				</section>
+			</div>
 		</div>
 	</div>
 }
