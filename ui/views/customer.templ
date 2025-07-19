@@ -352,9 +352,13 @@ templ customerForm(p CustomerFormProps) {
 				<div class="grid gap-2">
 					<label for="status">Status</label>
 					<select id="status" name="status" class="w-full">
-						<option value="active" selected={ p.Status == "active" }>Active</option>
-						<option value="inactive" selected={ p.Status == "inactive" }>Inactive</option>
-						<option value="prospect" selected={ p.Status == "prospect" }>Prospect</option>
+						for _, status := range []string{"Active", "Inactive", "Prospect"} {
+							if strings.ToLower(status) == p.Status {
+								<option value={ strings.ToLower(status) } selected>{ status }</option>
+							} else {
+								<option value={ strings.ToLower(status) }>{ status }</option>
+							}
+						}
 					</select>
 				</div>
 			</div>
