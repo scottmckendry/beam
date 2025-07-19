@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/avatar"
 	"github.com/scottmckendry/beam/ui/components/icon"
 )
 
@@ -125,12 +124,10 @@ templ customerNavItem(c db.Customer) {
 		data-attr-class={ "$_currentPage == '" + c.ID.String() + "' ? 'flex items-center gap-2 px-2 py-1 mx-2 mb-2 rounded-md font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 py-1 px-2 mx-2 mb-2 rounded-md font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
 		data-on-click={ "@get('/sse/customer/" + c.ID.String() + "')" }
 	>
-		@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {
-			if c.Logo.String != "" {
-				@avatar.Image(avatar.ImageProps{Src: c.Logo.String})
-			} else {
-				{ avatar.Initials(c.Name) }
-			}
+		if c.Logo.String != "" {
+			<img class="size-8 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
+		} else {
+			<span class="size-8 shrink-0 bg-muted flex items-center justify-center rounded-full">{ Initials(c.Name) }</span>
 		}
 		{ c.Name }
 	</a>
