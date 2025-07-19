@@ -1,7 +1,7 @@
 package views
 
 import (
-	"github.com/scottmckendry/beam/ui/icons"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 const version = "v0.1.0"
@@ -25,7 +25,7 @@ templ BaseLayout() {
 		<div class="fixed bottom-4 right-4">
 			<a href="https://github.com/scottmckendry/beam" target="_blank" rel="noopener noreferrer">
 				<span class="badge-secondary flex gap-2 items-center shadow-md">
-					@icons.GitHub(14)
+					@icon.Github(icon.Props{Size: 14})
 					{ version }
 				</span>
 			</a>

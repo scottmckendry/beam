@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/scottmckendry/beam/ui/icons"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 const version = "v0.1.0"
@@ -47,7 +47,7 @@ func BaseLayout() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.GitHub(14).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icon.Github(icon.Props{Size: 14}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

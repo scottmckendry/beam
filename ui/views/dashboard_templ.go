@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"github.com/dustin/go-humanize"
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 type StatsCardProps struct {

@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 func HeaderIcon(name string) templ.Component {

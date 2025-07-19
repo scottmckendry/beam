@@ -9,6 +9,7 @@ tasks:
     desc: Elevate user 'scottmckendry' to admin
     cmds:
       - sqlite3 data/beam.db "UPDATE users SET is_admin=1 WHERE github_id='scottmckendry';"
+
   encrypt-env:
     desc: Encrypt .env to .env.sops using sops (no-op if unchanged)
     cmds:
@@ -33,7 +34,13 @@ tasks:
     desc: Decrypt .env.sops to .env using sops
     cmds:
       - sops --input-type binary --output-type binary --decrypt .env.sops > .env
+
   minify-js:
     desc: Bundle and minify public/js/*.js to public/js/components.min.js
     cmds:
       - find public/js -type f -name "*.js" ! -name "beam.min.js" | xargs cat | go tool minify -o public/js/beam.min.js --type js
+
+  generate-icons:
+    desc: Dynamically tree-shake and generate only used Lucide icons
+    cmds:
+      - go run ./cmd/iconshaker/main.go

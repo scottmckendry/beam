@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icon"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 )
