@@ -63,13 +63,13 @@ templ DashboardStats(s db.GetDashboardStatsRow) {
 			<div class="text-2xl font-bold">${ s.MonthlyRevenue }</div>
 			if s.RevenueChange > 0 {
 				<p class="text-xs text-muted-foreground">
-					@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+					@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1 text-green-500"})
 					+{ s.RevenueChange }%
 				</p>
 			}
 			if s.RevenueChange < 0 {
 				<p class="text-xs text-muted-foreground">
-					@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+					@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1 text-red-500"})
 					-{ s.RevenueChange }%
 				</p>
 			}
@@ -141,7 +141,8 @@ templ Dashboard() {
 			<div class="grid gap-4 grid-cols-2 lg:grid-cols-5"></div>
 		</div>
 		<div id="dashboard-activity-section" data-on-load="@get('/sse/dashboard/activity')" class="relative mt-4">
-<div class="card min-w-0 w-full">				<header>
+			<div class="card min-w-0 w-full">
+				<header>
 					<div class="flex items-center gap-2">
 						@icon.Activity(icon.Props{Size: 20})
 						<h3 class="text-lg font-medium">Recent Activity</h3>
