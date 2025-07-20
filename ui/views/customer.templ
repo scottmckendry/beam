@@ -88,6 +88,8 @@ templ Customer(c db.GetCustomerRow) {
 				>
 					if i == 0 {
 						@CustomerOverview(c)
+					} else {
+						<div id="customer-tab-content"></div>
 					}
 				</div>
 			}
@@ -97,40 +99,46 @@ templ Customer(c db.GetCustomerRow) {
 
 templ CustomerOverview(c db.GetCustomerRow) {
 	<div id="customer-tab-content">
-		<div class="flex flex-wrap items-center gap-3 mt-4">
-			<button type="button" class="btn flex items-center gap-2">
-				@icon.Plus()
-				Add Contact
-			</button>
-			<button type="button" class="btn btn-secondary hidden sm:flex items-center gap-2">
-				@icon.FileText()
-				Create Invoice
-			</button>
-			<div id="actions-dropdown" class="dropdown-menu">
-				<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
-					@icon.Ellipsis(icon.Props{Size: 16})
-					<span>More Actions</span>
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+			<div class="ml-1">
+				<h2 class="font-bold">Overview</h2>
+				<p class="text-muted-foreground text-sm">Summary and quick actions for this customer</p>
+			</div>
+			<div class="flex gap-2">
+				<button type="button" class="btn flex items-center gap-2">
+					@icon.Plus()
+					Add Contact
 				</button>
-				<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="min-w-48 right-0">
-					<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
-						<div role="group" aria-labelledby="customer-actions">
-							<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
-								<span class="flex items-center">
-									@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
-									Create Invoice
-								</span>
-							</div>
-							<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
-								<span class="flex items-center">
-									@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
-									Edit Customer
-								</span>
-							</div>
-							<div role="menuitem">
-								<button type="button" onclick="document.getElementById('delete-modal').showModal()" class="flex items-center w-full">
-									@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-									Delete Customer
-								</button>
+				<button type="button" class="btn btn-secondary hidden sm:flex items-center gap-2">
+					@icon.FileText()
+					Create Invoice
+				</button>
+				<div id="actions-dropdown" class="dropdown-menu">
+					<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
+						@icon.Ellipsis(icon.Props{Size: 16})
+						<span>More Actions</span>
+					</button>
+					<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="absolute right-0 left-auto">
+						<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
+							<div role="group" aria-labelledby="customer-actions">
+								<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
+									<span class="flex items-center">
+										@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
+										Create Invoice
+									</span>
+								</div>
+								<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
+									<span class="flex items-center">
+										@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
+										Edit Customer
+									</span>
+								</div>
+								<div role="menuitem">
+									<button type="button" onclick="document.getElementById('delete-modal').showModal()" class="flex items-center w-full">
+										@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+										Delete Customer
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -152,7 +160,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				</article>
 			</dialog>
 		</div>
-		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
+		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-3">
 			@StatsCard(StatsCardProps{
 				Title: "Contacts",
 				Icon:  icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"}),
@@ -326,6 +334,60 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				</footer>
 			</article>
 		</dialog>
+	</div>
+}
+
+templ CustomerContacts(c db.GetCustomerRow) {
+	<div id="customer-tab-content">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+			<div class="ml-1">
+				<h2 class="font-bold">Contacts</h2>
+				<p class="text-muted-foreground text-sm">Manage and view all contacts for this customer</p>
+			</div>
+			<div class="flex gap-2">
+				<button type="button" class="btn flex items-center gap-2">
+					@icon.Plus()
+					Add Contact
+				</button>
+			</div>
+		</div>
+		<div class="mt-6 text-muted-foreground">Contact list goes here.</div>
+	</div>
+}
+
+templ CustomerSubscriptions(c db.GetCustomerRow) {
+	<div id="customer-tab-content">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+			<div class="ml-1">
+				<h2 class="font-bold">Subscriptions</h2>
+				<p class="text-muted-foreground text-sm">View and manage subscriptions for this customer</p>
+			</div>
+			<div class="flex gap-2">
+				<button type="button" class="btn flex items-center gap-2">
+					@icon.Plus()
+					Add Subscription
+				</button>
+			</div>
+		</div>
+		<div class="mt-6 text-muted-foreground">Subscription list goes here.</div>
+	</div>
+}
+
+templ CustomerProjects(c db.GetCustomerRow) {
+	<div id="customer-tab-content">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+			<div class="ml-1">
+				<h2 class="font-bold">Projects</h2>
+				<p class="text-muted-foreground text-sm">View and manage projects for this customer</p>
+			</div>
+			<div class="flex gap-2">
+				<button type="button" class="btn flex items-center gap-2">
+					@icon.Plus()
+					Add Project
+				</button>
+			</div>
+		</div>
+		<div class="mt-6 text-muted-foreground">Project list goes here.</div>
 	</div>
 }
 

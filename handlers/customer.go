@@ -231,6 +231,51 @@ func (h *Handlers) GetCustomerOverviewSSE(w http.ResponseWriter, r *http.Request
 	})
 }
 
+// GetCustomerContactsSSE retrieves a customer's contacts by ID and renders them via SSE
+func (h *Handlers) GetCustomerContactsSSE(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.getCustomerByID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerContacts(c),
+			views.HeaderIcon("customer"),
+		},
+	})
+}
+
+// GetCustomerSubscriptionsSSE retrieves a customer's subscriptions by ID and renders them via SSE
+func (h *Handlers) GetCustomerSubscriptionsSSE(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.getCustomerByID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerSubscriptions(c),
+			views.HeaderIcon("customer"),
+		},
+	})
+}
+
+// GetCustomerProjectsSSE retrieves a customer's projects by ID and renders them via SSE
+func (h *Handlers) GetCustomerProjectsSSE(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.getCustomerByID(w, r, "id")
+	if !ok {
+		return
+	}
+
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerProjects(c),
+			views.HeaderIcon("customer"),
+		},
+	})
+}
+
 // getCustomerByID fetches a customer by ID from the URL param and handles errors consistently
 func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idParam string) (db.GetCustomerRow, bool) {
 	id := chi.URLParam(r, idParam)
