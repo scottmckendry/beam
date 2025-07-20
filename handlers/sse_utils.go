@@ -10,7 +10,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
-	"github.com/starfederation/datastar/sdk/go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 type PageSignals struct {
@@ -39,8 +39,7 @@ func (h *Handlers) renderSSE(w http.ResponseWriter, r *http.Request, opts SSEOpt
 		sse.PatchSignals(opts.Signals)
 	}
 
-	// TODO: remove the replace mode - depending on the outcome of #999
-	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true), datastar.WithModeReplace())
+	sse.PatchElements(buf.String(), datastar.WithUseViewTransitions(true))
 	return nil
 }
 

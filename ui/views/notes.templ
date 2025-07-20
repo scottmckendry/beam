@@ -6,27 +6,21 @@ import (
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
-
-	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 templ mdNotes(notes string) {
-	@card.Card() {
-		@card.Header(card.HeaderProps{Class: ""}) {
+	<div class="card block">
+		<header>
 			<div class="flex items-center gap-2">
 				@icon.Notebook(icon.Props{Size: 20})
 				<h3 class="text-lg font-medium">Notes</h3>
 			</div>
-		}
-		@card.Content(
-			card.ContentProps{
-				Class: "p-6 pt-2",
-			},
-		) {
+		</header>
+		<section>
 			@templ.Raw(markdownToTailwindHTML(notes))
-		}
-	}
+		</section>
+	</div>
 }
 
 // markdownToTailwindHTML renders markdown to HTML with Tailwind classes using goldmark

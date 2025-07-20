@@ -1,41 +1,63 @@
 package views
 
 import (
-	"github.com/scottmckendry/beam/ui/components/toast"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
-func createToastProps(title, description string, variant toast.Variant) toast.Props {
-	return toast.Props{
-		Title:         title,
-		Description:   description,
-		Variant:       variant,
-		Position:      toast.PositionTopRight,
-		Dismissible:   true,
-		ShowIndicator: true,
-		Icon:          true,
-	}
-}
-
-templ InfoToast(title, description string) {
-	<div id="notification-area">
-		@toast.Toast(createToastProps(title, description, toast.VariantDefault))
+// Toast notification variations using static HTML markup
+// Accessible, semantic, and styled for frontend-driven toasts
+templ SuccessToast(title, description string) {
+	<div id="toaster" class="toaster">
+		<div class="toast" role="status" aria-atomic="true" aria-hidden="false" data-category="success">
+			<div class="toast-content">
+				@icon.CircleCheckBig(icon.Props{Class: "text-green-500"})
+				<section>
+					<h2>{ title }</h2>
+					<p>{ description }</p>
+				</section>
+			</div>
+		</div>
 	</div>
 }
 
 templ ErrorToast(title, description string) {
-	<div id="notification-area">
-		@toast.Toast(createToastProps(title, description, toast.VariantError))
+	<div id="toaster" class="toaster">
+		<div class="toast" role="alert" aria-atomic="true" aria-hidden="false" data-category="error">
+			<div class="toast-content">
+				@icon.CircleX(icon.Props{Class: "text-red-500"})
+				<section>
+					<h2>{ title }</h2>
+					<p>{ description }</p>
+				</section>
+			</div>
+		</div>
 	</div>
 }
 
-templ SuccessToast(title, description string) {
-	<div id="notification-area">
-		@toast.Toast(createToastProps(title, description, toast.VariantSuccess))
+templ InfoToast(title, description string) {
+	<div id="toaster" class="toaster">
+		<div class="toast" role="status" aria-atomic="true" aria-hidden="false" data-category="info">
+			<div class="toast-content">
+				@icon.Info(icon.Props{Class: "text-blue-500"})
+				<section>
+					<h2>{ title }</h2>
+					<p>{ description }</p>
+				</section>
+			</div>
+		</div>
 	</div>
 }
 
 templ WarningToast(title, description string) {
-	<div id="notification-area">
-		@toast.Toast(createToastProps(title, description, toast.VariantWarning))
+	<div id="toaster" class="toaster">
+		<div class="toast" role="status" aria-atomic="true" aria-hidden="false" data-category="warning">
+			<div class="toast-content">
+				@icon.TriangleAlert(icon.Props{Class: "text-yellow-500"})
+				<section>
+					<h2>{ title }</h2>
+					<p>{ description }</p>
+				</section>
+			</div>
+		</div>
 	</div>
 }

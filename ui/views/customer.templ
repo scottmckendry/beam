@@ -1,21 +1,11 @@
 package views
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/avatar"
-	"github.com/scottmckendry/beam/ui/components/badge"
-	"github.com/scottmckendry/beam/ui/components/button"
-	"github.com/scottmckendry/beam/ui/components/card"
-	"github.com/scottmckendry/beam/ui/components/dropdown"
-	"github.com/scottmckendry/beam/ui/components/form"
-	"github.com/scottmckendry/beam/ui/components/icon"
-	"github.com/scottmckendry/beam/ui/components/input"
-	"github.com/scottmckendry/beam/ui/components/modal"
-	"github.com/scottmckendry/beam/ui/components/selectbox"
-	"github.com/scottmckendry/beam/ui/components/tabs"
-	"github.com/scottmckendry/beam/ui/components/textarea"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 var tabHeaders = []string{
@@ -61,151 +51,106 @@ templ EditCustomer(c db.GetCustomerRow) {
 		Website:     c.Website.String,
 		Notes:       c.Notes.String,
 		ButtonLabel: "Update Customer",
-		ActionURL:   "@get('/sse/customer/edit-submit/" + c.ID.String() + "', {contentType: 'form'})",
+		ActionURL:   fmt.Sprintf("@get('/sse/customer/edit-submit/%s', {contentType: 'form'})", c.ID.String()),
 	})
 }
 
 templ Customer(c db.GetCustomerRow) {
 	<div id="inner-content" class="flex-1 p-4 md:p-6">
-		@tabs.Tabs(tabs.Props{
-			ID: "customer-tabs",
-		}) {
-			@tabs.List(tabs.ListProps{
-				Class: "w-full",
-			}) {
+		<div class="tabs w-full" id="customer-tabs">
+			<nav role="tablist" aria-orientation="horizontal" class="w-full">
 				for i, header := range tabHeaders {
-					@tabs.Trigger(tabs.TriggerProps{
-						Value:    strings.ToLower(header),
-						IsActive: i == 0,
-						Attributes: templ.Attributes{
-							"data-on-click": "@get('/sse/customer/" + strings.ToLower(header) + "/" + c.ID.String() + "')",
-						},
-					}) {
-						<h3 class="text-sm font-medium">
-							if header == "Subscriptions" {
-								<span class="sm:hidden">Subs</span>
-								<span class="hidden sm:inline">Subscriptions</span>
-							} else {
-								{ header }
-							}
-						</h3>
-					}
-				}
-			}
-			<div class="w-full mt-2">
-				for i, header := range tabHeaders {
-					@tabs.Content(tabs.ContentProps{
-						Value:    strings.ToLower(header),
-						IsActive: i == 0,
-					}) {
-						if i == 0 {
-							@CustomerOverview(c)
+					<button
+						type="button"
+						role="tab"
+						id={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
+						aria-controls={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
+						aria-selected={ i == 0 }
+						tabindex="0"
+						data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/%s')", strings.ToLower(header), c.ID.String()) }
+					>
+						if header == "Subscriptions" {
+							<span class="sm:hidden">Subs</span>
+							<span class="hidden sm:inline">{ header }</span>
+						} else {
+							<span>{ header }</span>
 						}
-					}
+					</button>
 				}
-			</div>
-		}
+			</nav>
+			for i := range tabHeaders {
+				<div
+					role="tabpanel"
+					id={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
+					aria-labelledby={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
+					tabindex="-1"
+					aria-selected={ i == 0 }
+				>
+					if i == 0 {
+						@CustomerOverview(c)
+					}
+				</div>
+			}
+		</div>
 	</div>
 }
 
 templ CustomerOverview(c db.GetCustomerRow) {
 	<div id="customer-tab-content">
-		<div class="flex flex-wrap items-center gap-3 mt-6">
-			@button.Button(button.Props{}) {
+		<div class="flex flex-wrap items-center gap-3 mt-4">
+			<button type="button" class="btn flex items-center gap-2">
 				@icon.Plus()
 				Add Contact
-			}
-			@button.Button(button.Props{
-				Variant: button.VariantSecondary,
-				Class:   "hidden sm:flex",
-			}) {
+			</button>
+			<button type="button" class="btn btn-secondary hidden sm:flex items-center gap-2">
 				@icon.FileText()
 				Create Invoice
-			}
-			@dropdown.Dropdown() {
-				@dropdown.Trigger() {
-					@button.Button(button.Props{
-						Variant: button.VariantOutline,
-					}) {
-						@icon.Ellipsis(icon.Props{Size: 16})
-						<span>More Actions</span>
-					}
-				}
-				@dropdown.Content(dropdown.ContentProps{
-					Width: "w-48",
-					Align: "right",
-				}) {
-					@dropdown.Item(dropdown.ItemProps{Class: "block sm:hidden"}) {
-						<span class="flex items-center">
-							@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
-							Create Invoice
-						</span>
-					}
-					@dropdown.Item() {
-						<span class="flex items-center" data-on-click={ "@get('/sse/customer/edit/" + c.ID.String() + "')" }>
-							@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
-							Edit Customer
-						</span>
-					}
-					@dropdown.Separator()
-					@dropdown.Item(dropdown.ItemProps{
-						Class: "text-destructive",
-					}) {
-						@modal.Trigger(modal.TriggerProps{
-							For: "delete-customer-modal",
-						}) {
-							<span class="flex items-center">
-								@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-								Delete Customer
-							</span>
-						}
-					}
-				}
-			}
-			// TODO: genericise this modal so it can be reused for the myriad
-			// of other delete actions in the app
-			@modal.Modal(modal.Props{
-				ID:    "delete-customer-modal",
-				Class: "max-w-md mx-4",
-			}) {
-				@modal.Header() {
-					Are you sure?
-				}
-				@modal.Body() {
-					<p class="text-sm text-muted-foreground">
-						Are you sure you want to delete <strong>{ c.Name }</strong>? This action cannot be undone.
-					</p>
-					<p class="text-xs text-destructive mt-2">
-						All associated data will be permanently removed.
-					</p>
-				}
-				@modal.Footer() {
-					<div class="flex gap-2">
-						@modal.Close(modal.CloseProps{
-							For: "delete-customer-modal",
-						}) {
-							@button.Button(button.Props{
-								Variant: button.VariantSecondary,
-							}) {
-								Cancel
-							}
-						}
-						@modal.Close(modal.CloseProps{
-							For: "delete-customer-modal",
-						}) {
-							@button.Button(button.Props{
-								Variant: button.VariantDestructive,
-								Attributes: templ.Attributes{
-									"data-on-click": "@get('/sse/customer/delete/" + c.ID.String() + "')",
-								},
-							}) {
-								@icon.Trash2()
-								Delete
-							}
-						}
+			</button>
+			<div id="actions-dropdown" class="dropdown-menu">
+				<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
+					@icon.Ellipsis(icon.Props{Size: 16})
+					<span>More Actions</span>
+				</button>
+				<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="min-w-48 right-0">
+					<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
+						<div role="group" aria-labelledby="customer-actions">
+							<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
+									Create Invoice
+								</span>
+							</div>
+							<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
+									Edit Customer
+								</span>
+							</div>
+							<div role="menuitem" class="text-destructive">
+								<button type="button" onclick="document.getElementById('delete-modal').showModal()" class="flex items-center w-full">
+									@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+									Delete Customer
+								</button>
+							</div>
+						</div>
 					</div>
-				}
-			}
+				</div>
+			</div>
+			<dialog id="delete-modal" class="dialog max-w-md mx-4" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-description">
+				<article>
+					<header>
+						<h2 id="delete-modal-title">Are you sure?</h2>
+						<p id="delete-modal-description">This action cannot be undone. This will permanently delete <strong>{ c.Name }</strong> and remove all associated data from our servers.</p>
+					</header>
+					<footer class="flex gap-2 justify-end">
+						<button class="btn-outline" type="button" onclick="document.getElementById('delete-modal').close()">Cancel</button>
+						<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()) }>
+							@icon.Trash2()
+							Delete
+						</button>
+					</footer>
+				</article>
+			</dialog>
 		</div>
 		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
 			@StatsCard(StatsCardProps{
@@ -234,17 +179,16 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				Title: "Revenue",
 				Icon:  icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"}),
 			}) {
-				// TODO: use tailwind colours for revenue change
 				<div class="text-2xl font-bold">${ c.MonthlyRevenue }</div>
 				if c.RevenueChange > 0 {
 					<p class="text-xs text-muted-foreground">
-						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1", Color: "#22c555"})
+						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1 text-green-500"})
 						+{ c.RevenueChange }%
 					</p>
 				}
 				if c.RevenueChange < 0 {
 					<p class="text-xs text-muted-foreground">
-						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1", Color: "#ef4444"})
+						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1 text-red-500"})
 						-{ c.RevenueChange }%
 					</p>
 				}
@@ -256,43 +200,34 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			}
 		</div>
 		<div class="grid gap-4 md:grid-cols-2 mt-4">
-			@card.Card(card.Props{Class: ""}) {
-				@card.Header() {
-					@card.Title() {
+			<div class="card block">
+				<div class="card-header flex flex-col space-y-1.5 px-6">
+					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
 						Customer Information
-					}
-					@card.Description() {
+					</h3>
+					<p class="card-description text-sm text-muted-foreground">
 						Basic details and contact information
-					}
-				}
-				@card.Content(card.ContentProps{Class: "space-y-4 pt-3"}) {
+					</p>
+				</div>
+				<div class="card-content p-6 pt-3 space-y-4">
 					<div class="flex items-center gap-4">
 						<div class="relative group">
-							@avatar.Avatar(avatar.Props{Size: avatar.SizeLg}) {
-								if c.Logo.String != "" {
-									@avatar.Image(avatar.ImageProps{Src: c.Logo.String})
-								} else {
-									{ avatar.Initials(c.Name) }
-								}
+							if c.Logo.String != "" {
+								<img class="size-16 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
+							} else {
+								<span class="size-16 shrink-0 bg-muted flex items-center justify-center rounded-full text-xl font-medium">{ Initials(c.Name) }</span>
 							}
-							@modal.Trigger(modal.TriggerProps{
-								For: "edit-logo-modal",
-							}) {
-								@button.Button(button.Props{
-									Size:  button.SizeIcon,
-									Class: "absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6",
-									Attributes: templ.Attributes{
-										"title":         "Edit Logo",
-										"data-on-click": "$logo = ''",
-									},
-								}) {
-									@icon.Pencil(icon.Props{Class: "size-[12px]"})
-								}
-							}
+							<button
+								class="btn absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6"
+								title="Edit Logo"
+								data-on-click="$logo = '', document.getElementById('edit-logo-dialog').showModal()"
+							>
+								@icon.Pencil(icon.Props{Class: "size-[12px]"})
+							</button>
 						</div>
 						<div>
 							<h3 class="text-xl font-semibold">{ c.Name }</h3>
-							@badge.Badge(badge.Props{Variant: badge.VariantSecondary, Class: "leading-none mt-1"}) {
+							<span class="badge-secondary leading-none mt-1">
 								switch c.Status {
 									case "active":
 										@icon.Check()
@@ -304,7 +239,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 										@icon.Info()
 								}
 								{ c.Status }
-							}
+							</span>
 						</div>
 					</div>
 					<div class="space-y-3">
@@ -327,19 +262,18 @@ templ CustomerOverview(c db.GetCustomerRow) {
 							</a>
 						</div>
 					</div>
-				}
-			}
-			@card.Card() {
-				@card.Header() {
-					@card.Title() {
+				</div>
+			</div>
+			<div class="card block">
+				<div class="card-header flex flex-col space-y-1.5 px-6">
+					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
 						Account Summary
-					}
-					@card.Description() {
+					</h3>
+					<p class="card-description text-sm text-muted-foreground">
 						Key account metrics and status
-					}
-				}
-				// TODO: replace hardcoded values with actual data
-				@card.Content(card.ContentProps{Class: "space-y-4 pt-4"}) {
+					</p>
+				</div>
+				<div class="card-content p-6 pt-4 space-y-4">
 					<hr/>
 					<div class="flex justify-between items-center">
 						<span class="text-sm font-medium">Customer Since</span>
@@ -361,204 +295,97 @@ templ CustomerOverview(c db.GetCustomerRow) {
 						<span class="text-sm font-medium">Projects</span>
 						<span class="text-sm text-muted-foreground">4 Active, 2 Maintenance</span>
 					</div>
-				}
-			}
+				</div>
+			</div>
 		</div>
 		<div class="mt-4">
 			@mdNotes(c.Notes.String)
 		</div>
-		@modal.Modal(modal.Props{
-			ID:    "edit-logo-modal",
-			Class: "max-w-md mx-4",
-		}) {
-			@modal.Header() {
-				Upload Logo
-			}
-			@modal.Body() {
-				<p class="text-sm text-muted-foreground mb-4">
-					Upload a new logo for this customer. Recommended size is 200x200px.
-				</p>
-				@input.Input(input.Props{
-					ID:       "logo-upload",
-					Name:     "logo",
-					Type:     input.TypeFile,
-					Required: true,
-					Attributes: templ.Attributes{
-						"accept":    "image/*",
-						"data-bind": "logo",
-					},
-				})
-			}
-			@modal.Footer() {
-				<div class="flex gap-2">
-					@modal.Close(modal.CloseProps{
-						For: "edit-logo-modal",
-					}) {
-						@button.Button(button.Props{
-							Variant: button.VariantSecondary,
-						}) {
-							Cancel
-						}
-					}
-					@button.Button(button.Props{
-						Attributes: templ.Attributes{
-							"data-on-click":      "$logo.length && @post('/sse/customer/upload-logo/" + c.ID.String() + "')",
-							"data-attr-disabled": "!$logo.length",
-						},
-					}) {
+		<dialog id="edit-logo-dialog" class="dialog" aria-labelledby="edit-logo-dialog-title" aria-describedby="edit-logo-dialog-description" onclick="this.close()">
+			<article onclick="event.stopPropagation()">
+				<header>
+					<h2 id="edit-logo-dialog-title">Upload Logo</h2>
+					<p id="edit-logo-dialog-description">Upload a new logo for this customer. Recommended size is 200x200px.</p>
+				</header>
+				<section>
+					<form class="form grid gap-4" enctype="multipart/form-data">
+						<div class="grid gap-2">
+							<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
+						</div>
+					</form>
+				</section>
+				<footer class="flex gap-1 justify-end flex-row">
+					<button class="btn-outline" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+					<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
 						@icon.Upload()
 						Upload Logo
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantDestructive,
-						Attributes: templ.Attributes{
-							"data-on-click": "@get('/sse/customer/delete-logo/" + c.ID.String() + "')",
-						},
-					}) {
+					</button>
+					<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
 						@icon.Trash2()
-					}
-				</div>
-			}
-		}
+					</button>
+				</footer>
+			</article>
+		</dialog>
 	</div>
 }
 
 templ customerForm(p CustomerFormProps) {
 	<div id="inner-content" class="p-6">
-		<form class="w-full max-w-3xl mx-auto">
+		<form class="form grid gap-6 w-full max-w-3xl mx-auto" data-on-submit={ p.ActionURL }>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "name",
-					}) {
-						Name
-					}
-					@input.Input(input.Props{
-						ID:          "name",
-						Name:        "name",
-						Type:        input.TypeText,
-						Value:       p.Name,
-						Placeholder: "Customer Name",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "email",
-					}) {
-						Email
-					}
-					@input.Input(input.Props{
-						ID:          "email",
-						Name:        "email",
-						Type:        input.TypeEmail,
-						Value:       p.Email,
-						Placeholder: "mail@example.com",
-						Required:    true,
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "address",
-					}) {
-						Address
-					}
-					@input.Input(input.Props{
-						ID:          "address",
-						Name:        "address",
-						Type:        input.TypeText,
-						Value:       p.Address,
-						Placeholder: "123 Main St, City, Country",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "phone",
-					}) {
-						Phone
-					}
-					@input.Input(input.Props{
-						ID:          "phone",
-						Name:        "phone",
-						Type:        input.TypeTel,
-						Value:       p.Phone,
-						Placeholder: "+64 21 123 4567",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "website",
-					}) {
-						Website
-					}
-					@input.Input(input.Props{
-						ID:          "website",
-						Name:        "website",
-						Type:        input.TypeURL,
-						Value:       p.Website,
-						Placeholder: "https://example.com",
-					})
-				}
-				@form.Item() {
-					@form.Label(form.LabelProps{
-						For: "status",
-					}) {
-						Status
-					}
-					@selectbox.SelectBox() {
-						@selectbox.Trigger(selectbox.TriggerProps{
-							ID:   "status",
-							Name: "status",
-						}) {
-							@selectbox.Value(selectbox.ValueProps{
-								Placeholder: "Select a status",
-							})
-						}
-						@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "active",
-								Selected: p.Status == "active",
-							}) {
-								Active
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "inactive",
-								Selected: p.Status == "inactive",
-							}) {
-								Inactive
-							}
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    "prospect",
-								Selected: p.Status == "prospect",
-							}) {
-								Prospect
+				<div class="grid gap-2">
+					<label for="name">Name</label>
+					<input type="text" id="name" name="name" placeholder="Customer Name" value={ p.Name } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" placeholder="mail@example.com" value={ p.Email } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="address">Address</label>
+					<input type="text" id="address" name="address" placeholder="123 Main St, City, Country" value={ p.Address }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="phone">Phone</label>
+					<input type="tel" id="phone" name="phone" placeholder="+64 21 123 4567" value={ p.Phone }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="website">Website</label>
+					<input type="url" id="website" name="website" placeholder="https://example.com" value={ p.Website }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="status">Status</label>
+					<select id="status" name="status" class="w-full">
+						for _, status := range []string{"Active", "Inactive", "Prospect"} {
+							if strings.ToLower(status) == p.Status {
+								<option value={ strings.ToLower(status) } selected>{ status }</option>
+							} else {
+								<option value={ strings.ToLower(status) }>{ status }</option>
 							}
 						}
-					}
-				}
+					</select>
+				</div>
 			</div>
-			@form.Item(form.ItemProps{Class: "mt-6"}) {
-				@form.Label(form.LabelProps{
-					For: "notes",
-				}) {
-					Notes
-				}
-				@textarea.Textarea(textarea.Props{
-					ID:          "notes",
-					Name:        "notes",
-					Placeholder: "Markdown supported",
-					Rows:        8,
-					Value:       p.Notes,
-				})
-			}
-			@button.Button(button.Props{
-				Class: "w-full mt-6",
-				Attributes: templ.Attributes{
-					"data-on-click": p.ActionURL,
-				},
-			}) {
-				{ p.ButtonLabel }
-			}
+			<div class="grid gap-2 mt-6">
+				<label for="notes">Notes</label>
+				<textarea id="notes" name="notes" placeholder="Markdown supported" rows="8">{ p.Notes }</textarea>
+			</div>
+			<button type="submit" class="btn w-full mt-6">{ p.ButtonLabel }</button>
 		</form>
 	</div>
+}
+
+// Initials returns up to two initials from a name string.
+func Initials(name string) string {
+	parts := strings.Fields(name)
+	initials := ""
+	for i, part := range parts {
+		if i > 1 {
+			break
+		}
+		if len(part) > 0 {
+			initials += string([]rune(part)[0])
+		}
+	}
+	return strings.ToUpper(initials)
 }

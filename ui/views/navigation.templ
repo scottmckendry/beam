@@ -4,10 +4,7 @@ import (
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/components/avatar"
-	"github.com/scottmckendry/beam/ui/components/button"
-	"github.com/scottmckendry/beam/ui/components/drawer"
-	"github.com/scottmckendry/beam/ui/components/icon"
+	"github.com/scottmckendry/beam/ui/icon"
 )
 
 templ HeaderIcon(name string) {
@@ -25,100 +22,71 @@ templ HeaderIcon(name string) {
 
 // Main navigation component
 templ Navigation(currentPage, headerTitle, headerDescription string, customers []db.Customer) {
-	<div class="flex h-screen" data-signals={ "{_headerTitle: '" + headerTitle + "', _headerDescription: '" + headerDescription + "', _currentPage: '" + currentPage + "'}" }>
-		// Desktop navigation
-		<aside class="w-64 border-r flex flex-col hidden md:flex">
-			<div class="flex items-center gap-3 h-16 px-4">
-				@icon.Rss(icon.Props{Size: 24})
-				<h1 class="text-xl font-bold">beam</h1>
-			</div>
-			@navigationContent(currentPage, customers)
-			@navigationFooter()
-		</aside>
-		<div class="flex flex-col flex-1">
-			<header class="h-16 border-b pl-4 pr-2 shrink-0 sticky top-0 bg-background z-30">
-				// Mobile navigation trigger
-				<div class="h-full flex items-center">
-					<div class="md:hidden">
-						@drawer.Trigger(drawer.TriggerProps{
-							For: "mobile-nav",
-						}) {
-							@button.Button(button.Props{
-								Variant: button.VariantGhost,
-								Class:   "-ml-2 pr-2",
-							}) {
-								@icon.PanelLeftOpen(icon.Props{Class: "size-[24px]"})
-							}
-						}
-					</div>
-					<div class="flex-1 flex items-center justify-between">
-						<div>
-							<div class="flex items-center gap-2">
-								@HeaderIcon(currentPage)
-								<h2 class="text-xl font-bold" data-text="$_headerTitle"></h2>
-							</div>
-							<p class="text-sm text-gray-500 whitespace-nowrap" data-text="$_headerDescription"></p>
-						</div>
-						// TODO: Implement search
-						<div class="flex items-center gap-2">
-							<div class="relative hidden sm:block">
-								<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-									@icon.Search(icon.Props{Size: 16})
-								</span>
-								<input class="w-48 lg:w-64 pl-8 pr-2 py-2 text-sm rounded-md border bg-background" placeholder="Search..."/>
-							</div>
-							@themeSwitcher()
-						</div>
-					</div>
+	<aside
+		id="sidebar"
+		class="sidebar"
+		data-side="left"
+		aria-hidden="false"
+	>
+		<nav aria-label="Sidebar navigation" class="flex flex-col h-full">
+			<header>
+				<div class="flex items-center gap-3 h-16 px-4">
+					@icon.Rss(icon.Props{Size: 24})
+					<h1 class="text-xl font-bold">beam</h1>
 				</div>
 			</header>
-			// Mobile navigation drawer
-			@drawer.Content(drawer.ContentProps{
-				Position: drawer.PositionLeft,
-				ID:       "mobile-nav",
-			}) {
-				<div class="flex flex-col h-full">
-					<div class="shrink-0 flex items-center justify-between h-16 px-4 ">
-						<div class="flex items-center gap-3">
-							@icon.Rss(icon.Props{Size: 24})
-							<h1 class="text-xl font-bold">beam</h1>
+			@navigationContent(currentPage, customers)
+			@navigationFooter()
+		</nav>
+	</aside>
+	<div class="flex flex-col min-h-screen" data-signals={ "{_headerTitle: '" + headerTitle + "', _headerDescription: '" + headerDescription + "', _currentPage: '" + currentPage + "'}" }>
+		<header class="h-16 border-b pl-4 pr-2 shrink-0 sticky top-0 bg-background z-30">
+			// Mobile navigation button
+			<div class="h-full flex items-center">
+				<div class="md:hidden">
+					<button type="button" class="-ml-2 pr-2 flex items-center" data-on-click="document.dispatchEvent(new CustomEvent('basecoat:sidebar'));">
+						@icon.PanelLeftOpen(icon.Props{Class: "size-[24px]"})
+					</button>
+				</div>
+				<div class="flex-1 flex items-center justify-between">
+					<div>
+						<div class="flex items-center gap-2">
+							@HeaderIcon(currentPage)
+							<h2 class="text-xl font-bold" data-text="$_headerTitle"></h2>
 						</div>
-						@button.Button(button.Props{
-							Variant: button.VariantGhost,
-							Attributes: templ.Attributes{
-								"data-drawer-close": "mobile-nav",
-							},
-						}) {
-							@icon.PanelLeftClose(icon.Props{Class: "size-[24px]"})
-						}
+						<p class="text-sm text-gray-500 whitespace-nowrap" data-text="$_headerDescription"></p>
 					</div>
-					<div class="flex-1 min-h-0">
-						@navigationContent(currentPage, customers)
-					</div>
-					<div class="mt-auto">
-						@navigationFooter()
+					// TODO: Implement search
+					<div class="flex items-center gap-2">
+						<div class="relative hidden sm:block">
+							<span class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+								@icon.Search(icon.Props{Size: 16})
+							</span>
+							<input class="w-48 lg:w-64 pl-8 pr-2 py-2 text-sm rounded-md border bg-background" placeholder="Search..."/>
+						</div>
+						@themeSwitcher()
 					</div>
 				</div>
-			}
-			<div id="inner-content">
-				{ children... }
 			</div>
+		</header>
+		<div id="inner-content">
+			{ children... }
 		</div>
 	</div>
 }
 
 // Main navigation section components
 templ navigationContent(currentPage string, customers []db.Customer) {
-	<div class="flex-1 overflow-y-auto px-2">
-		<div class="mt-2">
-			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Navigation</p>
+	<section class="flex-1 overflow-y-auto px-2 scrollbar" aria-label="Sidebar navigation">
+		<div role="group" aria-labelledby="nav-group-main">
+			<span role="heading" id="nav-group-main" class="px-4 text-xs font-semibold text-gray-500 mb-2 block">Navigation</span>
 			<div class="space-y-1">
 				@navItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18}))
 				@navItem("Invoices", "/sse/invoice", icon.FileText(icon.Props{Size: 18}))
 			</div>
 		</div>
-		<div class="mt-6">
-			<p class="px-4 text-xs font-semibold text-gray-500 mb-2">Customers</p>
+		<div role="group" aria-labelledby="nav-group-customers">
+			<span role="heading" id="nav-group-customers" class="px-4 text-xs font-semibold text-gray-500 mb-2 block">Customers</span>
 			<div id="customer-nav-section">
 				for _, c := range customers {
 					@customerNavItem(c)
@@ -128,15 +96,15 @@ templ navigationContent(currentPage string, customers []db.Customer) {
 				@addCustomerButton()
 			</div>
 		</div>
-	</div>
+	</section>
 }
 
 templ navigationFooter() {
-	<div class="p-2">
+	<footer class="p-2">
 		<a href="/logout" class="flex items-center p-2 hover:bg-accent rounded-md justify-center">
 			@icon.LogOut(icon.Props{Size: 20, Class: "rotate-180"})
 		</a>
-	</div>
+	</footer>
 }
 
 // Customer-related components
@@ -152,27 +120,25 @@ templ CustomerNavigation(customers []db.Customer) {
 // Can be replicated either by adding a new customer or editing an existing one.
 templ customerNavItem(c db.Customer) {
 	<a
+		href={ "#" + c.ID.String() }
 		data-attr-class={ "$_currentPage == '" + c.ID.String() + "' ? 'flex items-center gap-2 px-2 py-1 mx-2 mb-2 rounded-md font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 py-1 px-2 mx-2 mb-2 rounded-md font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
 		data-on-click={ "@get('/sse/customer/" + c.ID.String() + "')" }
-		data-drawer-close="mobile-nav"
 	>
-		@avatar.Avatar(avatar.Props{Size: avatar.SizeSm}) {
-			if c.Logo.String != "" {
-				@avatar.Image(avatar.ImageProps{Src: c.Logo.String})
-			} else {
-				{ avatar.Initials(c.Name) }
-			}
+		if c.Logo.String != "" {
+			<img class="size-8 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
+		} else {
+			<span class="size-8 shrink-0 bg-muted flex items-center justify-center rounded-full">{ Initials(c.Name) }</span>
 		}
-		<span>{ c.Name }</span>
+		{ c.Name }
 	</a>
 }
 
 // Helper components
 templ navItem(text string, uri string, icon templ.Component) {
 	<a
+		href={ "#" + strings.ToLower(text) }
 		data-attr-class={ "$_currentPage == '" + strings.ToLower(text) + "' ? 'flex items-center gap-2 px-4 py-2 mx-2 rounded font-medium text-sm bg-accent text-accent-foreground' : 'flex items-center gap-2 px-4 py-2 mx-2 rounded font-medium text-sm hover:bg-accent hover:text-accent-foreground'" }
 		data-on-click={ "@get('" + uri + "')" }
-		data-drawer-close="mobile-nav"
 	>
 		@icon
 		{ text }
@@ -180,33 +146,25 @@ templ navItem(text string, uri string, icon templ.Component) {
 }
 
 templ addCustomerButton() {
-	@button.Button(button.Props{
-		Variant: button.VariantOutline,
-		Class:   "w-full bg-transparent",
-		Attributes: templ.Attributes{
-			"data-on-click":     "@get('/sse/customer/add')",
-			"data-drawer-close": "mobile-nav",
-		},
-	}) {
-		@icon.Plus(icon.Props{Size: 16, Class: "mr-2"})
+	<button type="button" class="btn btn-secondary w-full" data-on-click="@get('/sse/customer/add')">
+		@icon.Plus(icon.Props{Size: 16})
 		Add Customer
-	}
+	</button>
 }
 
 templ themeSwitcher() {
-	@button.Button(button.Props{
-		Variant: button.VariantGhost,
-		Class:   "text-muted-foreground",
-		Attributes: templ.Attributes{
-			"id":   "theme-toggle-btn",
-			"type": "button",
-		},
-	}) {
-		<span id="theme-icon-sun" style="display:none;">
-			@icon.Sun(icon.Props{Class: "size-[22px]"})
+	<button
+		type="button"
+		aria-label="Toggle dark mode"
+		data-side="bottom"
+		onclick="document.dispatchEvent(new CustomEvent('basecoat:theme'))"
+		class="btn-icon-outline size-9"
+	>
+		<span class="hidden dark:block">
+			@icon.Sun(icon.Props{Size: 16, Class: "text-muted-foreground"})
 		</span>
-		<span id="theme-icon-moon" style="display:none;">
-			@icon.Moon(icon.Props{Class: "size-[22px]"})
+		<span class="block dark:hidden">
+			@icon.Moon(icon.Props{Size: 16, Class: "text-muted-foreground"})
 		</span>
-	}
+	</button>
 }

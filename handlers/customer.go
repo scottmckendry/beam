@@ -290,6 +290,7 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	})
 
 	// Delete the logo file from the filesystem
+	// TODO: create dir if it doesn't exist
 	matches, err := filepath.Glob(fmt.Sprintf("public/uploads/logos/%s*", customerID.String()))
 	if err != nil {
 		log.Printf("Error finding logo files: %v", err)
