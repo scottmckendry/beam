@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -114,15 +113,39 @@ func (env *OAuth) githubCallbackHandler() http.HandlerFunc {
 		defer resp.Body.Close()
 		var user struct {
 			ID    string `json:"login"`
+			Name  string `json:"name"`
 			Email string `json:"email"`
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 			http.Error(w, "Failed to decode user info", http.StatusInternalServerError)
 			return
 		}
+
+		// If email is empty, fetch from /user/emails
+		if user.Email == "" {
+			emailsResp, err := client.Get("https://api.github.com/user/emails")
+			if err == nil && emailsResp.StatusCode == 200 {
+				defer emailsResp.Body.Close()
+				var emails []struct {
+					Email    string `json:"email"`
+					Primary  bool   `json:"primary"`
+					Verified bool   `json:"verified"`
+				}
+				if err := json.NewDecoder(emailsResp.Body).Decode(&emails); err == nil {
+					for _, e := range emails {
+						if e.Primary && e.Verified {
+							user.Email = e.Email
+							break
+						}
+					}
+				}
+			}
+		}
+
 		_ = env.DB.InsertUser(ctx, db.InsertUserParams{
+			Name:     user.Name,
 			Email:    user.Email,
-			GithubID: fmt.Sprint(user.ID),
+			GithubID: user.ID,
 		})
 		env.SetSignedCookie(w, "user_name", user.ID)
 		http.SetCookie(

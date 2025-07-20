@@ -4,12 +4,12 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 )
 
-templ Root(isAdmin bool, customers []db.Customer) {
+templ Root(isAdmin bool, customers []db.Customer, user db.User) {
 	if !isAdmin {
 		@NonAdmin()
 	} else {
 		@BaseLayout() {
-			@Navigation("dashboard", "Dashboard", "Overview of your business metrics", customers) {
+			@Navigation("dashboard", "Dashboard", "Overview of your business metrics", customers, user) {
 				@Dashboard()
 			}
 		}

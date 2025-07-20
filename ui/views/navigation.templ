@@ -1,6 +1,7 @@
 package views
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
@@ -21,7 +22,7 @@ templ HeaderIcon(name string) {
 }
 
 // Main navigation component
-templ Navigation(currentPage, headerTitle, headerDescription string, customers []db.Customer) {
+templ Navigation(currentPage, headerTitle, headerDescription string, customers []db.Customer, user db.User) {
 	<aside
 		id="sidebar"
 		class="sidebar"
@@ -35,8 +36,16 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 					<h1 class="text-xl font-bold">beam</h1>
 				</div>
 			</header>
-			@navigationContent(currentPage, customers)
-			@navigationFooter()
+			<div class="relative flex-1 flex flex-col min-h-0">
+				<section class="flex-1 overflow-y-auto px-2 scrollbar" aria-label="Sidebar navigation">
+					@navigationContent(currentPage, customers)
+					// allow a small ammount of space for overscroll to prevent the last item from being cut off
+					<div class="h-10"></div>
+				</section>
+				// subtle fade out effect for the footer (makes it more ovbiously scrollable when content is long)
+				<div class="pointer-events-none absolute left-0 right-0 bottom-16 h-16 z-10 bg-gradient-to-b from-transparent to-[color:var(--background)]" aria-hidden="true"></div>
+				@navigationFooter(user)
+			</div>
 		</nav>
 	</aside>
 	<div class="flex flex-col min-h-screen" data-signals={ "{_headerTitle: '" + headerTitle + "', _headerDescription: '" + headerDescription + "', _currentPage: '" + currentPage + "'}" }>
@@ -78,15 +87,15 @@ templ Navigation(currentPage, headerTitle, headerDescription string, customers [
 // Main navigation section components
 templ navigationContent(currentPage string, customers []db.Customer) {
 	<section class="flex-1 overflow-y-auto px-2 scrollbar" aria-label="Sidebar navigation">
-		<div role="group" aria-labelledby="nav-group-main">
+		<div role="group" aria-labelledby="nav-group-main" class="mb-4">
 			<span role="heading" id="nav-group-main" class="px-4 text-xs font-semibold text-gray-500 mb-2 block">Navigation</span>
 			<div class="space-y-1">
 				@navItem("Dashboard", "/sse/dashboard", icon.LayoutDashboard(icon.Props{Size: 18}))
 				@navItem("Invoices", "/sse/invoice", icon.FileText(icon.Props{Size: 18}))
 			</div>
 		</div>
-		<div role="group" aria-labelledby="nav-group-customers">
-			<span role="heading" id="nav-group-customers" class="px-4 text-xs font-semibold text-gray-500 mb-2 block">Customers</span>
+		<div role="group" aria-labelledby="nav-group-customers" class="mb-4">
+			<span role="heading" id="nav-group-customers" class="px-4 text-xs font-semibold text-gray-500 my-2 block">Customers</span>
 			<div id="customer-nav-section">
 				for _, c := range customers {
 					@customerNavItem(c)
@@ -99,11 +108,33 @@ templ navigationContent(currentPage string, customers []db.Customer) {
 	</section>
 }
 
-templ navigationFooter() {
+templ navigationFooter(user db.User) {
 	<footer class="p-2">
-		<a href="/logout" class="flex items-center p-2 hover:bg-accent rounded-md justify-center">
-			@icon.LogOut(icon.Props{Size: 20, Class: "rotate-180"})
-		</a>
+		<div id="user-popover" class="popover relative w-full">
+			<button id="user-popover-trigger" type="button" aria-expanded="false" aria-controls="user-popover-panel" class="btn-ghost p-2 h-12 w-full flex items-center justify-start" data-keep-mobile-sidebar-open="">
+				<img src={ fmt.Sprintf("https://github.com/%s.png", user.GithubID) } class="rounded-lg shrink-0 size-8"/>
+				<div class="grid flex-1 text-left text-sm leading-tight ml-1">
+					<span class="truncate font-medium">{ user.Name }</span>
+					<span class="truncate text-xs text-muted-foreground">{ fmt.Sprintf("@%s", user.GithubID) }</span>
+				</div>
+				@icon.ChevronsUpDown(icon.Props{Size: 16, Class: "ml-auto text-muted-foreground"})
+			</button>
+			<div id="user-popover-panel" data-popover aria-hidden="true" data-side="top" class="absolute left-0 bottom-14 w-[271px] md:w-[239px] z-50 bg-background border rounded-lg shadow-lg p-4">
+				<div class="grid gap-4">
+					<header class="grid gap-1.5">
+						<h2 class="font-semibold">Account</h2>
+						<p class="text-xs text-muted-foreground pb-1">
+							@icon.Mail(icon.Props{Size: 14, Class: "inline-block mr-2"})
+							{ user.Email }
+						</p>
+					</header>
+					<footer class="grid gap-2">
+						<a href="/settings" class="btn-sm" tabindex="0">Settings</a>
+						<a href="/logout" class="btn-sm-outline" tabindex="0">Logout</a>
+					</footer>
+				</div>
+			</div>
+		</div>
 	</footer>
 }
 

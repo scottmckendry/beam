@@ -1,9 +1,11 @@
 package icon
+
 // This file is auto generated
 // Using Lucide icons version 0.525.0
 var Activity = Icon("activity")
 var Building2 = Icon("building-2")
 var Check = Icon("check")
+var ChevronsUpDown = Icon("chevrons-up-down")
 var CircleCheckBig = Icon("circle-check-big")
 var CircleX = Icon("circle-x")
 var CreditCard = Icon("credit-card")

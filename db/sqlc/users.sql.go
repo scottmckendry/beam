@@ -10,7 +10,7 @@ import (
 )
 
 const getUserByGithubID = `-- name: GetUserByGithubID :one
-SELECT id, email, github_id, is_admin FROM users WHERE github_id = ? LIMIT 1
+SELECT id, name, email, github_id, is_admin FROM users WHERE github_id = ? LIMIT 1
 `
 
 func (q *Queries) GetUserByGithubID(ctx context.Context, githubID string) (User, error) {
@@ -18,6 +18,7 @@ func (q *Queries) GetUserByGithubID(ctx context.Context, githubID string) (User,
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Name,
 		&i.Email,
 		&i.GithubID,
 		&i.IsAdmin,
@@ -26,17 +27,18 @@ func (q *Queries) GetUserByGithubID(ctx context.Context, githubID string) (User,
 }
 
 const insertUser = `-- name: InsertUser :exec
-INSERT INTO users (email, github_id, is_admin) VALUES (?, ?, 0)
+INSERT INTO users (name, email, github_id, is_admin) VALUES (?, ?, ?, 0)
 ON CONFLICT(github_id) DO NOTHING
 `
 
 type InsertUserParams struct {
+	Name     string
 	Email    string
 	GithubID string
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) error {
-	_, err := q.db.ExecContext(ctx, insertUser, arg.Email, arg.GithubID)
+	_, err := q.db.ExecContext(ctx, insertUser, arg.Name, arg.Email, arg.GithubID)
 	return err
 }
 

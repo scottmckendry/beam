@@ -56,6 +56,7 @@ type Migration struct {
 
 type User struct {
 	ID       uuid.UUID
+	Name     string
 	Email    string
 	GithubID string
 	IsAdmin  bool

@@ -1,5 +1,5 @@
 -- name: InsertUser :exec
-INSERT INTO users (email, github_id, is_admin) VALUES (?, ?, 0)
+INSERT INTO users (name, email, github_id, is_admin) VALUES (?, ?, ?, 0)
 ON CONFLICT(github_id) DO NOTHING;
 
 -- name: GetUserByGithubID :one

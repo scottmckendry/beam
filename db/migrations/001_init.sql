@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS migrations (
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT (uuid()),
+    name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     github_id TEXT NOT NULL UNIQUE,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE
