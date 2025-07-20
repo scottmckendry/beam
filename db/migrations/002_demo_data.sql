@@ -48,6 +48,42 @@ INSERT INTO customers (id, name, status, email, phone, address, website, notes) 
 ---
 
 > Wayne Enterprises is a key account.');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark Industries', 'active', 'contact@stark.com', '+1-555-1112', '200 Park Ave, New York, USA', 'https://stark.com', '**VIP client**
+> "Changing the world, one suit at a time."
+- Innovation leader
+- Prefers quarterly reviews
+- See [project archive](https://stark.com/projects)
+');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Hooli', 'active', 'info@hooli.com', '+1-555-2223', '500 Tech Rd, Silicon Valley, USA', 'https://hooli.com', '### Internal Notes
+- *Disruptive*
+- Interested in cloud migration
+- Contact: Gavin Belson
+---
+| Priority | Next Step      |
+|----------|----------------|
+| High     | Schedule demo  |
+');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Soylent Corp', 'inactive', 'hello@soylent.com', '+1-555-3334', '404 Green St, New York, USA', 'https://soylent.com', '> *"It''s people!"*
+- Account inactive
+- Awaiting compliance review
+- [Sustainability report](https://soylent.com/sustainability)
+');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne Systems', 'active', 'admin@cyberdyne.com', '+1-555-4445', '101 AI Blvd, Los Angeles, USA', 'https://cyberdyne.com', '**Strategic partner**
+- Robotics division
+- *Sensitive data protocols required*
+- See [AI policy](https://cyberdyne.com/ai-policy)
+');
+INSERT INTO customers (id, name, status, email, phone, address, website, notes) VALUES
+('c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Tyrell Corporation', 'active', 'contact@tyrell.com', '+1-555-5556', '1 Replicant Way, Los Angeles, USA', 'https://tyrell.com', '#### Replicant Program
+- New client
+- *Requires NDA*
+> "More human than human."
+- [Intro deck](https://tyrell.com/intro)
+');
 
 -- Demo data for contacts table
 INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
