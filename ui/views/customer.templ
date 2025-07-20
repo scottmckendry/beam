@@ -118,7 +118,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 						@icon.Ellipsis(icon.Props{Size: 16})
 						<span>More Actions</span>
 					</button>
-					<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="absolute right-0 left-auto">
+					<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="absolute md:right-0 md:left-auto">
 						<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
 							<div role="group" aria-labelledby="customer-actions">
 								<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
@@ -337,7 +337,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 	</div>
 }
 
-templ CustomerContacts(c db.GetCustomerRow) {
+templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 	<div id="customer-tab-content">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
 			<div class="ml-1">
@@ -351,7 +351,56 @@ templ CustomerContacts(c db.GetCustomerRow) {
 				</button>
 			</div>
 		</div>
-		<div class="mt-6 text-muted-foreground">Contact list goes here.</div>
+		<div class="flex flex-col gap-4 mt-4">
+			for _, contact := range contacts {
+				// TODO: make card clickable to open contact details
+				<div class="card py-0 cursor-pointer transition hover:shadow-md hover:bg-muted/60" role="button" tabindex="0">
+					<div class="p-4 sm:p-6">
+						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+							<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full relative">
+								<div class="flex items-center gap-4 min-w-0">
+									<span class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full">
+										if contact.Avatar.Valid {
+											<img class="h-12 w-12 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
+										} else {
+											<span class="flex h-full w-full items-center justify-center rounded-full bg-muted">{ Initials(contact.Name) }</span>
+										}
+									</span>
+									<div class="min-w-0">
+										<h3 class="font-semibold">{ contact.Name }</h3>
+										<p class="text-sm text-muted-foreground flex items-center gap-2">
+											{ contact.Role.String }
+											if contact.IsPrimary.Valid && contact.IsPrimary.Bool {
+												<span class="badge-secondary leading-none">
+													@icon.Contact(icon.Props{Size: 12})
+													Primary
+												</span>
+											}
+										</p>
+									</div>
+								</div>
+								<div class="flex items-center sm:ml-auto w-full sm:w-auto">
+									<div class="space-y-1 text-left sm:text-right w-full">
+										<div class="flex items-center gap-1 text-sm">
+											@icon.Mail(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
+											<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="truncate hover:text-primary focus:text-primary transition-colors">{ contact.Email.String }</a>
+										</div>
+										<div class="flex items-center gap-1 text-sm text-muted-foreground">
+											@icon.Phone(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
+											<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="hover:text-primary focus:text-primary transition-colors">{ contact.Phone.String }</a>
+										</div>
+									</div>
+								</div>
+								// TODO: make this a dropdown menu with view/edit/delete options
+								<button class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0" type="button" aria-haspopup="menu" aria-expanded="false" onclick="event.stopPropagation()">
+									@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
 	</div>
 }
 

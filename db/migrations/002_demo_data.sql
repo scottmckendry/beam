@@ -86,16 +86,16 @@ INSERT INTO customers (id, name, status, email, phone, address, website, notes) 
 ');
 
 -- Demo data for contacts table
-INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
-('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Jane Smith', 'CTO', 'jane.smith@acme.com', '+1-555-1111', 'jane.png', 1, 'Main technical contact');
-INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
-('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'John Doe', 'CEO', 'john.doe@globex.com', '+1-555-2222', 'john.png', 1, 'Decision maker');
-INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
-('c3d4e5f6-cccc-4ccc-8ccc-cccccccccccc', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Alice Johnson', 'Support Lead', 'alice.j@initech.com', '+1-555-3333', 'alice.png', 1, 'Handles support tickets');
-INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
-('d4e5f6a7-dddd-4ddd-8ddd-dddddddddddd', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Bob Brown', 'Operations', 'bob.brown@umbrella.com', '+1-555-4444', 'bob.png', 0, 'Secondary contact');
-INSERT INTO contacts (id, customer_id, name, role, email, phone, avatar, is_primary, notes) VALUES
-('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeee', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Rachel Green', 'CFO', 'rachel.green@wayne.com', '+1-555-5555', 'rachel.png', 1, 'Finance contact');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Jane Smith', 'CTO', 'jane.smith@acme.com', '+1-555-1111', 1, 'Main technical contact');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'John Doe', 'CEO', 'john.doe@globex.com', '+1-555-2222', 1, 'Decision maker');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c3d4e5f6-cccc-4ccc-8ccc-cccccccccccc', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Alice Johnson', 'Support Lead', 'alice.j@initech.com', '+1-555-3333', 1, 'Handles support tickets');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d4e5f6a7-dddd-4ddd-8ddd-dddddddddddd', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Bob Brown', 'Operations', 'bob.brown@umbrella.com', '+1-555-4444', 0, 'Secondary contact');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeee', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Rachel Green', 'CFO', 'rachel.green@wayne.com', '+1-555-5555', 1, 'Finance contact');
 
 -- Demo data for activity_log table
 INSERT INTO activity_log (id, customer_id, activity_type, action, description, created_at) VALUES

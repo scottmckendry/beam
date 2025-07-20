@@ -238,9 +238,15 @@ func (h *Handlers) GetCustomerContactsSSE(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), c.ID)
+	if err != nil {
+		log.Printf("ListContactsByCustomer failed for ID=%v: %v", c.ID, err)
+		h.Notify(NotifyError, "Contacts Not Found", "No contacts found for the provided customer ID.", w, r)
+	}
+
 	h.renderSSE(w, r, SSEOpts{
 		Views: []templ.Component{
-			views.CustomerContacts(c),
+			views.CustomerContacts(c, contacts),
 			views.HeaderIcon("customer"),
 		},
 	})
