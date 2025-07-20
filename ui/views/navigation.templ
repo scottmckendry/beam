@@ -127,7 +127,7 @@ templ customerNavItem(c db.Customer) {
 		if c.Logo.String != "" {
 			<img class="size-8 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
 		} else {
-			<span class="size-8 shrink-0 bg-muted flex items-center justify-center rounded-full">{ Initials(c.Name) }</span>
+			<span class="size-8 shrink-0 bg-muted text-foreground flex items-center justify-center rounded-full">{ Initials(c.Name) }</span>
 		}
 		{ c.Name }
 	</a>

@@ -1,4 +1,3 @@
 @import "tailwindcss";
 @import "./basecoat.css";
-/* TODO: pick a theme after refactoring to basecoat fully */
-/* @import "./theme.css"; */
+@import "./theme.css";

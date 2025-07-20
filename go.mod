@@ -3,7 +3,6 @@ module github.com/scottmckendry/beam
 go 1.24.4
 
 require (
-	github.com/Oudwins/tailwind-merge-go v0.2.1
 	github.com/a-h/templ v0.3.906
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-chi/chi/v5 v5.2.2
@@ -16,9 +15,6 @@ require (
 	golang.org/x/oauth2 v0.30.0
 )
 
-// pin the release canditate version of datastar (prevents falling back to the beta versions)
-replace github.com/starfederation/datastar => github.com/starfederation/datastar v1.0.0-RC.1
-
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/CAFxX/httpcompression v0.0.9 // indirect
@@ -26,7 +22,6 @@ require (
 	github.com/air-verse/air v1.62.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/axzilla/templui v0.82.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -68,6 +63,5 @@ require (
 tool (
 	github.com/a-h/templ/cmd/templ
 	github.com/air-verse/air
-	github.com/axzilla/templui/cmd/templui
 	github.com/tdewolff/minify/cmd/minify
 )

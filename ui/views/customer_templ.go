@@ -391,7 +391,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "Edit Customer</span></div><div role=\"menuitem\" class=\"text-destructive\"><button type=\"button\" onclick=\"document.getElementById('delete-modal').showModal()\" class=\"flex items-center w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "Edit Customer</span></div><div role=\"menuitem\"><button type=\"button\" onclick=\"document.getElementById('delete-modal').showModal()\" class=\"flex items-center w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
