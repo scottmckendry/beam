@@ -1,0 +1,24 @@
+package views
+
+import (
+	"github.com/scottmckendry/beam/db/sqlc"
+	"github.com/scottmckendry/beam/ui/icon"
+)
+
+templ CustomerSubscriptions(c db.GetCustomerRow) {
+	<div id="customer-tab-content">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+			<div class="ml-1">
+				<h2 class="font-bold">Subscriptions</h2>
+				<p class="text-muted-foreground text-sm">View and manage subscriptions for this customer</p>
+			</div>
+			<div class="flex gap-2">
+				<button type="button" class="btn flex items-center gap-2">
+					@icon.Plus()
+					Add Subscription
+				</button>
+			</div>
+		</div>
+		<div class="mt-6 text-muted-foreground">Subscription list goes here.</div>
+	</div>
+}

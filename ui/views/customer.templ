@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/scottmckendry/beam/db/sqlc"
-	"github.com/scottmckendry/beam/ui/icon"
 )
 
 var tabHeaders = []string{
@@ -55,426 +54,6 @@ templ EditCustomer(c db.GetCustomerRow) {
 	})
 }
 
-templ Customer(c db.GetCustomerRow) {
-	<div id="inner-content" class="flex-1 p-4 md:p-6">
-		<div class="tabs w-full" id="customer-tabs">
-			<nav role="tablist" aria-orientation="horizontal" class="w-full">
-				for i, header := range tabHeaders {
-					<button
-						type="button"
-						role="tab"
-						id={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
-						aria-controls={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
-						aria-selected={ i == 0 }
-						tabindex="0"
-						data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/%s')", strings.ToLower(header), c.ID.String()) }
-					>
-						if header == "Subscriptions" {
-							<span class="sm:hidden">Subs</span>
-							<span class="hidden sm:inline">{ header }</span>
-						} else {
-							<span>{ header }</span>
-						}
-					</button>
-				}
-			</nav>
-			for i := range tabHeaders {
-				<div
-					role="tabpanel"
-					id={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
-					aria-labelledby={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
-					tabindex="-1"
-					aria-selected={ i == 0 }
-				>
-					if i == 0 {
-						@CustomerOverview(c)
-					} else {
-						<div id="customer-tab-content"></div>
-					}
-				</div>
-			}
-		</div>
-	</div>
-}
-
-templ CustomerOverview(c db.GetCustomerRow) {
-	<div id="customer-tab-content">
-		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-			<div class="ml-1">
-				<h2 class="font-bold">Overview</h2>
-				<p class="text-muted-foreground text-sm">Summary and quick actions for this customer</p>
-			</div>
-			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
-					@icon.Plus()
-					Add Contact
-				</button>
-				<button type="button" class="btn btn-secondary hidden sm:flex items-center gap-2">
-					@icon.FileText()
-					Create Invoice
-				</button>
-				<div id="actions-dropdown" class="dropdown-menu">
-					<button type="button" id="actions-dropdown-trigger" aria-haspopup="menu" aria-controls="actions-dropdown-menu" aria-expanded="false" class="btn-outline flex items-center gap-2">
-						@icon.Ellipsis(icon.Props{Size: 16})
-						<span>More Actions</span>
-					</button>
-					<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="absolute md:right-0 md:left-auto">
-						<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
-							<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
-								<span class="flex items-center">
-									@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
-									Create Invoice
-								</span>
-							</div>
-							<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
-								<span class="flex items-center">
-									@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
-									Edit Customer
-								</span>
-							</div>
-							<div role="menuitem">
-								<button type="button" data-on-click="$_showDeleteModal = true" class="flex items-center w-full">
-									@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-									Delete Customer
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			@ModalDialog(ModalProps{ID: "delete-modal", Signal: "_showDeleteModal"}) {
-				<header>
-					<h2 id="delete-modal-title">Delete Customer?</h2>
-					<p id="delete-modal-description">This will delete <strong>{ c.Name }</strong> and remove them from active lists. All associated data will also be archived.</p>
-				</header>
-				<footer class="flex gap-2 justify-end">
-					<button class="btn-outline" type="button" data-on-click="$_showDeleteModal = false">Cancel</button>
-					<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s', $_showDeleteModal = false)", c.ID.String()) }>
-						@icon.Trash2()
-						Delete
-					</button>
-				</footer>
-			}
-		</div>
-		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-3">
-			@StatsCard(StatsCardProps{
-				Title: "Contacts",
-				Icon:  icon.Users(icon.Props{Size: 20, Class: "text-muted-foreground"}),
-			}) {
-				<div class="text-2xl font-bold">{ c.ContactCount }</div>
-				<p class="text-xs text-muted-foreground">+1 this month</p>
-			}
-			@StatsCard(StatsCardProps{
-				Title:      "Subscriptions",
-				ShortTitle: "Subs",
-				Icon:       icon.CreditCard(icon.Props{Size: 20, Class: "text-muted-foreground"}),
-			}) {
-				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
-				<p class="text-xs text-muted-foreground">${ c.SubscriptionRevenue }/month</p>
-			}
-			@StatsCard(StatsCardProps{
-				Title: "Projects",
-				Icon:  icon.FolderGit2(icon.Props{Size: 20, Class: "text-muted-foreground"}),
-			}) {
-				<div class="text-2xl font-bold">{ c.ProjectCount }</div>
-				<p class="text-xs text-muted-foreground">GitHub repos</p>
-			}
-			@StatsCard(StatsCardProps{
-				Title: "Revenue",
-				Icon:  icon.DollarSign(icon.Props{Size: 20, Class: "text-muted-foreground"}),
-			}) {
-				<div class="text-2xl font-bold">${ c.MonthlyRevenue }</div>
-				if c.RevenueChange > 0 {
-					<p class="text-xs text-muted-foreground">
-						@icon.TrendingUp(icon.Props{Size: 12, Class: "inline mr-1 text-green-500"})
-						+{ c.RevenueChange }%
-					</p>
-				}
-				if c.RevenueChange < 0 {
-					<p class="text-xs text-muted-foreground">
-						@icon.TrendingDown(icon.Props{Size: 12, Class: "inline mr-1 text-red-500"})
-						-{ c.RevenueChange }%
-					</p>
-				}
-				if c.RevenueChange == 0 {
-					<p class="text-xs text-muted-foreground">
-						No change
-					</p>
-				}
-			}
-		</div>
-		<div class="grid gap-4 md:grid-cols-2 mt-4">
-			<div class="card block">
-				<div class="card-header flex flex-col space-y-1.5 px-6">
-					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
-						Customer Information
-					</h3>
-					<p class="card-description text-sm text-muted-foreground">
-						Basic details and contact information
-					</p>
-				</div>
-				<div class="card-content px-6 pt-3 space-y-4">
-					<div class="flex items-center gap-4">
-						<div class="relative group">
-							if c.Logo.String != "" {
-								<img class="size-16 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
-							} else {
-								<span class="size-16 shrink-0 bg-muted flex items-center justify-center rounded-full text-xl font-medium">{ Initials(c.Name) }</span>
-							}
-							<button
-								class="btn absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6"
-								title="Edit Logo"
-								data-on-click="$logo = '', $_showEditLogoModal = true"
-							>
-								@icon.Pencil(icon.Props{Class: "size-[12px]"})
-							</button>
-						</div>
-						<div>
-							<h3 class="text-xl font-semibold">{ c.Name }</h3>
-							<span class="badge-secondary leading-none mt-1">
-								switch c.Status {
-									case "active":
-										@icon.Check()
-									case "inactive":
-										@icon.X()
-									case "prospect":
-										@icon.Plus()
-									default:
-										@icon.Info()
-								}
-								{ c.Status }
-							</span>
-						</div>
-					</div>
-					<div class="space-y-3">
-						<div class="flex items-center gap-2 text-sm">
-							@icon.Mail(icon.Props{Size: 16, Class: "text-muted-foreground"})
-							<span>{ c.Email.String }</span>
-						</div>
-						<div class="flex items-center gap-2 text-sm">
-							@icon.Phone(icon.Props{Size: 16, Class: "text-muted-foreground"})
-							<span>{ c.Phone.String }</span>
-						</div>
-						<div class="flex items-center gap-2 text-sm">
-							@icon.Building2(icon.Props{Size: 16, Class: "text-muted-foreground"})
-							<span>{ c.Address.String }</span>
-						</div>
-						<div class="flex items-center gap-2 text-sm">
-							@icon.ExternalLink(icon.Props{Size: 16, Class: "text-muted-foreground"})
-							<a href={ c.Website.String } target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary underline">
-								{ strings.TrimPrefix(c.Website.String, "https://") }
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="card block">
-				<div class="card-header flex flex-col space-y-1.5 px-6">
-					<h3 class="card-title text-lg font-semibold leading-none tracking-tight">
-						Account Summary
-					</h3>
-					<p class="card-description text-sm text-muted-foreground">
-						Key account metrics and status
-					</p>
-				</div>
-				<div class="card-content px-6 pt-4 space-y-4">
-					<hr/>
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium">Customer Since</span>
-						<span class="text-sm text-muted-foreground">January 15, 2023</span>
-					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium">Outstanding Balance</span>
-						<span class="text-sm text-destructive">$750</span>
-					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium">Last Activity</span>
-						<span class="text-sm text-muted-foreground">2 hours ago</span>
-					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium">Invoices</span>
-						<span class="text-sm text-muted-foreground">2 Unpaid, 1 Draft</span>
-					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-sm font-medium">Projects</span>
-						<span class="text-sm text-muted-foreground">4 Active, 2 Maintenance</span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="mt-4">
-			@mdNotes(c.Notes.String)
-		</div>
-		@ModalDialog(ModalProps{ID: "edit-logo-dialog", Signal: "_showEditLogoModal"}) {
-			<header>
-				<h2 id="edit-logo-dialog-title">Upload Logo</h2>
-				<p id="edit-logo-dialog-description">Upload a new logo for this customer. Recommended size is 200x200px.</p>
-			</header>
-			<section>
-				<form class="form grid gap-4" enctype="multipart/form-data">
-					<div class="grid gap-2">
-						<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
-					</div>
-				</form>
-			</section>
-			<footer class="flex gap-1 justify-end flex-row">
-				<button class="btn-outline" type="button" data-on-click="$_showEditLogoModal = false">Cancel</button>
-				<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
-					@icon.Upload()
-					Upload Logo
-				</button>
-				<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
-					@icon.Trash2()
-				</button>
-			</footer>
-		}
-	</div>
-}
-
-templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
-	<div id="customer-tab-content">
-		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-			<div class="ml-1">
-				<h2 class="font-bold">Contacts</h2>
-				<p class="text-muted-foreground text-sm">Manage and view all contacts for this customer</p>
-			</div>
-			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
-					@icon.Plus()
-					Add Contact
-				</button>
-			</div>
-		</div>
-		<div class="flex flex-col gap-4 mt-4">
-			for _, contact := range contacts {
-				// TODO: make card clickable to open contact details
-				<div class="card py-0 cursor-pointer transition hover:shadow-md hover:bg-muted/60" role="button" tabindex="0">
-					<div class="p-4 sm:p-6">
-						<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-							<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full relative">
-								<div class="flex items-center gap-4 min-w-0">
-									<span class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full">
-										if contact.Avatar.Valid {
-											<img class="h-12 w-12 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
-										} else {
-											<span class="flex h-full w-full items-center justify-center rounded-full bg-muted">{ Initials(contact.Name) }</span>
-										}
-									</span>
-									<div class="min-w-0">
-										<h3 class="font-semibold">{ contact.Name }</h3>
-										<p class="text-sm text-muted-foreground flex items-center gap-2">
-											{ contact.Role.String }
-											if contact.IsPrimary.Valid && contact.IsPrimary.Bool {
-												<span class="badge-secondary leading-none">
-													@icon.Contact(icon.Props{Size: 12})
-													Primary
-												</span>
-											}
-										</p>
-									</div>
-								</div>
-								<div class="flex items-center sm:ml-auto w-full sm:w-auto">
-									<div class="space-y-1 text-left sm:text-right w-full">
-										<div class="flex items-center gap-1 text-sm">
-											@icon.Mail(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
-											<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="truncate hover:text-primary focus:text-primary transition-colors">{ contact.Email.String }</a>
-										</div>
-										<div class="flex items-center gap-1 text-sm text-muted-foreground">
-											@icon.Phone(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
-											<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="hover:text-primary focus:text-primary transition-colors">{ contact.Phone.String }</a>
-										</div>
-									</div>
-								</div>
-								<div class="dropdown-menu absolute sm:relative right-0 sm:right-auto top-0 sm:top-auto">
-									<button
-										type="button"
-										id={ contact.ID.String() + "-dropdown-trigger" }
-										aria-haspopup="menu"
-										aria-controls={ contact.ID.String() + "-dropdown-menu" }
-										aria-expanded="false"
-										class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0"
-									>
-										@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
-									</button>
-									<div id={ contact.ID.String() + "-dropdown-popover" } data-popover aria-hidden="true" class="absolute right-0 top-10 left-auto">
-										<div role="menu" id={ contact.ID.String() + "-dropdown-menu" } aria-labelledby={ contact.ID.String() + "-dropdown-trigger" }>
-											<div role="menuitem">
-												@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
-												View Contact
-											</div>
-											<div role="menuitem">
-												@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
-												Edit Contact
-											</div>
-											<div role="menuitem" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = true" }>
-												@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
-												Delete Contact
-											</div>
-										</div>
-									</div>
-								</div>
-								@ModalDialog(ModalProps{
-									ID:     contact.ID.String() + "-contact-modal",
-									Signal: "_showContactModal-" + contact.ID.String()}) {
-									<header>
-										<h2 id="alert-dialog-title">Delete Contact?</h2>
-										<p id="alert-dialog-description">
-											This will delete <strong>{ contact.Name }</strong> and remove them from active lists.
-										</p>
-									</header>
-									<footer>
-										<button class="btn-outline" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = false" }>Cancel</button>
-										<button class="btn-destructive" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-contact/%s/%s')", c.ID.String(), contact.ID.String()) }>
-											@icon.Trash2()
-											Delete
-										</button>
-									</footer>
-								}
-							</div>
-						</div>
-					</div>
-				</div>
-			}
-		</div>
-	</div>
-}
-
-templ CustomerSubscriptions(c db.GetCustomerRow) {
-	<div id="customer-tab-content">
-		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-			<div class="ml-1">
-				<h2 class="font-bold">Subscriptions</h2>
-				<p class="text-muted-foreground text-sm">View and manage subscriptions for this customer</p>
-			</div>
-			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
-					@icon.Plus()
-					Add Subscription
-				</button>
-			</div>
-		</div>
-		<div class="mt-6 text-muted-foreground">Subscription list goes here.</div>
-	</div>
-}
-
-templ CustomerProjects(c db.GetCustomerRow) {
-	<div id="customer-tab-content">
-		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-			<div class="ml-1">
-				<h2 class="font-bold">Projects</h2>
-				<p class="text-muted-foreground text-sm">View and manage projects for this customer</p>
-			</div>
-			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
-					@icon.Plus()
-					Add Project
-				</button>
-			</div>
-		</div>
-		<div class="mt-6 text-muted-foreground">Project list goes here.</div>
-	</div>
-}
-
 templ customerForm(p CustomerFormProps) {
 	<div id="inner-content" class="p-6">
 		<form class="form grid gap-6 w-full max-w-3xl mx-auto" data-on-submit={ p.ActionURL }>
@@ -521,17 +100,44 @@ templ customerForm(p CustomerFormProps) {
 	</div>
 }
 
-// Initials returns up to two initials from a name string.
-func Initials(name string) string {
-	parts := strings.Fields(name)
-	initials := ""
-	for i, part := range parts {
-		if i > 1 {
-			break
-		}
-		if len(part) > 0 {
-			initials += string([]rune(part)[0])
-		}
-	}
-	return strings.ToUpper(initials)
+templ Customer(c db.GetCustomerRow) {
+	<div id="inner-content" class="flex-1 p-4 md:p-6">
+		<div class="tabs w-full" id="customer-tabs">
+			<nav role="tablist" aria-orientation="horizontal" class="w-full">
+				for i, header := range tabHeaders {
+					<button
+						type="button"
+						role="tab"
+						id={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
+						aria-controls={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
+						aria-selected={ i == 0 }
+						tabindex="0"
+						data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/%s')", strings.ToLower(header), c.ID.String()) }
+					>
+						if header == "Subscriptions" {
+							<span class="sm:hidden">Subs</span>
+							<span class="hidden sm:inline">{ header }</span>
+						} else {
+							<span>{ header }</span>
+						}
+					</button>
+				}
+			</nav>
+			for i := range tabHeaders {
+				<div
+					role="tabpanel"
+					id={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
+					aria-labelledby={ fmt.Sprintf("customer-tabs-tab-%d", i+1) }
+					tabindex="-1"
+					aria-selected={ i == 0 }
+				>
+					if i == 0 {
+						@CustomerOverview(c)
+					} else {
+						<div id="customer-tab-content"></div>
+					}
+				</div>
+			}
+		</div>
+	</div>
 }

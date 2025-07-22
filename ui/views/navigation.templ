@@ -6,6 +6,7 @@ import (
 
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
+	"github.com/scottmckendry/beam/ui/utils"
 )
 
 templ HeaderIcon(name string) {
@@ -158,7 +159,7 @@ templ customerNavItem(c db.Customer) {
 		if c.Logo.String != "" {
 			<img class="size-8 shrink-0 object-cover rounded-full" alt={ c.Name } src={ c.Logo.String }/>
 		} else {
-			<span class="size-8 shrink-0 bg-muted text-foreground flex items-center justify-center rounded-full">{ Initials(c.Name) }</span>
+			<span class="size-8 shrink-0 bg-muted text-foreground flex items-center justify-center rounded-full">{ utils.Initials(c.Name) }</span>
 		}
 		{ c.Name }
 	</a>
