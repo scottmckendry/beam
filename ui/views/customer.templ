@@ -120,45 +120,41 @@ templ CustomerOverview(c db.GetCustomerRow) {
 					</button>
 					<div id="actions-dropdown-popover" data-popover aria-hidden="true" class="absolute md:right-0 md:left-auto">
 						<div role="menu" id="actions-dropdown-menu" aria-labelledby="actions-dropdown-menu-trigger">
-							<div role="group" aria-labelledby="customer-actions">
-								<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
-									<span class="flex items-center">
-										@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
-										Create Invoice
-									</span>
-								</div>
-								<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
-									<span class="flex items-center">
-										@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
-										Edit Customer
-									</span>
-								</div>
-								<div role="menuitem">
-									<button type="button" onclick="document.getElementById('delete-modal').showModal()" class="flex items-center w-full">
-										@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
-										Delete Customer
-									</button>
-								</div>
+							<div role="menuitem" class="block sm:hidden" data-on-click={ fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.FileText(icon.Props{Size: 16, Class: "mr-2"})
+									Create Invoice
+								</span>
+							</div>
+							<div role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()) }>
+								<span class="flex items-center">
+									@icon.Pencil(icon.Props{Size: 16, Class: "mr-2"})
+									Edit Customer
+								</span>
+							</div>
+							<div role="menuitem">
+								<button type="button" data-on-click="$_showDeleteModal = true" class="flex items-center w-full">
+									@icon.Trash2(icon.Props{Size: 16, Class: "mr-2"})
+									Delete Customer
+								</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<dialog id="delete-modal" class="dialog max-w-md mx-4" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-description">
-				<article>
-					<header>
-						<h2 id="delete-modal-title">Are you sure?</h2>
-						<p id="delete-modal-description">This action cannot be undone. This will permanently delete <strong>{ c.Name }</strong> and remove all associated data from our servers.</p>
-					</header>
-					<footer class="flex gap-2 justify-end">
-						<button class="btn-outline" type="button" onclick="document.getElementById('delete-modal').close()">Cancel</button>
-						<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()) }>
-							@icon.Trash2()
-							Delete
-						</button>
-					</footer>
-				</article>
-			</dialog>
+			@ModalDialog(ModalProps{ID: "delete-modal", Signal: "_showDeleteModal"}) {
+				<header>
+					<h2 id="delete-modal-title">Are you sure?</h2>
+					<p id="delete-modal-description">This action cannot be undone. This will permanently delete <strong>{ c.Name }</strong> and remove all associated data from our servers.</p>
+				</header>
+				<footer class="flex gap-2 justify-end">
+					<button class="btn-outline" type="button" data-on-click="$_showDeleteModal = false">Cancel</button>
+					<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()) }>
+						@icon.Trash2()
+						Delete
+					</button>
+				</footer>
+			}
 		</div>
 		<div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-3">
 			@StatsCard(StatsCardProps{
@@ -228,7 +224,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 							<button
 								class="btn absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-6"
 								title="Edit Logo"
-								data-on-click="$logo = '', document.getElementById('edit-logo-dialog').showModal()"
+								data-on-click="$logo = '', $_showEditLogoModal = true"
 							>
 								@icon.Pencil(icon.Props{Class: "size-[12px]"})
 							</button>
@@ -309,31 +305,29 @@ templ CustomerOverview(c db.GetCustomerRow) {
 		<div class="mt-4">
 			@mdNotes(c.Notes.String)
 		</div>
-		<dialog id="edit-logo-dialog" class="dialog" aria-labelledby="edit-logo-dialog-title" aria-describedby="edit-logo-dialog-description" onclick="this.close()">
-			<article onclick="event.stopPropagation()">
-				<header>
-					<h2 id="edit-logo-dialog-title">Upload Logo</h2>
-					<p id="edit-logo-dialog-description">Upload a new logo for this customer. Recommended size is 200x200px.</p>
-				</header>
-				<section>
-					<form class="form grid gap-4" enctype="multipart/form-data">
-						<div class="grid gap-2">
-							<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
-						</div>
-					</form>
-				</section>
-				<footer class="flex gap-1 justify-end flex-row">
-					<button class="btn-outline" type="button" onclick="this.closest('dialog').close()">Cancel</button>
-					<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
-						@icon.Upload()
-						Upload Logo
-					</button>
-					<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
-						@icon.Trash2()
-					</button>
-				</footer>
-			</article>
-		</dialog>
+		@ModalDialog(ModalProps{ID: "edit-logo-dialog", Signal: "_showEditLogoModal"}) {
+			<header>
+				<h2 id="edit-logo-dialog-title">Upload Logo</h2>
+				<p id="edit-logo-dialog-description">Upload a new logo for this customer. Recommended size is 200x200px.</p>
+			</header>
+			<section>
+				<form class="form grid gap-4" enctype="multipart/form-data">
+					<div class="grid gap-2">
+						<input type="file" id="logo-upload" name="logo" accept="image/*" required data-bind="logo"/>
+					</div>
+				</form>
+			</section>
+			<footer class="flex gap-1 justify-end flex-row">
+				<button class="btn-outline" type="button" data-on-click="$_showEditLogoModal = false">Cancel</button>
+				<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
+					@icon.Upload()
+					Upload Logo
+				</button>
+				<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
+					@icon.Trash2()
+				</button>
+			</footer>
+		}
 	</div>
 }
 
@@ -391,10 +385,51 @@ templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 										</div>
 									</div>
 								</div>
-								// TODO: make this a dropdown menu with view/edit/delete options
-								<button class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0" type="button" aria-haspopup="menu" aria-expanded="false" onclick="event.stopPropagation()">
-									@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
-								</button>
+								<div class="dropdown-menu absolute sm:relative right-0 sm:right-auto top-0 sm:top-auto">
+									<button
+										type="button"
+										id={ contact.ID.String() + "-dropdown-trigger" }
+										aria-haspopup="menu"
+										aria-controls={ contact.ID.String() + "-dropdown-menu" }
+										aria-expanded="false"
+										class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0"
+									>
+										@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
+									</button>
+									<div id={ contact.ID.String() + "-dropdown-popover" } data-popover aria-hidden="true" class="absolute right-0 top-10 left-auto">
+										<div role="menu" id={ contact.ID.String() + "-dropdown-menu" } aria-labelledby={ contact.ID.String() + "-dropdown-trigger" }>
+											<div role="menuitem">
+												@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
+												View Contact
+											</div>
+											<div role="menuitem">
+												@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
+												Edit Contact
+											</div>
+											<div role="menuitem" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = true" }>
+												@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
+												Delete Contact
+											</div>
+										</div>
+									</div>
+								</div>
+								@ModalDialog(ModalProps{
+									ID:     contact.ID.String() + "-contact-modal",
+									Signal: "_showContactModal-" + contact.ID.String()}) {
+									<header>
+										<h2 id="alert-dialog-title">Are you sure?</h2>
+										<p id="alert-dialog-description">
+											This action cannot be undone. This will permanently delete <strong>{ contact.Name }</strong>.
+										</p>
+									</header>
+									<footer>
+										<button class="btn-outline" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = false" }>Cancel</button>
+										<button class="btn-destructive" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-contact/%s/%s')", c.ID.String(), contact.ID.String()) }>
+											@icon.Trash2()
+											Delete
+										</button>
+									</footer>
+								}
 							</div>
 						</div>
 					</div>

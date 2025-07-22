@@ -1,0 +1,29 @@
+package views
+
+type ModalProps struct {
+	ID     string
+	Signal string
+}
+
+templ ModalDialog(p ModalProps) {
+	<div
+		id={ p.ID }
+		class="dialog fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby={ p.ID + "-title" }
+		aria-describedby={ p.ID + "-description" }
+		data-show={ "$" + p.Signal }
+		data-attr-open={ "$" + p.Signal }
+	>
+		<article class="bg-background rounded-lg shadow-lg w-[90%] sm:w-full max-w-md p-6" tabindex="-1">
+			{ children... }
+		</article>
+		<button
+			class="fixed inset-0 w-full h-full cursor-default bg-transparent border-0 p-0 m-0"
+			style="z-index: -1;"
+			aria-label="Close modal"
+			data-on-click={ "$" + p.Signal + " = false" }
+		></button>
+	</div>
+}

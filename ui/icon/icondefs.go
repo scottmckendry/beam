@@ -1,4 +1,5 @@
 package icon
+
 // This file is auto generated
 // Using Lucide icons version 0.525.0
 var Activity = Icon("activity")
@@ -12,6 +13,7 @@ var CreditCard = Icon("credit-card")
 var DollarSign = Icon("dollar-sign")
 var Ellipsis = Icon("ellipsis")
 var ExternalLink = Icon("external-link")
+var Eye = Icon("eye")
 var FileText = Icon("file-text")
 var FolderGit2 = Icon("folder-git-2")
 var Github = Icon("github")
