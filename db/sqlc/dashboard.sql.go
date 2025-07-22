@@ -14,9 +14,9 @@ import (
 
 const getDashboardStats = `-- name: GetDashboardStats :one
 SELECT
-    (SELECT COUNT(*) FROM customers) AS total_customers,
-    (SELECT COUNT(*) FROM customers WHERE status = 'active') AS active_customers,
-    (SELECT COUNT(*) FROM contacts) AS total_contacts,
+    (SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL) AS total_customers,
+    (SELECT COUNT(*) FROM customers WHERE status = 'active' AND deleted_at IS NULL) AS active_customers,
+    (SELECT COUNT(*) FROM contacts WHERE deleted_at IS NULL) AS total_contacts,
     7 AS total_projects, -- hardcoded
     1247 AS monthly_revenue, -- hardcoded
     15 AS revenue_change, -- hardcoded
@@ -78,6 +78,7 @@ FROM
     activity_log al
 JOIN
     customers c ON al.customer_id = c.id
+WHERE c.deleted_at IS NULL
 ORDER BY
     al.created_at DESC
 LIMIT 10

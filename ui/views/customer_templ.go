@@ -420,27 +420,27 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<header><h2 id=\"delete-modal-title\">Are you sure?</h2><p id=\"delete-modal-description\">This action cannot be undone. This will permanently delete <strong>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<header><h2 id=\"delete-modal-title\">Delete Customer?</h2><p id=\"delete-modal-description\">This will delete <strong>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 148, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 148, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</strong> and remove all associated data from our servers.</p></header><footer class=\"flex gap-2 justify-end\"><button class=\"btn-outline\" type=\"button\" data-on-click=\"$_showDeleteModal = false\">Cancel</button> <button class=\"btn-primary btn-destructive flex items-center gap-2\" type=\"button\" data-on-click=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</strong> and remove them from active lists. All associated data will also be archived.</p></header><footer class=\"flex gap-2 justify-end\"><button class=\"btn-outline\" type=\"button\" data-on-click=\"$_showDeleteModal = false\">Cancel</button> <button class=\"btn-primary btn-destructive flex items-center gap-2\" type=\"button\" data-on-click=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()))
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete/%s', $_showDeleteModal = false)", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 152, Col: 164}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 152, Col: 191}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -1319,20 +1319,20 @@ func CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) templ.Componen
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<header><h2 id=\"alert-dialog-title\">Are you sure?</h2><p id=\"alert-dialog-description\">This action cannot be undone. This will permanently delete <strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<header><h2 id=\"alert-dialog-title\">Delete Contact?</h2><p id=\"alert-dialog-description\">This will delete <strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 422, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 422, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</strong>.</p></header><footer><button class=\"btn-outline\" data-on-click=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</strong> and remove them from active lists.</p></header><footer><button class=\"btn-outline\" data-on-click=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

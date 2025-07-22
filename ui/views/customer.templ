@@ -144,12 +144,12 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			</div>
 			@ModalDialog(ModalProps{ID: "delete-modal", Signal: "_showDeleteModal"}) {
 				<header>
-					<h2 id="delete-modal-title">Are you sure?</h2>
-					<p id="delete-modal-description">This action cannot be undone. This will permanently delete <strong>{ c.Name }</strong> and remove all associated data from our servers.</p>
+					<h2 id="delete-modal-title">Delete Customer?</h2>
+					<p id="delete-modal-description">This will delete <strong>{ c.Name }</strong> and remove them from active lists. All associated data will also be archived.</p>
 				</header>
 				<footer class="flex gap-2 justify-end">
 					<button class="btn-outline" type="button" data-on-click="$_showDeleteModal = false">Cancel</button>
-					<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s')", c.ID.String()) }>
+					<button class="btn-primary btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete/%s', $_showDeleteModal = false)", c.ID.String()) }>
 						@icon.Trash2()
 						Delete
 					</button>
@@ -417,9 +417,9 @@ templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 									ID:     contact.ID.String() + "-contact-modal",
 									Signal: "_showContactModal-" + contact.ID.String()}) {
 									<header>
-										<h2 id="alert-dialog-title">Are you sure?</h2>
+										<h2 id="alert-dialog-title">Delete Contact?</h2>
 										<p id="alert-dialog-description">
-											This action cannot be undone. This will permanently delete <strong>{ contact.Name }</strong>.
+											This will delete <strong>{ contact.Name }</strong> and remove them from active lists.
 										</p>
 									</header>
 									<footer>

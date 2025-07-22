@@ -15,7 +15,7 @@ import (
 const createContact = `-- name: CreateContact :one
 INSERT INTO contacts (customer_id, name, role, email, phone, avatar, is_primary, notes)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at
+RETURNING id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at
 `
 
 type CreateContactParams struct {
@@ -53,12 +53,49 @@ func (q *Queries) CreateContact(ctx context.Context, arg CreateContactParams) (C
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
+const deleteContact = `-- name: DeleteContact :one
+UPDATE contacts
+SET deleted_at = datetime('now')
+WHERE id = ?
+RETURNING id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) DeleteContact(ctx context.Context, id uuid.UUID) (Contact, error) {
+	row := q.db.QueryRowContext(ctx, deleteContact, id)
+	var i Contact
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Name,
+		&i.Role,
+		&i.Email,
+		&i.Phone,
+		&i.Avatar,
+		&i.IsPrimary,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const deleteContactsByCustomer = `-- name: DeleteContactsByCustomer :exec
+UPDATE contacts SET deleted_at = datetime('now') WHERE customer_id = ?
+`
+
+func (q *Queries) DeleteContactsByCustomer(ctx context.Context, customerID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteContactsByCustomer, customerID)
+	return err
+}
+
 const listContactsByCustomer = `-- name: ListContactsByCustomer :many
-SELECT id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at FROM contacts WHERE customer_id = ? ORDER BY created_at DESC
+SELECT id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at FROM contacts WHERE customer_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
 `
 
 func (q *Queries) ListContactsByCustomer(ctx context.Context, customerID uuid.UUID) ([]Contact, error) {
@@ -82,6 +119,7 @@ func (q *Queries) ListContactsByCustomer(ctx context.Context, customerID uuid.UU
 			&i.Notes,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

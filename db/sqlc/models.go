@@ -32,6 +32,7 @@ type Contact struct {
 	Notes      sql.NullString
 	CreatedAt  sql.NullTime
 	UpdatedAt  sql.NullTime
+	DeletedAt  sql.NullTime
 }
 
 type Customer struct {
@@ -46,6 +47,7 @@ type Customer struct {
 	Notes     sql.NullString
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
+	DeletedAt sql.NullTime
 }
 
 type Migration struct {

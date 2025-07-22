@@ -197,9 +197,13 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.Notify(NotifySuccess, "Customer Deleted", fmt.Sprintf("Customer %s has been successfully deleted.", c.Name), w, r)
+	// Soft delete all contacts for this customer
+	err = h.Queries.DeleteContactsByCustomer(r.Context(), parsedID)
+	if err != nil {
+		log.Printf("Error soft deleting contacts for customer %v: %v", parsedID, err)
+	}
 
-	// INFO: this will fail while we still have delete cascade constraints in place - see TODO in the the init migration
+	h.Notify(NotifySuccess, "Customer Deleted", fmt.Sprintf("Customer %s has been deleted and removed from active lists.", c.Name), w, r)
 	al.LogCustomerDeleted(r.Context(), h.Queries, c)
 
 	// render dashboard, refresh customer navigation

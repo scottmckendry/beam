@@ -23,7 +23,8 @@ CREATE TABLE customers (
     website TEXT,
     notes TEXT,
     created_at DATETIME DEFAULT (datetime('now')),
-    updated_at DATETIME DEFAULT (datetime('now'))
+    updated_at DATETIME DEFAULT (datetime('now')),
+    deleted_at DATETIME DEFAULT NULL
 );
 
 CREATE TABLE contacts (
@@ -38,7 +39,8 @@ CREATE TABLE contacts (
     notes TEXT,
     created_at DATETIME DEFAULT (datetime('now')),
     updated_at DATETIME DEFAULT (datetime('now')),
-    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 

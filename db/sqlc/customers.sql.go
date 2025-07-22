@@ -15,7 +15,7 @@ import (
 const createCustomer = `-- name: CreateCustomer :one
 INSERT INTO customers (name, logo, status, email, phone, address, website, notes)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at
+RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at, deleted_at
 `
 
 type CreateCustomerParams struct {
@@ -53,14 +53,16 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteCustomer = `-- name: DeleteCustomer :one
-DELETE FROM customers
+UPDATE customers
+SET deleted_at = datetime('now')
 WHERE id = ?
-RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at
+RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at, deleted_at
 `
 
 func (q *Queries) DeleteCustomer(ctx context.Context, id uuid.UUID) (Customer, error) {
@@ -78,14 +80,15 @@ func (q *Queries) DeleteCustomer(ctx context.Context, id uuid.UUID) (Customer, e
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getCustomer = `-- name: GetCustomer :one
 SELECT
-    c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at,
-    (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id) AS contact_count,
+    c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at, c.deleted_at,
+    (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id AND deleted_at IS NULL) AS contact_count,
     -- TODO: Replace these with actual counts from the respective tables
     3 AS subscription_count,
     8 AS project_count,
@@ -93,7 +96,7 @@ SELECT
     267 AS monthly_revenue,
     15 AS revenue_change
 FROM customers c
-WHERE c.id = ?
+WHERE c.id = ? AND c.deleted_at IS NULL
 `
 
 type GetCustomerRow struct {
@@ -108,6 +111,7 @@ type GetCustomerRow struct {
 	Notes               sql.NullString
 	CreatedAt           sql.NullTime
 	UpdatedAt           sql.NullTime
+	DeletedAt           sql.NullTime
 	ContactCount        int64
 	SubscriptionCount   int64
 	ProjectCount        int64
@@ -131,6 +135,7 @@ func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (GetCustomerRow
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 		&i.ContactCount,
 		&i.SubscriptionCount,
 		&i.ProjectCount,
@@ -142,7 +147,7 @@ func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (GetCustomerRow
 }
 
 const listCustomers = `-- name: ListCustomers :many
-SELECT id, name, logo, status, email, phone, address, website, notes, created_at, updated_at FROM customers ORDER BY created_at DESC
+SELECT id, name, logo, status, email, phone, address, website, notes, created_at, updated_at, deleted_at FROM customers WHERE deleted_at IS NULL ORDER BY created_at DESC
 `
 
 func (q *Queries) ListCustomers(ctx context.Context) ([]Customer, error) {
@@ -166,6 +171,7 @@ func (q *Queries) ListCustomers(ctx context.Context) ([]Customer, error) {
 			&i.Notes,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -184,7 +190,7 @@ const updateCustomer = `-- name: UpdateCustomer :one
 UPDATE customers
 SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?
 WHERE id = ?
-RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at
+RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at, deleted_at
 `
 
 type UpdateCustomerParams struct {
@@ -224,6 +230,7 @@ func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) 
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
