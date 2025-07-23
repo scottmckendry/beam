@@ -87,15 +87,156 @@ INSERT INTO customers (id, name, status, email, phone, address, website, notes) 
 
 -- Demo data for contacts table
 INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
-('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Jane Smith', 'CTO', 'jane.smith@acme.com', '+1-555-1111', 1, 'Main technical contact');
+('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Jane Smith', 'CTO', 'jane.smith@acme.com', '+1-555-1111', 1, '- **Main technical contact**
+- Handles escalations
+- [Profile](https://acme.com/team/jane)
+> "Always available for urgent issues."');
 INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
-('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'John Doe', 'CEO', 'john.doe@globex.com', '+1-555-2222', 1, 'Decision maker');
+('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'John Doe', 'CEO', 'john.doe@globex.com', '+1-555-2222', 1, '- Decision maker
+- *Strategic planning*
+- [LinkedIn](https://linkedin.com/in/johndoe)
+> "Vision for growth."');
 INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
-('c3d4e5f6-cccc-4ccc-8ccc-cccccccccccc', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Alice Johnson', 'Support Lead', 'alice.j@initech.com', '+1-555-3333', 1, 'Handles support tickets');
+('c3d4e5f6-cccc-4ccc-8ccc-cccccccccccc', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Alice Johnson', 'Support Lead', 'alice.j@initech.com', '+1-555-3333', 1, '- Handles support tickets
+- *Customer advocate*
+- [Support Portal](https://initech.com/support)
+> "Always ready to help."');
 INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
-('d4e5f6a7-dddd-4ddd-8ddd-dddddddddddd', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Bob Brown', 'Operations', 'bob.brown@umbrella.com', '+1-555-4444', 0, 'Secondary contact');
+('d4e5f6a7-dddd-4ddd-8ddd-dddddddddddd', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Bob Brown', 'Operations', 'bob.brown@umbrella.com', '+1-555-4444', 0, '- Secondary contact
+- *Logistics coordinator*
+- [Ops Dashboard](https://umbrella.com/ops)
+> "Keeps things running."');
 INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
-('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeee', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Rachel Green', 'CFO', 'rachel.green@wayne.com', '+1-555-5555', 1, 'Finance contact');
+('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeee', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Rachel Green', 'CFO', 'rachel.green@wayne.com', '+1-555-5555', 1, '- Finance contact
+- *Budget planning*
+- [Finance Portal](https://wayne.com/finance)
+> "Keeps the books balanced."');
+
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaab', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Tom Allen', 'Project Manager', 'tom.allen@acme.com', '+1-555-1112', 0, '- *Coordinates project timelines*
+- Oversees deliverables
+- [Project dashboard](https://acme.com/projects)
+> "Keeps everyone on track."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a1b2c3d4-aaaa-4aaa-8aaa-aaaaaaaaaaac', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Lisa Wu', 'Support Engineer', 'lisa.wu@acme.com', '+1-555-1113', 0, '- First responder for support tickets
+- **Expert in cloud systems**
+- [Support docs](https://acme.com/support)
+> "Solves problems fast."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbc', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Maria Garcia', 'Account Manager', 'maria.garcia@globex.com', '+1-555-2223', 0, '- Manages client relationships
+- [Contact Maria](mailto:maria.garcia@globex.com)
+- **Excellent communicator**
+> "Your go-to for account questions."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b2c3d4e5-bbbb-4bbb-8bbb-bbbbbbbbbbbd', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Steve Kim', 'Technical Lead', 'steve.kim@globex.com', '+1-555-2224', 0, '- Oversees tech stack
+- *DevOps specialist*
+- [Tech Wiki](https://globex.com/wiki)
+> "Ensures uptime."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c3d4e5f6-cccc-4ccc-8ccc-cccccccccccd', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Mark Patel', 'Product Owner', 'mark.patel@initech.com', '+1-555-3334', 0, '- Guides product vision
+- [Product Roadmap](https://initech.com/roadmap)
+- **Agile expert**
+> "Drives innovation."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c3d4e5f6-cccc-4ccc-8ccc-ccccccccccce', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Emily Chen', 'QA Specialist', 'emily.chen@initech.com', '+1-555-3335', 0, '- Tests releases
+- *Quality assurance*
+- [QA Docs](https://initech.com/qa)
+> "Finds the bugs before you do."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d4e5f6a7-dddd-4ddd-8ddd-ddddddddddde', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Sarah Lee', 'Legal Counsel', 'sarah.lee@umbrella.com', '+1-555-4445', 0, '- Handles contracts
+- [Legal Docs](https://umbrella.com/legal)
+- **Compliance expert**
+> "Ensures everything is above board."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d4e5f6a7-dddd-4ddd-8ddd-dddddddddddf', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Mike Davis', 'IT Security', 'mike.davis@umbrella.com', '+1-555-4446', 0, '- Manages security protocols
+- *Incident response*
+- [Security Policy](https://umbrella.com/security)
+> "Protects your data."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeef', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Bruce Wayne', 'CEO', 'bruce.wayne@wayne.com', '+1-555-5556', 0, '- Executive decisions
+- [Profile](https://wayne.com/bruce)
+- **Visionary leader**
+> "Always in the boardroom."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('e5f6a7b8-eeee-4eee-8eee-eeeeeeeeeeeg', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Alfred Pennyworth', 'Executive Assistant', 'alfred@wayne.com', '+1-555-5557', 0, '- Schedules meetings
+- *Trusted confidant*
+- [Contact Alfred](mailto:alfred@wayne.com)
+> "Handles everything with grace."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('f6a7b8c9-ffff-4fff-8fff-fffffffffff1', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Tony Stark', 'CEO', 'tony.stark@stark.com', '+1-555-6661', 1, '- Leads innovation
+- [Profile](https://stark.com/tony)
+- **Inventor**
+> "Genius, billionaire, playboy, philanthropist."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('f6a7b8c9-ffff-4fff-8fff-fffffffffff2', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Pepper Potts', 'COO', 'pepper.potts@stark.com', '+1-555-6662', 0, '- Manages operations
+- [Contact Pepper](mailto:pepper@stark.com)
+- *Organizational expert*
+> "Keeps Tony on schedule."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('f6a7b8c9-ffff-4fff-8fff-fffffffffff3', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Happy Hogan', 'Head of Security', 'happy.hogan@stark.com', '+1-555-6663', 0, '- Security lead
+- [Security Team](https://stark.com/security)
+- **Trusted protector**
+> "Always on guard."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a7b8c9d0-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Gavin Belson', 'CEO', 'gavin.belson@hooli.com', '+1-555-7771', 1, '- Company vision
+- [Profile](https://hooli.com/gavin)
+- *Disruptive thinker*
+> "Making the world a better place."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a7b8c9d0-aaaa-4aaa-8aaa-aaaaaaaaaaa2', 'c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Monica Hall', 'Product Manager', 'monica.hall@hooli.com', '+1-555-7772', 0, '- Oversees product launches
+- [Product Docs](https://hooli.com/products)
+- **Detail-oriented**
+> "Ensures product success."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('a7b8c9d0-aaaa-4aaa-8aaa-aaaaaaaaaaa3', 'c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Jared Dunn', 'Operations', 'jared.dunn@hooli.com', '+1-555-7773', 0, '- Manages day-to-day ops
+- [Ops Wiki](https://hooli.com/ops)
+- *Process improvement*
+> "Optimizes everything."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b8b9c0d1-bbbb-4bbb-8bbb-bbbbbbbbbbb1', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Frank Thorn', 'Compliance Officer', 'frank.thorn@soylent.com', '+1-555-8881', 1, '- Ensures regulatory compliance
+- [Compliance Docs](https://soylent.com/compliance)
+- *Detail-focused*
+> "Keeps us legal."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b8b9c0d1-bbbb-4bbb-8bbb-bbbbbbbbbbb2', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Tab Fielding', 'Operations', 'tab.fielding@soylent.com', '+1-555-8882', 0, '- Handles logistics
+- [Ops Portal](https://soylent.com/ops)
+- **Efficient manager**
+> "Smooth operations."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('b8b9c0d1-bbbb-4bbb-8bbb-bbbbbbbbbbb3', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Shirl', 'Customer Success', 'shirl@soylent.com', '+1-555-8883', 0, '- Customer onboarding
+- [Success Stories](https://soylent.com/success)
+- *Empathetic communicator*
+> "Clients love her."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c9c0d1e2-cccc-4ccc-8ccc-ccccccccccf1', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Miles Dyson', 'Director of R&D', 'miles.dyson@cyberdyne.com', '+1-555-9991', 1, '- Leads research
+- [R&D Wiki](https://cyberdyne.com/rd)
+- **Innovator**
+> "Building the future."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c9c0d1e2-cccc-4ccc-8ccc-ccccccccccf2', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Sarah Connor', 'Security Consultant', 'sarah.connor@cyberdyne.com', '+1-555-9992', 0, '- Security protocols
+- [Security Docs](https://cyberdyne.com/security)
+- *Risk management*
+> "Prepared for anything."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('c9c0d1e2-cccc-4ccc-8ccc-ccccccccccf3', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'John Connor', 'AI Ethics', 'john.connor@cyberdyne.com', '+1-555-9993', 0, '- Oversees AI policy
+- [AI Policy](https://cyberdyne.com/ai-policy)
+- **Ethics advocate**
+> "Protects humanity."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d0d1e2f3-dddd-4ddd-8ddd-ddddddddddf1', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Eldon Tyrell', 'CEO', 'eldon.tyrell@tyrell.com', '+1-555-0001', 1, '- Executive decisions
+- [Profile](https://tyrell.com/eldon)
+- *Visionary*
+> "More human than human."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d0d1e2f3-dddd-4ddd-8ddd-ddddddddddf2', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Rachael', 'Replicant Liaison', 'rachael@tyrell.com', '+1-555-0002', 0, '- Client relations
+- [Liaison Info](https://tyrell.com/liaison)
+- **Empathetic**
+> "Understands replicants."');
+INSERT INTO contacts (id, customer_id, name, role, email, phone, is_primary, notes) VALUES
+('d0d1e2f3-dddd-4ddd-8ddd-ddddddddddf3', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Leon Kowalski', 'Field Agent', 'leon.kowalski@tyrell.com', '+1-555-0003', 0, '- Field operations
+- [Agent Profile](https://tyrell.com/leon)
+- *Problem solver*
+> "Gets the job done."');
 
 -- Demo data for activity_log table
 INSERT INTO activity_log (id, customer_id, activity_type, action, description, created_at) VALUES

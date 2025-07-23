@@ -31,88 +31,147 @@ templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 }
 
 templ ContactCard(contact db.Contact) {
-	// TODO: on-click for this card should be the same as the "View Contact" action in the dropdown
-	<div class="card py-0 cursor-pointer transition hover:shadow-md hover:bg-muted/60" role="button" tabindex="0">
-		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 w-full relative">
-			<div class="flex items-center gap-4 min-w-0">
-				<span class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full">
-					if contact.Avatar.Valid {
-						<img class="h-12 w-12 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
-					} else {
-						<span class="flex h-full w-full items-center justify-center rounded-full bg-muted">{ utils.Initials(contact.Name) }</span>
+	<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 w-full relative">
+		<div class="flex items-center gap-4 min-w-0">
+			<span class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full">
+				if contact.Avatar.Valid {
+					<img class="h-12 w-12 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
+				} else {
+					<span class="flex h-full w-full items-center justify-center rounded-full bg-muted">{ utils.Initials(contact.Name) }</span>
+				}
+			</span>
+			<div class="min-w-0">
+				<h3 class="font-semibold">{ contact.Name }</h3>
+				<p class="text-sm text-muted-foreground flex items-center gap-2">
+					{ contact.Role.String }
+					if contact.IsPrimary.Valid && contact.IsPrimary.Bool {
+						<span class="badge-secondary leading-none">
+							@icon.Contact(icon.Props{Size: 12})
+							Primary
+						</span>
 					}
-				</span>
-				<div class="min-w-0">
-					<h3 class="font-semibold">{ contact.Name }</h3>
-					<p class="text-sm text-muted-foreground flex items-center gap-2">
-						{ contact.Role.String }
-						if contact.IsPrimary.Valid && contact.IsPrimary.Bool {
-							<span class="badge-secondary leading-none">
-								@icon.Contact(icon.Props{Size: 12})
-								Primary
-							</span>
-						}
-					</p>
-				</div>
+				</p>
 			</div>
-			<div class="flex items-center sm:ml-auto w-full sm:w-auto">
-				<div class="space-y-1 text-left sm:text-right w-full">
-					<div class="flex items-center gap-1 text-sm">
-						@icon.Mail(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
-						<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="truncate hover:text-primary focus:text-primary transition-colors">{ contact.Email.String }</a>
-					</div>
-					<div class="flex items-center gap-1 text-sm text-muted-foreground">
-						@icon.Phone(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
-						<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="hover:text-primary focus:text-primary transition-colors">{ contact.Phone.String }</a>
-					</div>
-				</div>
-			</div>
-			<div class="dropdown-menu absolute sm:relative right-0 sm:right-auto top-0 sm:top-auto">
-				<button
-					type="button"
-					id={ contact.ID.String() + "-dropdown-trigger" }
-					aria-haspopup="menu"
-					aria-controls={ contact.ID.String() + "-dropdown-menu" }
-					aria-expanded="false"
-					class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0"
-				>
-					@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
-				</button>
-				<div id={ contact.ID.String() + "-dropdown-popover" } data-popover aria-hidden="true" class="absolute right-0 top-10 left-auto">
-					<div role="menu" id={ contact.ID.String() + "-dropdown-menu" } aria-labelledby={ contact.ID.String() + "-dropdown-trigger" }>
-						<div role="menuitem">
-							@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
-							View Contact
-						</div>
-						<div role="menuitem">
-							@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
-							Edit Contact
-						</div>
-						<div role="menuitem" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = true" }>
-							@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
-							Delete Contact
-						</div>
-					</div>
-				</div>
-			</div>
-			@ModalDialog(ModalProps{
-				ID:     contact.ID.String() + "-contact-modal",
-				Signal: "_showContactModal-" + contact.ID.String()}) {
-				<header>
-					<h2 id="alert-dialog-title">Delete Contact?</h2>
-					<p id="alert-dialog-description">
-						This will delete <strong>{ contact.Name }</strong> and remove them from active lists.
-					</p>
-				</header>
-				<footer>
-					<button class="btn-outline" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = false" }>Cancel</button>
-					<button class="btn-destructive" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-contact/%s')", contact.ID.String()) }>
-						@icon.Trash2()
-						Delete
-					</button>
-				</footer>
-			}
 		</div>
+		<div class="flex items-center sm:ml-auto w-full sm:w-auto">
+			<div class="space-y-1 text-left sm:text-right w-full">
+				<div class="flex items-center gap-1 text-sm">
+					@icon.Mail(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
+					<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="truncate hover:text-primary focus:text-primary transition-colors">{ contact.Email.String }</a>
+				</div>
+				<div class="flex items-center gap-1 text-sm text-muted-foreground">
+					@icon.Phone(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
+					<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="hover:text-primary focus:text-primary transition-colors">{ contact.Phone.String }</a>
+				</div>
+			</div>
+		</div>
+		<div class="dropdown-menu absolute sm:relative right-0 sm:right-auto top-0 sm:top-auto">
+			<button
+				type="button"
+				id={ contact.ID.String() + "-dropdown-trigger" }
+				aria-haspopup="menu"
+				aria-controls={ contact.ID.String() + "-dropdown-menu" }
+				aria-expanded="false"
+				class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0"
+			>
+				@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
+			</button>
+			<div id={ contact.ID.String() + "-dropdown-popover" } data-popover aria-hidden="true" class="absolute right-0 top-10 left-auto">
+				<div role="menu" id={ contact.ID.String() + "-dropdown-menu" } aria-labelledby={ contact.ID.String() + "-dropdown-trigger" }>
+					<div role="menuitem" data-on-click={ "$_showContactViewModal-" + contact.ID.String() + " = true" }>
+						@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
+						View Contact
+					</div>
+					<div role="menuitem">
+						@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
+						Edit Contact
+					</div>
+					<div role="menuitem" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = true" }>
+						@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
+						Delete Contact
+					</div>
+				</div>
+			</div>
+		</div>
+		@ModalDialog(ModalProps{
+			ID:     contact.ID.String() + "-contact-modal",
+			Signal: "_showContactModal-" + contact.ID.String()}) {
+			<header>
+				<h2 id="alert-dialog-title">Delete Contact?</h2>
+				<p id="alert-dialog-description">
+					This will delete <strong>{ contact.Name }</strong> and remove them from active lists.
+				</p>
+			</header>
+			<footer>
+				<button class="btn-outline" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = false" }>Cancel</button>
+				<button class="btn-destructive" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-contact/%s')", contact.ID.String()) }>
+					@icon.Trash2()
+					Delete
+				</button>
+			</footer>
+		}
+		@ModalDialog(ModalProps{
+			ID:     contact.ID.String() + "-contact-view-modal",
+			Signal: "_showContactViewModal-" + contact.ID.String()}) {
+			@ContactView(contact)
+		}
 	</div>
 }
 
+templ ContactView(contact db.Contact) {
+	<button type="button" class="absolute right-4 top-4" data-on-click={ "$_showContactViewModal-" + contact.ID.String() + " = false" } aria-label="Close">
+		@icon.X(icon.Props{Size: 18})
+	</button>
+	<div class="flex flex-col space-y-1.5 text-center sm:text-left pb-4">
+		<h2 id={ contact.ID.String() + "-contact-view-modal-title" } class="text-lg font-semibold leading-none tracking-tight sr-only">Contact Details</h2>
+		<div class="flex items-start gap-4">
+			<span class="relative flex h-14 w-14 shrink-0 overflow-hidden rounded-full">
+				if contact.Avatar.Valid {
+					<img class="h-14 w-14 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
+				} else {
+					<span class="flex h-full w-full items-center justify-center rounded-full bg-muted text-lg">{ utils.Initials(contact.Name) }</span>
+				}
+			</span>
+			<div class="flex-1 min-w-0">
+				<div class="flex items-center gap-2 mb-1">
+					<h2 class="text-xl font-bold text-foreground truncate">{ contact.Name }</h2>
+					if contact.IsPrimary.Valid && contact.IsPrimary.Bool {
+						<span class="badge-secondary leading-none">
+							@icon.Contact(icon.Props{Size: 12})
+							Primary
+						</span>
+					}
+				</div>
+				<div class="flex items-center gap-1 text-muted-foreground">
+					@icon.Building2(icon.Props{Size: 16})
+					<span class="text-sm">{ contact.Role.String }</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="space-y-4">
+		<div class="space-y-3">
+			<h3 class="text-sm font-medium text-foreground">Contact Information</h3>
+			<div class="space-y-2">
+				<div class="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
+					@icon.Mail(icon.Props{Size: 16})
+					<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="text-sm text-foreground hover:text-primary transition-colors flex-1 truncate">{ contact.Email.String }</a>
+				</div>
+				<div class="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
+					@icon.Phone(icon.Props{Size: 16})
+					<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="text-sm text-foreground hover:text-primary transition-colors flex-1">{ contact.Phone.String }</a>
+				</div>
+			</div>
+		</div>
+		<div class="space-y-2">
+			<h3 class="text-md font-medium text-foreground">Notes</h3>
+			@mdNotes(contact.Notes.String)
+		</div>
+	</div>
+	<div class="flex justify-end pt-4">
+		<button class="btn btn-secondary" aria-label="Edit">
+			@icon.Pencil(icon.Props{Size: 16})
+			Edit
+		</button>
+	</div>
+}

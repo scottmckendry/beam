@@ -215,7 +215,17 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			</div>
 		</div>
 		<div class="mt-4">
-			@mdNotes(c.Notes.String)
+			<div class="card block">
+				<header>
+					<div class="flex items-center gap-2">
+						@icon.Notebook(icon.Props{Size: 20})
+						<h3 class="text-lg font-medium">Notes</h3>
+					</div>
+				</header>
+				<section>
+					@mdNotes(c.Notes.String)
+				</section>
+			</div>
 		</div>
 		@ModalDialog(ModalProps{ID: "edit-logo-dialog", Signal: "_showEditLogoModal"}) {
 			<header>
