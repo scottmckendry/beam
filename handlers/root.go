@@ -4,8 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/scottmckendry/beam/ui/views"
 )
+
+// RegisterRootRoutes registers the admin root route on the given router.
+func (h *Handlers) RegisterRootRoutes(r chi.Router) {
+	r.Get("/", h.HandleRoot)
+}
 
 // HandleRoot serves the main application page.
 func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {

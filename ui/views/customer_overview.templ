@@ -17,7 +17,7 @@ templ CustomerOverview(c db.GetCustomerRow) {
 				<p class="text-muted-foreground text-sm">Summary and quick actions for this customer</p>
 			</div>
 			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
+				<button type="button" class="btn flex items-center gap-2" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/add-contact')", c.ID.String()) }>
 					@icon.Plus()
 					Add Contact
 				</button>

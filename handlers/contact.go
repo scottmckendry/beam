@@ -13,6 +13,15 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
+// RegisterContactRoutes registers all contact-related routes on the given router.
+func (h *Handlers) RegisterContactRoutes(r chi.Router) {
+	r.Get("/sse/customer/{customerID}/add-contact", h.AddContactFormSSE)
+	r.Get("/sse/customer/{customerID}/add-contact-submit", h.AddContactSubmitSSE)
+	r.Get("/sse/customer/{customerID}/edit-contact/{contactID}", h.EditContactFormSSE)
+	r.Get("/sse/customer/{customerID}/edit-contact-submit/{contactID}", h.EditContactSubmitSSE)
+	r.Get("/sse/customer/{customerID}/delete-contact/{contactID}", h.DeleteContactSSE)
+}
+
 // AddContactFormSSE renders the form to add a new contact for a customer via SSE.
 func (h *Handlers) AddContactFormSSE(w http.ResponseWriter, r *http.Request) {
 	customerID := chi.URLParam(r, "customerID")

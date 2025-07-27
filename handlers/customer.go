@@ -21,6 +21,22 @@ import (
 	"github.com/scottmckendry/beam/ui/views"
 )
 
+// RegisterCustomerRoutes registers all customer-related routes to the given router.
+func (h *Handlers) RegisterCustomerRoutes(r chi.Router) {
+	r.Get("/sse/customer/{id}", h.GetCustomerSSE)
+	r.Get("/sse/customer/overview/{id}", h.GetCustomerOverviewSSE)
+	r.Get("/sse/customer/contacts/{id}", h.GetCustomerContactsSSE)
+	r.Get("/sse/customer/subscriptions/{id}", h.GetCustomerSubscriptionsSSE)
+	r.Get("/sse/customer/projects/{id}", h.GetCustomerProjectsSSE)
+	r.Get("/sse/customer/add", h.AddCustomerSSE)
+	r.Get("/sse/customer/add-submit", h.SubmitAddCustomerSSE)
+	r.Get("/sse/customer/delete/{id}", h.DeleteCustomerSSE)
+	r.Get("/sse/customer/edit/{id}", h.EditCustomerFormSSE)
+	r.Get("/sse/customer/edit-submit/{id}", h.EditCustomerSubmitSSE)
+	r.Post("/sse/customer/upload-logo/{id}", h.UploadCustomerLogoSSE)
+	r.Get("/sse/customer/delete-logo/{id}", h.DeleteCustomerLogoSSE)
+}
+
 // AddCustomerSSE renders the form to add a new customer via SSE
 func (h *Handlers) AddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	pageSignals := PageSignals{

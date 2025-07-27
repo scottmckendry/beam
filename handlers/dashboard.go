@@ -6,9 +6,17 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/scottmckendry/beam/ui/views"
 )
+
+// RegisterDashboardRoutes registers all dashboard-related routes on the given router.
+func (h *Handlers) RegisterDashboardRoutes(r chi.Router) {
+	r.Get("/sse/dashboard", h.DashboardSSE)
+	r.Get("/sse/dashboard/stats", h.DashboardStatsSSE)
+	r.Get("/sse/dashboard/activity", h.DashboardActivitySSE)
+}
 
 func (h *Handlers) DashboardStatsSSE(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.Queries.GetDashboardStats(r.Context())

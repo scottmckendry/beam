@@ -5,9 +5,15 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/scottmckendry/beam/ui/views"
 )
+
+// RegisterInvoiceRoutes registers all invoice-related routes on the given router.
+func (h *Handlers) RegisterInvoiceRoutes(r chi.Router) {
+	r.Get("/sse/invoice", h.InvoicesSSE)
+}
 
 func (h *Handlers) InvoicesSSE(w http.ResponseWriter, r *http.Request) {
 	pageSignals := PageSignals{
