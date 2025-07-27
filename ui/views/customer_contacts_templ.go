@@ -513,7 +513,7 @@ func ContactCard(contact db.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</p></div></div><div class=\"flex items-center sm:ml-auto w-full sm:w-auto\"><div class=\"space-y-1 text-left sm:text-right w-full\"><div class=\"flex items-center gap-1 text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</p></div></div><div class=\"flex items-center sm:ml-auto w-full sm:w-auto\"><div class=\"space-y-1 text-left sm:text-right w-full\"><div class=\"flex items-center gap-1 text-sm text-muted-foreground sm:justify-end\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -547,7 +547,7 @@ func ContactCard(contact db.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</a></div><div class=\"flex items-center gap-1 text-sm text-muted-foreground\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</a></div><div class=\"flex items-center gap-1 text-sm text-muted-foreground sm:justify-end\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

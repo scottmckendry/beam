@@ -160,11 +160,11 @@ templ ContactCard(contact db.Contact) {
 		</div>
 		<div class="flex items-center sm:ml-auto w-full sm:w-auto">
 			<div class="space-y-1 text-left sm:text-right w-full">
-				<div class="flex items-center gap-1 text-sm">
+				<div class="flex items-center gap-1 text-sm text-muted-foreground sm:justify-end">
 					@icon.Mail(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
 					<a href={ fmt.Sprintf("mailto:%s", contact.Email.String) } class="truncate hover:text-primary focus:text-primary transition-colors">{ contact.Email.String }</a>
 				</div>
-				<div class="flex items-center gap-1 text-sm text-muted-foreground">
+				<div class="flex items-center gap-1 text-sm text-muted-foreground sm:justify-end">
 					@icon.Phone(icon.Props{Size: 12, Class: "h-3 w-3 flex-shrink-0"})
 					<a href={ fmt.Sprintf("tel:%s", contact.Phone.String) } class="hover:text-primary focus:text-primary transition-colors">{ contact.Phone.String }</a>
 				</div>
