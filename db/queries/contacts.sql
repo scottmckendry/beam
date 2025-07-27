@@ -13,4 +13,17 @@ RETURNING *;
 UPDATE contacts SET deleted_at = datetime('now') WHERE customer_id = ?;
 
 -- name: ListContactsByCustomer :many
-SELECT * FROM contacts WHERE customer_id = ? AND deleted_at IS NULL ORDER BY created_at DESC;
+SELECT * FROM contacts WHERE customer_id = ? AND deleted_at IS NULL ORDER BY is_primary DESC, created_at DESC;
+
+-- name: GetContact :one
+SELECT * FROM contacts WHERE id = ? AND deleted_at IS NULL;
+
+-- name: UpdateContact :exec
+UPDATE contacts
+SET name = ?, role = ?, email = ?, phone = ?, is_primary = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?;
+
+-- name: UnsetOtherPrimaryContacts :exec
+UPDATE contacts
+SET is_primary = 0
+WHERE customer_id = ? AND id != ? AND deleted_at IS NULL;

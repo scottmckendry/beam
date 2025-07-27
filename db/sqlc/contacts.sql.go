@@ -94,8 +94,32 @@ func (q *Queries) DeleteContactsByCustomer(ctx context.Context, customerID uuid.
 	return err
 }
 
+const getContact = `-- name: GetContact :one
+SELECT id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at FROM contacts WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) GetContact(ctx context.Context, id uuid.UUID) (Contact, error) {
+	row := q.db.QueryRowContext(ctx, getContact, id)
+	var i Contact
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Name,
+		&i.Role,
+		&i.Email,
+		&i.Phone,
+		&i.Avatar,
+		&i.IsPrimary,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const listContactsByCustomer = `-- name: ListContactsByCustomer :many
-SELECT id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at FROM contacts WHERE customer_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
+SELECT id, customer_id, name, role, email, phone, avatar, is_primary, notes, created_at, updated_at, deleted_at FROM contacts WHERE customer_id = ? AND deleted_at IS NULL ORDER BY is_primary DESC, created_at DESC
 `
 
 func (q *Queries) ListContactsByCustomer(ctx context.Context, customerID uuid.UUID) ([]Contact, error) {
@@ -132,4 +156,49 @@ func (q *Queries) ListContactsByCustomer(ctx context.Context, customerID uuid.UU
 		return nil, err
 	}
 	return items, nil
+}
+
+const unsetOtherPrimaryContacts = `-- name: UnsetOtherPrimaryContacts :exec
+UPDATE contacts
+SET is_primary = 0
+WHERE customer_id = ? AND id != ? AND deleted_at IS NULL
+`
+
+type UnsetOtherPrimaryContactsParams struct {
+	CustomerID uuid.UUID
+	ID         uuid.UUID
+}
+
+func (q *Queries) UnsetOtherPrimaryContacts(ctx context.Context, arg UnsetOtherPrimaryContactsParams) error {
+	_, err := q.db.ExecContext(ctx, unsetOtherPrimaryContacts, arg.CustomerID, arg.ID)
+	return err
+}
+
+const updateContact = `-- name: UpdateContact :exec
+UPDATE contacts
+SET name = ?, role = ?, email = ?, phone = ?, is_primary = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+`
+
+type UpdateContactParams struct {
+	Name      string
+	Role      sql.NullString
+	Email     sql.NullString
+	Phone     sql.NullString
+	IsPrimary sql.NullBool
+	Notes     sql.NullString
+	ID        uuid.UUID
+}
+
+func (q *Queries) UpdateContact(ctx context.Context, arg UpdateContactParams) error {
+	_, err := q.db.ExecContext(ctx, updateContact,
+		arg.Name,
+		arg.Role,
+		arg.Email,
+		arg.Phone,
+		arg.IsPrimary,
+		arg.Notes,
+		arg.ID,
+	)
+	return err
 }

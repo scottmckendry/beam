@@ -2,11 +2,81 @@ package views
 
 import (
 	"fmt"
-
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
 	"github.com/scottmckendry/beam/ui/utils"
 )
+
+type ContactFormProps struct {
+	Name        string
+	Email       string
+	Role        string
+	Phone       string
+	IsPrimary   bool
+	Notes       string
+	ButtonLabel string
+	ActionURL   string
+}
+
+templ AddContact(customerID string) {
+	@contactForm(ContactFormProps{
+		Name:        "",
+		Email:       "",
+		Role:        "",
+		Phone:       "",
+		IsPrimary:   false,
+		Notes:       "",
+		ButtonLabel: "Add Contact",
+		ActionURL:   fmt.Sprintf("@get('/sse/customer/%s/add-contact-submit', {contentType: 'form'})", customerID),
+	})
+}
+
+templ EditContact(contact db.Contact) {
+	@contactForm(ContactFormProps{
+		Name:        contact.Name,
+		Email:       contact.Email.String,
+		Role:        contact.Role.String,
+		Phone:       contact.Phone.String,
+		IsPrimary:   contact.IsPrimary.Bool,
+		Notes:       contact.Notes.String,
+		ButtonLabel: "Update Contact",
+		ActionURL:   fmt.Sprintf("@get('/sse/customer/%s/edit-contact-submit/%s', {contentType: 'form'})", contact.CustomerID.String(), contact.ID.String()),
+	})
+}
+
+templ contactForm(p ContactFormProps) {
+	<div id="customer-tab-content" class="p-6">
+		<form class="form grid gap-6 w-full max-w-3xl mx-auto" data-on-submit={ p.ActionURL }>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="grid gap-2">
+					<label for="name">Name</label>
+					<input type="text" id="name" name="name" placeholder="Contact Name" value={ p.Name } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" placeholder="mail@example.com" value={ p.Email } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="role">Role</label>
+					<input type="text" id="role" name="role" placeholder="Role (e.g. Manager)" value={ p.Role }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="phone">Phone</label>
+					<input type="tel" id="phone" name="phone" placeholder="+64 21 123 4567" value={ p.Phone }/>
+				</div>
+				<div class="grid gap-2">
+					<label for="is_primary">Primary Contact</label>
+					<input type="checkbox" id="is_primary" name="is_primary" checked?={ p.IsPrimary }/>
+				</div>
+			</div>
+			<div class="grid gap-2 mt-6">
+				<label for="notes">Notes</label>
+				<textarea id="notes" name="notes" placeholder="Markdown supported" rows="6">{ p.Notes }</textarea>
+			</div>
+			<button type="submit" class="btn w-full mt-6">{ p.ButtonLabel }</button>
+		</form>
+	</div>
+}
 
 templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 	<div id="customer-tab-content">
@@ -16,10 +86,10 @@ templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 				<p class="text-muted-foreground text-sm">Manage and view all contacts for this customer</p>
 			</div>
 			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
+				<a class="btn flex items-center gap-2" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/add-contact')", c.ID.String()) }>
 					@icon.Plus()
 					Add Contact
-				</button>
+				</a>
 			</div>
 		</div>
 		<div class="flex flex-col gap-4 mt-4">
@@ -82,10 +152,10 @@ templ ContactCard(contact db.Contact) {
 						@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
 						View Contact
 					</div>
-					<div role="menuitem">
+					<a role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/edit-contact/%s')", contact.CustomerID.String(), contact.ID.String()) }>
 						@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
 						Edit Contact
-					</div>
+					</a>
 					<div role="menuitem" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = true" }>
 						@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
 						Delete Contact
@@ -104,7 +174,7 @@ templ ContactCard(contact db.Contact) {
 			</header>
 			<footer>
 				<button class="btn-outline" data-on-click={ "$_showContactModal-" + contact.ID.String() + " = false" }>Cancel</button>
-				<button class="btn-destructive" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-contact/%s')", contact.ID.String()) }>
+				<button class="btn-destructive" data-on-click={ fmt.Sprintf("$_showContactModal-%s = false, @get('/sse/customer/%s/delete-contact/%s')", contact.ID.String(), contact.CustomerID.String(), contact.ID.String()) }>
 					@icon.Trash2()
 					Delete
 				</button>
@@ -169,7 +239,7 @@ templ ContactView(contact db.Contact) {
 		</div>
 	</div>
 	<div class="flex justify-end pt-4">
-		<button class="btn btn-secondary" aria-label="Edit">
+		<button class="btn btn-secondary" aria-label="Edit" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/edit-contact/%s')", contact.CustomerID.String(), contact.ID.String()) }>
 			@icon.Pencil(icon.Props{Size: 16})
 			Edit
 		</button>
