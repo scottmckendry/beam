@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	al "github.com/scottmckendry/beam/activitylog"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/views"
 )
@@ -88,6 +89,7 @@ func (h *Handlers) AddContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	h.Notify(NotifySuccess, "Contact added", "The contact has been successfully added.", w, r)
+	al.LogContactAdded(r.Context(), h.Queries, newContact.CustomerID, newContact.Name)
 
 	// Refresh the contact list for the customer
 	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), cid)
@@ -139,6 +141,8 @@ func (h *Handlers) DeleteContactSSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.Notify(NotifySuccess, "Contact deleted", "The contact has been successfully deleted.", w, r)
+	al.LogContactDeleted(r.Context(), h.Queries, contact.CustomerID, contact.Name)
+
 	// Refresh the contact list for the customer
 	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), contact.CustomerID)
 	if err != nil {
@@ -234,6 +238,7 @@ func (h *Handlers) EditContactSubmitSSE(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.Notify(NotifySuccess, "Contact updated", "The contact has been successfully updated.", w, r)
+	al.LogContactUpdated(r.Context(), h.Queries, cid, name)
 
 	// Refresh the contact list for the customer
 	parsedCustID, err := uuid.Parse(customerID)

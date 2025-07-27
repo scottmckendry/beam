@@ -15,6 +15,7 @@ type ActivityType string
 
 const (
 	ActivityTypeCustomer ActivityType = "customer"
+	ActivityTypeContact  ActivityType = "contact"
 )
 
 // LogCustomerCreated logs a customer creation event.
@@ -32,7 +33,22 @@ func LogCustomerDeleted(ctx context.Context, queries *db.Queries, customer db.Cu
 	logActivity(ctx, queries, customer.ID, ActivityTypeCustomer, "customer_deleted", fmt.Sprintf("Customer %s deleted", customer.Name))
 }
 
-// logActivity inserts a new activity log entry for a customer
+// LogContactAdded logs a contact creation event.
+func LogContactAdded(ctx context.Context, queries *db.Queries, customerID uuid.UUID, contactName string) {
+	logActivity(ctx, queries, customerID, ActivityTypeContact, "contact_added", fmt.Sprintf("Contact %s added", contactName))
+}
+
+// LogContactUpdated logs a contact update event.
+func LogContactUpdated(ctx context.Context, queries *db.Queries, customerID uuid.UUID, contactName string) {
+	logActivity(ctx, queries, customerID, ActivityTypeContact, "contact_updated", fmt.Sprintf("Contact %s updated", contactName))
+}
+
+// LogContactDeleted logs a contact deletion event.
+func LogContactDeleted(ctx context.Context, queries *db.Queries, customerID uuid.UUID, contactName string) {
+	logActivity(ctx, queries, customerID, ActivityTypeContact, "contact_deleted", fmt.Sprintf("Contact %s deleted", contactName))
+}
+
+// logActivity inserts a new activity log entry for a customer or contact
 func logActivity(ctx context.Context, queries *db.Queries, customerID uuid.UUID, activityType ActivityType, action, description string) {
 	activity := db.LogActivityParams{
 		CustomerID:   customerID,
@@ -42,6 +58,6 @@ func logActivity(ctx context.Context, queries *db.Queries, customerID uuid.UUID,
 	}
 	_, err := queries.LogActivity(ctx, activity)
 	if err != nil {
-		log.Printf("Failed to log customer activity: %v", err)
+		log.Printf("Failed to log activity: %v", err)
 	}
 }
