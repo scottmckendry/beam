@@ -241,11 +241,11 @@ templ CustomerOverview(c db.GetCustomerRow) {
 			</section>
 			<footer class="flex gap-1 justify-end flex-row">
 				<button class="btn-outline" type="button" data-on-click="$_showEditLogoModal = false">Cancel</button>
-				<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()) } data-attr-disabled="!$logo.length">
+				<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/customer/upload-logo/%s'), $_showEditLogoModal = false", c.ID.String()) } data-attr-disabled="!$logo.length">
 					@icon.Upload()
 					Upload Logo
 				</button>
-				<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()) }>
+				<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/delete-logo/%s'), $_showEditLogoModal = false", c.ID.String()) }>
 					@icon.Trash2()
 				</button>
 			</footer>

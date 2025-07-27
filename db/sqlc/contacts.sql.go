@@ -85,6 +85,17 @@ func (q *Queries) DeleteContact(ctx context.Context, id uuid.UUID) (Contact, err
 	return i, err
 }
 
+const deleteContactAvatar = `-- name: DeleteContactAvatar :exec
+UPDATE contacts
+SET avatar = NULL, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+`
+
+func (q *Queries) DeleteContactAvatar(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteContactAvatar, id)
+	return err
+}
+
 const deleteContactsByCustomer = `-- name: DeleteContactsByCustomer :exec
 UPDATE contacts SET deleted_at = datetime('now') WHERE customer_id = ?
 `
@@ -200,5 +211,21 @@ func (q *Queries) UpdateContact(ctx context.Context, arg UpdateContactParams) er
 		arg.Notes,
 		arg.ID,
 	)
+	return err
+}
+
+const updateContactAvatar = `-- name: UpdateContactAvatar :exec
+UPDATE contacts
+SET avatar = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+`
+
+type UpdateContactAvatarParams struct {
+	Avatar sql.NullString
+	ID     uuid.UUID
+}
+
+func (q *Queries) UpdateContactAvatar(ctx context.Context, arg UpdateContactAvatarParams) error {
+	_, err := q.db.ExecContext(ctx, updateContactAvatar, arg.Avatar, arg.ID)
 	return err
 }

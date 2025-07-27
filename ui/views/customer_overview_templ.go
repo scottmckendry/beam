@@ -667,9 +667,9 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/customer/upload-logo/%s')", c.ID.String()))
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/customer/upload-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 244, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 244, Col: 150}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -688,9 +688,9 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete-logo/%s')", c.ID.String()))
+			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 248, Col: 156}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 248, Col: 185}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {

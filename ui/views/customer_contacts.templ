@@ -108,13 +108,43 @@ templ CustomerContacts(c db.GetCustomerRow, contacts []db.Contact) {
 templ ContactCard(contact db.Contact) {
 	<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 w-full relative">
 		<div class="flex items-center gap-4 min-w-0">
-			<span class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full">
+			<span class="relative flex h-12 w-12 shrink-0 rounded-full group">
 				if contact.Avatar.Valid {
 					<img class="h-12 w-12 object-cover rounded-full" alt={ contact.Name } src={ contact.Avatar.String }/>
 				} else {
 					<span class="flex h-full w-full items-center justify-center rounded-full bg-muted">{ utils.Initials(contact.Name) }</span>
 				}
+				<button
+					class="btn absolute top-[-4] right-[-2] opacity-0 group-hover:opacity-100 transition-opacity rounded-full size-5 p-0"
+					title="Edit Avatar"
+					data-on-click={ "$avatar = '', $_showEditAvatarModal-" + contact.ID.String() + " = true" }
+				>
+					@icon.Pencil(icon.Props{Class: "size-[10px]"})
+				</button>
 			</span>
+			@ModalDialog(ModalProps{ID: contact.ID.String() + "-edit-avatar-dialog", Signal: "_showEditAvatarModal-" + contact.ID.String()}) {
+				<header>
+					<h2 id="edit-avatar-dialog-title">Upload Avatar</h2>
+					<p id="edit-avatar-dialog-description">Upload a new avatar for this contact. Recommended size is 200x200px.</p>
+				</header>
+				<section>
+					<form class="form grid gap-4" enctype="multipart/form-data">
+						<div class="grid gap-2">
+							<input type="file" id="avatar-upload" name="avatar" accept="image/*" required data-bind="avatar"/>
+						</div>
+					</form>
+				</section>
+				<footer class="flex gap-1 justify-end flex-row">
+					<button class="btn-outline" type="button" data-on-click={ "$_showEditAvatarModal-" + contact.ID.String() + " = false" }>Cancel</button>
+					<button class="btn" type="button" data-on-click={ fmt.Sprintf("@post('/sse/contact/upload-avatar/%s', $_showEditAvatarModal-%s = false)", contact.ID.String(), contact.ID.String()) }>
+						@icon.Upload()
+						Upload Avatar
+					</button>
+					<button class="btn-destructive flex items-center gap-2" type="button" data-on-click={ fmt.Sprintf("@get('/sse/contact/delete-avatar/%s', $_showEditAvatarModal-%s = false)", contact.ID.String(), contact.ID.String()) }>
+						@icon.Trash2()
+					</button>
+				</footer>
+			}
 			<div class="min-w-0">
 				<h3 class="font-semibold">{ contact.Name }</h3>
 				<p class="text-sm text-muted-foreground flex items-center gap-2">

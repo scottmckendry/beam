@@ -27,3 +27,13 @@ WHERE id = ?;
 UPDATE contacts
 SET is_primary = 0
 WHERE customer_id = ? AND id != ? AND deleted_at IS NULL;
+
+-- name: UpdateContactAvatar :exec
+UPDATE contacts
+SET avatar = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?;
+
+-- name: DeleteContactAvatar :exec
+UPDATE contacts
+SET avatar = NULL, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?;

@@ -35,6 +35,10 @@ func (h *Handlers) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/sse/customer/edit-submit/{id}", h.EditCustomerSubmitSSE)
 	r.Post("/sse/customer/upload-logo/{id}", h.UploadCustomerLogoSSE)
 	r.Get("/sse/customer/delete-logo/{id}", h.DeleteCustomerLogoSSE)
+
+	// Contact avatar endpoints
+	r.Post("/sse/contact/upload-avatar/{id}", h.UploadContactAvatarSSE)
+	r.Get("/sse/contact/delete-avatar/{id}", h.DeleteContactAvatarSSE)
 }
 
 // AddCustomerSSE renders the form to add a new customer via SSE
@@ -462,6 +466,141 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 			views.CustomerNavigation(customers),
 		},
 	})
+}
+
+// UploadContactAvatarSSE handles the upload of a contact avatar, saves it, updates the DB, and returns an SSE response.
+func (h *Handlers) UploadContactAvatarSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	contactID, err := uuid.Parse(id)
+	if err != nil {
+		slog.Error("Invalid contact ID", "err", err)
+		http.Error(w, "Invalid contact ID", http.StatusBadRequest)
+		h.Notify(NotifyError, "Invalid Contact ID", "The contact ID provided is not valid.", w, r)
+		return
+	}
+
+	var payload struct {
+		Avatar      []string `json:"avatar"`
+		AvatarMimes []string `json:"avatarMimes"`
+		AvatarNames []string `json:"avatarNames"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		slog.Error("Error decoding JSON", "err", err)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the JSON payload.", w, r)
+		return
+	}
+	if len(payload.Avatar) == 0 || payload.Avatar[0] == "" {
+		http.Error(w, "No avatar data provided", http.StatusBadRequest)
+		h.Notify(NotifyError, "Upload Failed", "No avatar data provided in the request.", w, r)
+		return
+	}
+
+	// Determine file extension
+	ext := ".png"
+	if len(payload.AvatarMimes) > 0 && payload.AvatarMimes[0] != "" {
+		switch payload.AvatarMimes[0] {
+		case "image/jpeg":
+			ext = ".jpg"
+		case "image/png":
+			ext = ".png"
+		case "image/gif":
+			ext = ".gif"
+		case "image/webp":
+			ext = ".webp"
+		}
+	} else if len(payload.AvatarNames) > 0 && payload.AvatarNames[0] != "" {
+		ext = path.Ext(payload.AvatarNames[0])
+		if ext == "" {
+			ext = ".png"
+		}
+	}
+
+	// Decode base64
+	data, err := decodeBase64Image(payload.Avatar[0])
+	if err != nil {
+		slog.Error("Error decoding base64", "err", err)
+		http.Error(w, "Invalid image data", http.StatusBadRequest)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the image data.", w, r)
+		return
+	}
+
+	// Save file
+	avatarPath := fmt.Sprintf("public/uploads/avatars/%s%s", contactID.String(), ext)
+	if err := os.WriteFile(avatarPath, data, 0644); err != nil {
+		slog.Error("Error saving file", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		h.Notify(NotifyError, "Upload Failed", "An error occurred while uploading the avatar.", w, r)
+		return
+	}
+
+	// Update DB with relative path
+	urlPath := fmt.Sprintf("public/uploads/avatars/%s%s", contactID.String(), ext)
+	params := db.UpdateContactAvatarParams{
+		ID:     contactID,
+		Avatar: sql.NullString{String: urlPath, Valid: true},
+	}
+	if err := h.Queries.UpdateContactAvatar(r.Context(), params); err != nil {
+		slog.Error("Error updating contact avatar", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the contact avatar.", w, r)
+		return
+	}
+
+	h.Notify(NotifySuccess, "Avatar Uploaded", "Contact avatar has been successfully uploaded.", w, r)
+
+	// Refresh the contacts list for the customer
+	contact, _ := h.Queries.GetContact(r.Context(), contactID)
+	contacts, _ := h.Queries.ListContactsByCustomer(r.Context(), contact.CustomerID)
+	customer, _ := h.Queries.GetCustomer(r.Context(), contact.CustomerID)
+	h.renderSSE(w, r, SSEOpts{
+		Signals: []byte(`{"avatar": ""}`),
+		Views: []templ.Component{
+			views.CustomerContacts(customer, contacts),
+		},
+	})
+}
+
+// DeleteContactAvatarSSE handles the deletion of a contact avatar, sets it to NULL in the DB, and returns an SSE response.
+func (h *Handlers) DeleteContactAvatarSSE(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	contactID, err := uuid.Parse(id)
+	if err != nil {
+		slog.Error("Invalid contact ID", "err", err)
+		http.Error(w, "Invalid contact ID", http.StatusBadRequest)
+		h.Notify(NotifyError, "Invalid Contact ID", "The contact ID provided is not valid.", w, r)
+		return
+	}
+
+	if err := h.Queries.DeleteContactAvatar(r.Context(), contactID); err != nil {
+		slog.Error("Error updating contact avatar", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the contact avatar.", w, r)
+		return
+	}
+
+	h.Notify(NotifySuccess, "Avatar Deleted", "Contact avatar has been successfully deleted.", w, r)
+
+	// Refresh the contacts list for the customer
+	contact, _ := h.Queries.GetContact(r.Context(), contactID)
+	contacts, _ := h.Queries.ListContactsByCustomer(r.Context(), contact.CustomerID)
+	customer, _ := h.Queries.GetCustomer(r.Context(), contact.CustomerID)
+	h.renderSSE(w, r, SSEOpts{
+		Views: []templ.Component{
+			views.CustomerContacts(customer, contacts),
+		},
+	})
+
+	// Delete the avatar file from the filesystem
+	matches, err := filepath.Glob(fmt.Sprintf("public/uploads/avatars/%s*", contactID.String()))
+	if err != nil {
+		slog.Error("Error finding avatar files", "err", err)
+		return
+	}
+	for _, match := range matches {
+		if err := os.Remove(match); err != nil {
+			slog.Error("Error deleting avatar file", "file", match, "err", err)
+		}
+	}
 }
 
 // decodeBase64Image decodes a base64 string, stripping any data URL prefix if present.
