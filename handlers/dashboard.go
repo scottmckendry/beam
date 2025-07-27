@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/scottmckendry/beam/handlers/utils"
 	"log/slog"
 	"net/http"
 
@@ -27,7 +28,7 @@ func (h *Handlers) DashboardStatsSSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{views.DashboardStats(stats)}})
+	utils.RenderSSE(w, r, utils.SSEOpts{Views: []templ.Component{views.DashboardStats(stats)}})
 }
 
 func (h *Handlers) DashboardActivitySSE(w http.ResponseWriter, r *http.Request) {
@@ -39,18 +40,18 @@ func (h *Handlers) DashboardActivitySSE(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	h.renderSSE(w, r, SSEOpts{Views: []templ.Component{views.DashboardActivity(activities)}})
+	utils.RenderSSE(w, r, utils.SSEOpts{Views: []templ.Component{views.DashboardActivity(activities)}})
 }
 
 func (h *Handlers) DashboardSSE(w http.ResponseWriter, r *http.Request) {
-	pageSignals := PageSignals{
+	pageSignals := utils.PageSignals{
 		HeaderTitle:       "Dashboard",
 		HeaderDescription: "Overview of your business metrics",
 		CurrentPage:       "dashboard",
 	}
 	encodedSignals, _ := json.Marshal(pageSignals)
 
-	h.renderSSE(w, r, SSEOpts{
+	utils.RenderSSE(w, r, utils.SSEOpts{
 		Signals: encodedSignals,
 		Views: []templ.Component{
 			views.Dashboard(),

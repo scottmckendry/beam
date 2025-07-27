@@ -422,9 +422,9 @@ func ContactCard(contact db.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var20 string
-			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/contact/upload-avatar/%s', $_showEditAvatarModal-%s = false)", contact.ID.String(), contact.ID.String()))
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/customer/%s/upload-avatar/%s', $_showEditAvatarModal-%s = false)", contact.CustomerID.String(), contact.ID.String(), contact.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_contacts.templ`, Line: 139, Col: 184}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_contacts.templ`, Line: 139, Col: 217}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -443,9 +443,9 @@ func ContactCard(contact db.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/contact/delete-avatar/%s', $_showEditAvatarModal-%s = false)", contact.ID.String(), contact.ID.String()))
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/%s/delete-avatar/%s', $_showEditAvatarModal-%s = false)", contact.CustomerID.String(), contact.ID.String(), contact.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_contacts.templ`, Line: 143, Col: 219}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_contacts.templ`, Line: 143, Col: 252}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
