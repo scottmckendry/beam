@@ -31,7 +31,10 @@ func main() {
 	h := handlers.New(queries, auth)
 
 	r := chi.NewRouter()
-	r.Use(middlewares.Slog)
+
+	// Use a custom logger for middleware with AddSource: false
+	middlewareLogger := newLogger(false)
+	r.Use(middlewares.Slog(middlewareLogger))
 	r.Use(middleware.Recoverer)
 
 	auth.RegisterRoutes(r)
@@ -68,15 +71,20 @@ func main() {
 	}
 }
 
-// initLogger configures slog with either tint (pretty) or JSON handler based on LOG_FORMAT.
-func initLogger() {
+// newLogger returns a slog.Logger with the given AddSource option and LOG_FORMAT env.
+func newLogger(addSource bool) *slog.Logger {
 	logFormat := os.Getenv("LOG_FORMAT")
 	var handler slog.Handler
 	if logFormat == "json" {
-		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true})
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: addSource})
 	} else {
-		handler = tint.NewHandler(os.Stdout, &tint.Options{AddSource: true})
+		handler = tint.NewHandler(os.Stdout, &tint.Options{AddSource: addSource})
 	}
-	slog.SetDefault(slog.New(handler))
-	slog.Info("Logger initialized", "format", logFormat)
+	return slog.New(handler)
+}
+
+// initLogger configures slog with either tint (pretty) or JSON handler based on LOG_FORMAT.
+func initLogger() {
+	slog.SetDefault(newLogger(true))
+	slog.Info("Logger initialized", "format", os.Getenv("LOG_FORMAT"))
 }

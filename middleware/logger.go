@@ -80,19 +80,23 @@ type SlogLogEntry struct {
 	url    string
 	remote string
 	reqID  string
+	logger *slog.Logger
 }
 
-// SlogLogFormatter implements LogFormatter for slog-based logging.
-type SlogLogFormatter struct{}
+// slogLogFormatter implements LogFormatter for slog-based logging with a custom logger.
+type slogLogFormatter struct {
+	Logger *slog.Logger
+}
 
-// NewLogEntry creates a new SlogLogEntry for the given request.
-func (f *SlogLogFormatter) NewLogEntry(r *http.Request) LogEntry {
+// NewLogEntry creates a new SlogLogEntry for the given request, using the provided logger.
+func (f *slogLogFormatter) NewLogEntry(r *http.Request) LogEntry {
 	return &SlogLogEntry{
 		start:  time.Now(),
 		method: r.Method,
 		url:    r.URL.String(),
 		remote: r.RemoteAddr,
 		reqID:  r.Header.Get("X-Request-Id"),
+		logger: f.Logger,
 	}
 }
 
@@ -102,7 +106,7 @@ func (e *SlogLogEntry) Write(status, bytes int, header http.Header, elapsed time
 	if status >= 500 {
 		level = slog.LevelError
 	}
-	slog.Log(context.Background(), level, "request",
+	e.logger.Log(context.Background(), level, "request",
 		"method", e.method,
 		"url", e.url,
 		"remote", e.remote,
@@ -115,7 +119,7 @@ func (e *SlogLogEntry) Write(status, bytes int, header http.Header, elapsed time
 
 // Panic logs a panic that occurred during request handling.
 func (e *SlogLogEntry) Panic(v any, stack []byte) {
-	slog.Error("panic in handler", "panic", v, "stack", string(stack), "request_id", e.reqID)
+	e.logger.Error("panic in handler", "panic", v, "stack", string(stack), "request_id", e.reqID)
 }
 
 // RequestLogger returns middleware that logs HTTP requests using the provided LogFormatter.
@@ -140,7 +144,7 @@ func RequestLogger(f LogFormatter) func(next http.Handler) http.Handler {
 	}
 }
 
-// Slog is middleware that logs HTTP requests using slog with default formatting.
-func Slog(next http.Handler) http.Handler {
-	return RequestLogger(&SlogLogFormatter{})(next)
+// Slog returns middleware that logs HTTP requests using slog with the provided logger.
+func Slog(logger *slog.Logger) func(http.Handler) http.Handler {
+	return RequestLogger(&slogLogFormatter{Logger: logger})
 }
