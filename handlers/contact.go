@@ -118,6 +118,7 @@ func (h *Handlers) AddContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RenderSSE(w, r, utils.SSEOpts{
+		Signals: buildCustomerPageSignals(customer), // needed to update contact totals
 		Views: []templ.Component{
 			views.CustomerContacts(customer, contacts),
 		},
@@ -169,6 +170,7 @@ func (h *Handlers) DeleteContactSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RenderSSE(w, r, utils.SSEOpts{
+		Signals: buildCustomerPageSignals(customer), // needed to update contact totals
 		Views: []templ.Component{
 			views.CustomerContacts(customer, contacts),
 		},
