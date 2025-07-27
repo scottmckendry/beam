@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/securecookie v1.1.2
 	github.com/joho/godotenv v1.5.1
+	github.com/lmittmann/tint v1.1.2
 	github.com/starfederation/datastar-go v1.0.1
 	github.com/tursodatabase/go-libsql v0.0.0-20250609073118-9c24e0e7fa97
 	github.com/yuin/goldmark v1.7.12

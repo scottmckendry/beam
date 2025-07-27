@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -100,7 +100,7 @@ func applySingleMigration(
 	queries *db.Queries,
 	fileName string,
 ) error {
-	log.Printf("Applying migration: %s", fileName)
+	slog.Info("Applying migration", "file", fileName)
 	content, err := migrationsFS.ReadFile(filepath.Join("migrations", fileName))
 	if err != nil {
 		return fmt.Errorf("error reading migration file %s: %v", fileName, err)

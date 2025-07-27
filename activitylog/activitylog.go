@@ -4,7 +4,7 @@ package activitylog
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/google/uuid"
 
@@ -58,6 +58,6 @@ func logActivity(ctx context.Context, queries *db.Queries, customerID uuid.UUID,
 	}
 	_, err := queries.LogActivity(ctx, activity)
 	if err != nil {
-		log.Printf("Failed to log activity: %v", err)
+		slog.Error("Failed to log activity", "err", err)
 	}
 }

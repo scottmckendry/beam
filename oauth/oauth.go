@@ -6,7 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -161,7 +161,7 @@ func generateState() string {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to generate random state", "err", err)
 	}
 	return base64.URLEncoding.EncodeToString(b)
 }

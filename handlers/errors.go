@@ -14,5 +14,6 @@ func (h *Handlers) HandleNotFound(w http.ResponseWriter, r *http.Request) {
 
 // HandleNoAccess serves a page indicating that the user does not have access to the requested resource.
 func (h *Handlers) HandleNoAccess(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusForbidden)
 	views.NonAdmin().Render(r.Context(), w)
 }

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -21,7 +21,7 @@ func (h *Handlers) RegisterDashboardRoutes(r chi.Router) {
 func (h *Handlers) DashboardStatsSSE(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.Queries.GetDashboardStats(r.Context())
 	if err != nil {
-		log.Printf("Failed to load dashboard stats: %v", err)
+		slog.Error("Failed to load dashboard stats", "err", err)
 		h.Notify(NotifyError, "Dashboard Error", "Failed to load dashboard stats.", w, r)
 		http.Error(w, "Failed to load dashboard stats", http.StatusInternalServerError)
 		return
@@ -33,7 +33,7 @@ func (h *Handlers) DashboardStatsSSE(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) DashboardActivitySSE(w http.ResponseWriter, r *http.Request) {
 	activities, err := h.Queries.GetRecentActivity(r.Context())
 	if err != nil {
-		log.Printf("Failed to load recent activity: %v", err)
+		slog.Error("Failed to load recent activity", "err", err)
 		h.Notify(NotifyError, "Activity Error", "Failed to load recent activity.", w, r)
 		http.Error(w, "Failed to load recent activity", http.StatusInternalServerError)
 		return

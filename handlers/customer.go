@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path"
@@ -76,17 +76,16 @@ func (h *Handlers) GetCustomerSSE(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	var params db.CreateCustomerParams
 	if err := mapFormToStruct(r, &params); err != nil {
-		log.Printf("Error mapping form to struct: %v", err)
-		http.Error(w, "Invalid form submission", http.StatusBadRequest)
+		slog.Error("Error mapping form to struct", "err", err)
 		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
 		return
 	}
 
 	customer, err := h.Queries.CreateCustomer(r.Context(), params)
 	if err != nil {
-		log.Printf("Error adding customer: %v", err)
+		slog.Error("Error adding customer", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Add Failed", "An error occurred while adding the customer.", w, r)
-		http.Error(w, "Failed to add customer", http.StatusInternalServerError)
 		return
 	}
 
@@ -95,9 +94,8 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 
 	c, err := h.Queries.GetCustomer(r.Context(), customer.ID)
 	if err != nil {
-		log.Printf("GetCustomer failed for ID=%v: %v", customer.ID, err)
+		slog.Error("GetCustomer failed", "customer_id", customer.ID, "err", err)
 		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
-		w.WriteHeader(http.StatusNotFound)
 		views.NotFound().Render(r.Context(), w)
 		return
 	}
@@ -105,7 +103,7 @@ func (h *Handlers) SubmitAddCustomerSSE(w http.ResponseWriter, r *http.Request) 
 	// get the updated customer list for navigation
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
-		log.Printf("Failed to load customers for navigation: %v", err)
+		slog.Error("Failed to load customers for navigation", "err", err)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
 
@@ -148,29 +146,22 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Invalid customer ID: %v", err)
-		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
-		return
-	}
-
-	var params db.UpdateCustomerParams
-	if err := mapFormToStruct(r, &params); err != nil {
-		log.Printf("Error mapping form to struct: %v", err)
-		http.Error(w, "Invalid form submission", http.StatusBadRequest)
-		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
+		slog.Error("Invalid customer ID", "err", err)
+		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
 		return
 	}
 
 	// prevent non-form fields from being overwritten
+	var params db.UpdateCustomerParams
 	c, _ := h.getCustomerByID(w, r, "id")
 	params.ID = c.ID
 	params.Logo = c.Logo
 
 	_, err = h.Queries.UpdateCustomer(r.Context(), params)
 	if err != nil {
-		log.Printf("Error updating customer: %v", err)
+		slog.Error("Error updating customer", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the customer.", w, r)
-		http.Error(w, "Failed to update customer", http.StatusInternalServerError)
 		return
 	}
 
@@ -180,7 +171,8 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
-		log.Printf("Failed to load customers for navigation: %v", err)
+		slog.Error("Failed to load customers for navigation", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
 
@@ -199,7 +191,7 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Invalid customer ID: %v", err)
+		slog.Error("Invalid customer ID", "err", err)
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
 		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
 		return
@@ -207,7 +199,7 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 
 	c, err := h.Queries.DeleteCustomer(r.Context(), parsedID)
 	if err != nil {
-		log.Printf("Error deleting customer: %v", err)
+		slog.Error("Error deleting customer", "err", err)
 		http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
 		h.Notify(NotifyError, "Delete Failed", "An error occurred while trying to delete the customer.", w, r)
 		return
@@ -216,7 +208,7 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 	// Soft delete all contacts for this customer
 	err = h.Queries.DeleteContactsByCustomer(r.Context(), parsedID)
 	if err != nil {
-		log.Printf("Error soft deleting contacts for customer %v: %v", parsedID, err)
+		slog.Error("Error soft deleting contacts for customer", "customer_id", parsedID, "err", err)
 	}
 
 	h.Notify(NotifySuccess, "Customer Deleted", fmt.Sprintf("Customer %s has been deleted and removed from active lists.", c.Name), w, r)
@@ -227,7 +219,8 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
-		log.Printf("Failed to load customers for navigation: %v", err)
+		slog.Error("Failed to load customers for navigation", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Navigation Error", "An error occurred while loading the customer navigation.", w, r)
 	}
 	h.renderSSE(w, r, SSEOpts{
@@ -260,7 +253,7 @@ func (h *Handlers) GetCustomerContactsSSE(w http.ResponseWriter, r *http.Request
 
 	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), c.ID)
 	if err != nil {
-		log.Printf("ListContactsByCustomer failed for ID=%v: %v", c.ID, err)
+		slog.Error("ListContactsByCustomer failed", "customer_id", c.ID, "err", err)
 		h.Notify(NotifyError, "Contacts Not Found", "No contacts found for the provided customer ID.", w, r)
 	}
 
@@ -307,17 +300,15 @@ func (h *Handlers) getCustomerByID(w http.ResponseWriter, r *http.Request, idPar
 	id := chi.URLParam(r, idParam)
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Invalid customer ID: %v", err)
+		slog.Error("Invalid customer ID", "err", err)
 		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
-		w.WriteHeader(http.StatusBadRequest)
 		views.NotFound().Render(r.Context(), w)
 		return db.GetCustomerRow{}, false
 	}
 	c, err := h.Queries.GetCustomer(r.Context(), parsedID)
 	if err != nil {
-		log.Printf("GetCustomer failed for ID=%v: %v", parsedID, err)
+		slog.Error("GetCustomer failed", "customer_id", parsedID, "err", err)
 		h.Notify(NotifyError, "Customer Not Found", "No customer found for the provided ID.", w, r)
-		w.WriteHeader(http.StatusNotFound)
 		views.NotFound().Render(r.Context(), w)
 		return db.GetCustomerRow{}, false
 	}
@@ -329,7 +320,7 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	id := chi.URLParam(r, "id")
 	customerID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Invalid customer ID: %v", err)
+		slog.Error("Invalid customer ID", "err", err)
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
 		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
 		return
@@ -342,8 +333,8 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.Queries.UpdateCustomerLogo(r.Context(), params); err != nil {
-		log.Printf("Error updating customer logo: %v", err)
-		http.Error(w, "Failed to update customer logo", http.StatusInternalServerError)
+		slog.Error("Error updating customer logo", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the customer logo.", w, r)
 		return
 	}
@@ -364,12 +355,12 @@ func (h *Handlers) DeleteCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	// TODO: create dir if it doesn't exist
 	matches, err := filepath.Glob(fmt.Sprintf("public/uploads/logos/%s*", customerID.String()))
 	if err != nil {
-		log.Printf("Error finding logo files: %v", err)
+		slog.Error("Error finding logo files", "err", err)
 		return
 	}
 	for _, match := range matches {
 		if err := os.Remove(match); err != nil {
-			log.Printf("Error deleting logo file %s: %v", match, err)
+			slog.Error("Error deleting logo file", "file", match, "err", err)
 		}
 	}
 }
@@ -383,7 +374,7 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	customerID, err := uuid.Parse(id)
 
 	if err != nil {
-		log.Printf("Invalid customer ID: %v", err)
+		slog.Error("Invalid customer ID", "err", err)
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
 		h.Notify(NotifyError, "Invalid Customer ID", "The customer ID provided is not valid.", w, r)
 		return
@@ -397,8 +388,7 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		log.Printf("Error decoding JSON: %v", err)
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		slog.Error("Error decoding JSON", "err", err)
 		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the JSON payload.", w, r)
 		return
 	}
@@ -431,7 +421,7 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	// Decode base64
 	data, err := decodeBase64Image(payload.Logo[0])
 	if err != nil {
-		log.Printf("Error decoding base64: %v", err)
+		slog.Error("Error decoding base64", "err", err)
 		http.Error(w, "Invalid image data", http.StatusBadRequest)
 		h.Notify(NotifyError, "Upload Failed", "An error occurred while decoding the image data.", w, r)
 		return
@@ -440,8 +430,8 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	// Save file
 	logoPath := fmt.Sprintf("public/uploads/logos/%s%s", customerID.String(), ext)
 	if err := os.WriteFile(logoPath, data, 0644); err != nil {
-		log.Printf("Error saving file: %v", err)
-		http.Error(w, "Failed to save logo", http.StatusInternalServerError)
+		slog.Error("Error saving file", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Upload Failed", "An error occurred while uploading the logo.", w, r)
 		return
 	}
@@ -454,8 +444,8 @@ func (h *Handlers) UploadCustomerLogoSSE(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.Queries.UpdateCustomerLogo(r.Context(), params); err != nil {
-		log.Printf("Error updating customer logo: %v", err)
-		http.Error(w, "Failed to update customer logo", http.StatusInternalServerError)
+		slog.Error("Error updating customer logo", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Notify(NotifyError, "Update Failed", "An error occurred while updating the customer logo.", w, r)
 		return
 	}

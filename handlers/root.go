@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+
+	middlewares "github.com/scottmckendry/beam/middleware"
 	"github.com/scottmckendry/beam/ui/views"
 )
 
@@ -17,21 +19,24 @@ func (h *Handlers) RegisterRootRoutes(r chi.Router) {
 func (h *Handlers) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	customers, err := h.Queries.ListCustomers(r.Context())
 	if err != nil {
-		log.Printf("Failed to load customers: %v", err)
+		slog.Error("Failed to load customers", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		views.ServerError().Render(r.Context(), w)
 		return
 	}
 
-	userID, ok := r.Context().Value(userKey).(string)
+	userID, ok := r.Context().Value(middlewares.UserKey).(string)
 	if !ok || userID == "" {
-		log.Printf("No user in context")
+		slog.Error("No user in context", "userID", userID)
+		w.WriteHeader(http.StatusInternalServerError)
 		views.ServerError().Render(r.Context(), w)
 		return
 	}
 
 	user, err := h.Queries.GetUserByGithubID(r.Context(), userID)
 	if err != nil {
-		log.Printf("Failed to get user: %v", err)
+		slog.Error("Failed to get user", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		views.ServerError().Render(r.Context(), w)
 		return
 	}
