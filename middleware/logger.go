@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"runtime"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // LogEntry represents a single HTTP request log entry.
@@ -95,7 +97,7 @@ func (f *slogLogFormatter) NewLogEntry(r *http.Request) LogEntry {
 		method: r.Method,
 		url:    r.URL.String(),
 		remote: r.RemoteAddr,
-		reqID:  r.Header.Get("X-Request-Id"),
+		reqID:  uuid.New().String(),
 		logger: f.Logger,
 	}
 }
