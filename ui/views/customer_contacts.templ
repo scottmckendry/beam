@@ -64,9 +64,14 @@ templ contactForm(p ContactFormProps) {
 					<label for="phone">Phone</label>
 					<input type="tel" id="phone" name="phone" placeholder="+64 21 123 4567" value={ p.Phone }/>
 				</div>
+			</div>
+			<div class="flex items-start gap-3 mt-2">
+				<input type="checkbox" id="is_primary" name="is_primary" class="input" checked?={ p.IsPrimary }/>
 				<div class="grid gap-2">
-					<label for="is_primary">Primary Contact</label>
-					<input type="checkbox" id="is_primary" name="is_primary" checked?={ p.IsPrimary }/>
+					<label for="is_primary" class="label">Primary Contact</label>
+					<p class="text-muted-foreground text-sm">
+						Only one primary contact is allowed per organization. Setting this will replace any existing primary contact.
+					</p>
 				</div>
 			</div>
 			<div class="grid gap-2 mt-6">
