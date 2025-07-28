@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/scottmckendry/beam/handlers/utils"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,16 +15,14 @@ import (
 
 	al "github.com/scottmckendry/beam/activitylog"
 	"github.com/scottmckendry/beam/db/sqlc"
+	"github.com/scottmckendry/beam/handlers/utils"
 	"github.com/scottmckendry/beam/ui/views"
 )
 
 // RegisterCustomerRoutes registers all customer-related routes to the given router.
 func (h *Handlers) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/sse/customer/{id}", h.GetCustomerSSE)
-	r.Get("/sse/customer/overview/{id}", h.GetCustomerOverviewSSE)
-	r.Get("/sse/customer/contacts/{id}", h.GetCustomerContactsSSE)
-	r.Get("/sse/customer/subscriptions/{id}", h.GetCustomerSubscriptionsSSE)
-	r.Get("/sse/customer/projects/{id}", h.GetCustomerProjectsSSE)
+	r.Get("/sse/customer/{customerID}/overview", h.GetCustomerOverviewSSE)
 	r.Get("/sse/customer/add", h.AddCustomerSSE)
 	r.Get("/sse/customer/add-submit", h.SubmitAddCustomerSSE)
 	r.Get("/sse/customer/delete/{id}", h.DeleteCustomerSSE)
@@ -230,7 +227,7 @@ func (h *Handlers) DeleteCustomerSSE(w http.ResponseWriter, r *http.Request) {
 
 // GetCustomerOverviewSSE retrieves a customer overview by ID and renders it via SSE
 func (h *Handlers) GetCustomerOverviewSSE(w http.ResponseWriter, r *http.Request) {
-	c, ok := h.getCustomerByID(w, r, "id")
+	c, ok := h.getCustomerByID(w, r, "customerID")
 	if !ok {
 		return
 	}
@@ -238,57 +235,6 @@ func (h *Handlers) GetCustomerOverviewSSE(w http.ResponseWriter, r *http.Request
 	utils.RenderSSE(w, r, utils.SSEOpts{
 		Views: []templ.Component{
 			views.CustomerOverview(c),
-		},
-	})
-}
-
-// GetCustomerContactsSSE retrieves a customer's contacts by ID and renders them via SSE
-func (h *Handlers) GetCustomerContactsSSE(w http.ResponseWriter, r *http.Request) {
-	c, ok := h.getCustomerByID(w, r, "id")
-	if !ok {
-		return
-	}
-
-	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), c.ID)
-	if err != nil {
-		slog.Error("ListContactsByCustomer failed", "customer_id", c.ID, "err", err)
-		h.Notify(NotifyError, "Contacts Not Found", "No contacts found for the provided customer ID.", w, r)
-	}
-
-	utils.RenderSSE(w, r, utils.SSEOpts{
-		Views: []templ.Component{
-			views.CustomerContacts(c, contacts),
-			views.HeaderIcon("customer"),
-		},
-	})
-}
-
-// GetCustomerSubscriptionsSSE retrieves a customer's subscriptions by ID and renders them via SSE
-func (h *Handlers) GetCustomerSubscriptionsSSE(w http.ResponseWriter, r *http.Request) {
-	c, ok := h.getCustomerByID(w, r, "id")
-	if !ok {
-		return
-	}
-
-	utils.RenderSSE(w, r, utils.SSEOpts{
-		Views: []templ.Component{
-			views.CustomerSubscriptions(c),
-			views.HeaderIcon("customer"),
-		},
-	})
-}
-
-// GetCustomerProjectsSSE retrieves a customer's projects by ID and renders them via SSE
-func (h *Handlers) GetCustomerProjectsSSE(w http.ResponseWriter, r *http.Request) {
-	c, ok := h.getCustomerByID(w, r, "id")
-	if !ok {
-		return
-	}
-
-	utils.RenderSSE(w, r, utils.SSEOpts{
-		Views: []templ.Component{
-			views.CustomerProjects(c),
-			views.HeaderIcon("customer"),
 		},
 	})
 }

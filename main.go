@@ -59,6 +59,8 @@ func main() {
 			h.RegisterDashboardRoutes(admin)
 			h.RegisterCustomerRoutes(admin)
 			h.RegisterContactRoutes(admin)
+			h.RegisterSubscriptionRoutes(admin)
+			h.RegisterProjectRoutes(admin)
 		})
 
 		// Final catch-all for authenticated routes

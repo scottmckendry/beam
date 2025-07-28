@@ -21,6 +21,7 @@ import (
 
 // RegisterContactRoutes registers all contact-related routes on the given router.
 func (h *Handlers) RegisterContactRoutes(r chi.Router) {
+	r.Get("/sse/customer/{customerID}/contacts", h.GetCustomerContactsSSE)
 	r.Get("/sse/customer/{customerID}/add-contact", h.AddContactFormSSE)
 	r.Get("/sse/customer/{customerID}/add-contact-submit", h.AddContactSubmitSSE)
 	r.Get("/sse/customer/{customerID}/edit-contact/{contactID}", h.EditContactFormSSE)
@@ -28,6 +29,27 @@ func (h *Handlers) RegisterContactRoutes(r chi.Router) {
 	r.Get("/sse/customer/{customerID}/delete-contact/{contactID}", h.DeleteContactSSE)
 	r.Post("/sse/customer/{customerID}/upload-avatar/{id}", h.UploadContactAvatarSSE)
 	r.Get("/sse/customer/{customerID}/delete-avatar/{id}", h.DeleteContactAvatarSSE)
+}
+
+// GetCustomerContactsSSE retrieves a customer's contacts by ID and renders them via SSE
+func (h *Handlers) GetCustomerContactsSSE(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.getCustomerByID(w, r, "customerID")
+	if !ok {
+		return
+	}
+
+	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), c.ID)
+	if err != nil {
+		slog.Error("ListContactsByCustomer failed", "customer_id", c.ID, "err", err)
+		h.Notify(NotifyError, "Contacts Not Found", "No contacts found for the provided customer ID.", w, r)
+	}
+
+	utils.RenderSSE(w, r, utils.SSEOpts{
+		Views: []templ.Component{
+			views.CustomerContacts(c, contacts),
+			views.HeaderIcon("customer"),
+		},
+	})
 }
 
 // AddContactFormSSE renders the form to add a new contact for a customer via SSE.

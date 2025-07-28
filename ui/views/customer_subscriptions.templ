@@ -5,7 +5,7 @@ import (
 	"github.com/scottmckendry/beam/ui/icon"
 )
 
-templ CustomerSubscriptions(c db.GetCustomerRow) {
+templ CustomerSubscriptions(c db.GetCustomerRow, subscriptions []db.ListSubscriptionsByCustomerRow) {
 	<div id="customer-tab-content">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
 			<div class="ml-1">
@@ -19,6 +19,33 @@ templ CustomerSubscriptions(c db.GetCustomerRow) {
 				</button>
 			</div>
 		</div>
-		<div class="mt-6 text-muted-foreground">Subscription list goes here.</div>
+		<div class="flex flex-col gap-4 mt-4">
+			for _, sub := range subscriptions {
+				@SubscriptionCard(sub)
+			}
+			if len(subscriptions) == 0 {
+				<div class="mt-6 text-muted-foreground">No subscriptions found for this customer.</div>
+			}
+		</div>
+	</div>
+}
+
+templ SubscriptionCard(sub db.ListSubscriptionsByCustomerRow) {
+	<div class="rounded-lg border bg-card text-card-foreground shadow-2xs">
+		<div class="flex flex-col space-y-1.5 p-6">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h3 class="font-semibold tracking-tight text-lg">{ sub.Description }</h3>
+					<p class="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+						@icon.Calendar(icon.Props{Size: 12, Class: "h-3 w-3"})
+						Next billing: { sub.NextBillingDate.Format("Jan 2, 2006") }
+					</p>
+				</div>
+				<div class="text-left sm:text-right">
+					<div class="text-2xl font-bold">${ sub.Amount }/{ sub.BillingCadence }</div>
+					<div class="badge-primary leading-none">{ sub.Status }</div>
+				</div>
+			</div>
+		</div>
 	</div>
 }

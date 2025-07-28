@@ -112,7 +112,7 @@ templ Customer(c db.GetCustomerRow) {
 						aria-controls={ fmt.Sprintf("customer-tabs-panel-%d", i+1) }
 						aria-selected={ i == 0 }
 						tabindex="0"
-						data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/%s')", strings.ToLower(header), c.ID.String()) }
+						data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/%s')", c.ID.String(), strings.ToLower(header)) }
 					>
 						if header == "Subscriptions" {
 							<span class="sm:hidden">Subs</span>
