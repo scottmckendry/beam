@@ -5,7 +5,7 @@ RETURNING *;
 
 -- name: UpdateCustomer :one
 UPDATE customers
-SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?
+SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING *;
 
@@ -32,5 +32,5 @@ SELECT * FROM customers WHERE deleted_at IS NULL ORDER BY created_at DESC;
 
 -- name: UpdateCustomerLogo :exec
 UPDATE customers
-SET logo = ?
+SET logo = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ?;
