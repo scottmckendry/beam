@@ -56,6 +56,21 @@ type Migration struct {
 	Applied time.Time
 }
 
+type Subscription struct {
+	ID             uuid.UUID
+	CustomerID     uuid.UUID
+	Description    string
+	Amount         float64
+	Term           string
+	BillingCadence string
+	StartDate      time.Time
+	EndDate        sql.NullTime
+	Status         string
+	CreatedAt      sql.NullTime
+	UpdatedAt      sql.NullTime
+	DeletedAt      sql.NullTime
+}
+
 type User struct {
 	ID       uuid.UUID
 	Name     string

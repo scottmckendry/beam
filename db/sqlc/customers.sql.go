@@ -89,12 +89,11 @@ const getCustomer = `-- name: GetCustomer :one
 SELECT
     c.id, c.name, c.logo, c.status, c.email, c.phone, c.address, c.website, c.notes, c.created_at, c.updated_at, c.deleted_at,
     (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id AND deleted_at IS NULL) AS contact_count,
-    -- TODO: Replace these with actual counts from the respective tables
-    3 AS subscription_count,
-    8 AS project_count,
-    238 AS subscription_revenue,
-    267 AS monthly_revenue,
-    15 AS revenue_change
+    (SELECT COUNT(*) FROM subscriptions WHERE customer_id = c.id AND deleted_at IS NULL) AS subscription_count,
+    8 AS project_count, -- TODO:
+    (SELECT SUM(amount) FROM subscriptions WHERE customer_id = c.id AND deleted_at IS NULL) AS subscription_revenue,
+    267 AS monthly_revenue, -- TODO:
+    15 AS revenue_change -- TODO:
 FROM customers c
 WHERE c.id = ? AND c.deleted_at IS NULL
 `
@@ -115,7 +114,7 @@ type GetCustomerRow struct {
 	ContactCount        int64
 	SubscriptionCount   int64
 	ProjectCount        int64
-	SubscriptionRevenue int64
+	SubscriptionRevenue sql.NullFloat64
 	MonthlyRevenue      int64
 	RevenueChange       int64
 }

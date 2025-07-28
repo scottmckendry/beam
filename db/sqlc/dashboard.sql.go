@@ -17,14 +17,14 @@ SELECT
     (SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL) AS total_customers,
     (SELECT COUNT(*) FROM customers WHERE status = 'active' AND deleted_at IS NULL) AS active_customers,
     (SELECT COUNT(*) FROM contacts WHERE deleted_at IS NULL) AS total_contacts,
-    7 AS total_projects, -- hardcoded
-    1247 AS monthly_revenue, -- hardcoded
-    15 AS revenue_change, -- hardcoded
-    3 AS active_subscriptions, -- hardcoded
-    12 AS total_invoices, -- hardcoded
-    2 AS pending_invoices, -- hardcoded
-    1 AS overdue_invoices, -- hardcoded
-    348 AS total_invoice_amount, -- hardcoded
+    7 AS total_projects, -- TODO:
+    1247 AS monthly_revenue, -- TODO:
+    15 AS revenue_change, -- TODO:
+    (SELECT COUNT(*) FROM subscriptions WHERE status = 'active' AND deleted_at IS NULL) AS active_subscriptions,
+    12 AS total_invoices, -- TODO:
+    2 AS pending_invoices, -- TODO:
+    1 AS overdue_invoices, -- TODO:
+    348 AS total_invoice_amount, -- TODO:
     9 AS paid_invoices
 `
 
@@ -94,7 +94,7 @@ type GetRecentActivityRow struct {
 	CustomerName string
 }
 
-// hardcoded
+// TODO:
 func (q *Queries) GetRecentActivity(ctx context.Context) ([]GetRecentActivityRow, error) {
 	rows, err := q.db.QueryContext(ctx, getRecentActivity)
 	if err != nil {

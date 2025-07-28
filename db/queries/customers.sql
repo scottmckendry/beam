@@ -19,12 +19,11 @@ RETURNING *;
 SELECT
     c.*,
     (SELECT COUNT(*) FROM contacts WHERE customer_id = c.id AND deleted_at IS NULL) AS contact_count,
-    -- TODO: Replace these with actual counts from the respective tables
-    3 AS subscription_count,
-    8 AS project_count,
-    238 AS subscription_revenue,
-    267 AS monthly_revenue,
-    15 AS revenue_change
+    (SELECT COUNT(*) FROM subscriptions WHERE customer_id = c.id AND deleted_at IS NULL) AS subscription_count,
+    8 AS project_count, -- TODO:
+    (SELECT SUM(amount) FROM subscriptions WHERE customer_id = c.id AND deleted_at IS NULL) AS subscription_revenue,
+    267 AS monthly_revenue, -- TODO:
+    15 AS revenue_change -- TODO:
 FROM customers c
 WHERE c.id = ? AND c.deleted_at IS NULL;
 

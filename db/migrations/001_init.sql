@@ -55,3 +55,19 @@ CREATE TABLE activity_log (
     -- implement soft delete for customers and anywhere else it makes sense
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
+
+CREATE TABLE subscriptions (
+    id UUID PRIMARY KEY DEFAULT (uuid()),
+    customer_id UUID NOT NULL,
+    description TEXT NOT NULL,
+    amount NUMERIC NOT NULL,
+    term TEXT NOT NULL, -- e.g. 'yearly', 'monthly', 'quarterly'
+    billing_cadence TEXT NOT NULL, -- e.g. 'monthly', 'yearly', 'quarterly'
+    start_date DATETIME NOT NULL,
+    end_date DATETIME DEFAULT NULL,
+    status TEXT NOT NULL DEFAULT 'active', -- 'active', 'paused', 'cancelled'
+    created_at DATETIME DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now')),
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
