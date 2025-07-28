@@ -187,7 +187,7 @@ func (q *Queries) ListCustomers(ctx context.Context) ([]Customer, error) {
 
 const updateCustomer = `-- name: UpdateCustomer :one
 UPDATE customers
-SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?
+SET name = ?, logo = ?, status = ?, email = ?, phone = ?, address = ?, website = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING id, name, logo, status, email, phone, address, website, notes, created_at, updated_at, deleted_at
 `
@@ -236,7 +236,7 @@ func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) 
 
 const updateCustomerLogo = `-- name: UpdateCustomerLogo :exec
 UPDATE customers
-SET logo = ?
+SET logo = ?, updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 `
 

@@ -15,6 +15,8 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
 	"github.com/scottmckendry/beam/ui/utils"
+
+	"github.com/dustin/go-humanize"
 )
 
 func CustomerOverview(c db.GetCustomerRow) templ.Component {
@@ -45,7 +47,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/%s/add-contact')", c.ID.String()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 20, Col: 144}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 22, Col: 144}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -82,7 +84,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/invoice/%s')", c.ID.String()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 35, Col: 130}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 37, Col: 130}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -103,7 +105,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/edit/%s')", c.ID.String()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 41, Col: 103}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 43, Col: 103}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -148,7 +150,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 60, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 62, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -161,7 +163,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete/%s', $_showDeleteModal = false)", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 64, Col: 191}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 66, Col: 191}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -208,7 +210,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(c.ContactCount)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 76, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 78, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -246,7 +248,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(c.ProjectCount)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 84, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 86, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -259,7 +261,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(c.SubscriptionRevenue.Float64)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 85, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 87, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -298,7 +300,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(c.ProjectCount)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 91, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 93, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -336,7 +338,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(c.MonthlyRevenue)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 98, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 100, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -362,7 +364,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(c.RevenueChange)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 102, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 104, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -393,7 +395,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(c.RevenueChange)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 108, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 110, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -435,7 +437,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 132, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 134, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -448,7 +450,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(c.Logo.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 132, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 134, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -466,7 +468,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(utils.Initials(c.Name))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 134, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 136, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -492,7 +494,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 145, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 147, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -527,7 +529,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(c.Status)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 157, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 159, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -548,7 +550,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(c.Email.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 164, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 166, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -569,7 +571,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(c.Phone.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 168, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 170, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -590,7 +592,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(c.Address.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 172, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 174, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -611,7 +613,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var27 templ.SafeURL
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(c.Website.String)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 176, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 178, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -624,13 +626,39 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(strings.TrimPrefix(c.Website.String, "https://"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 177, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 179, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</a></div></div></div></div><div class=\"card block\"><div class=\"card-header flex flex-col space-y-1.5 px-6\"><h3 class=\"card-title text-lg font-semibold leading-none tracking-tight\">Account Summary</h3><p class=\"card-description text-sm text-muted-foreground\">Key account metrics and status</p></div><div class=\"card-content px-6 pt-4 space-y-4\"><hr><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Customer Since</span> <span class=\"text-sm text-muted-foreground\">January 15, 2023</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Outstanding Balance</span> <span class=\"text-sm text-destructive\">$750</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Last Activity</span> <span class=\"text-sm text-muted-foreground\">2 hours ago</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Invoices</span> <span class=\"text-sm text-muted-foreground\">2 Unpaid, 1 Draft</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Projects</span> <span class=\"text-sm text-muted-foreground\">4 Active, 2 Maintenance</span></div></div></div></div><div class=\"mt-4\"><div class=\"card block\"><header><div class=\"flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</a></div></div></div></div><div class=\"card block\"><div class=\"card-header flex flex-col space-y-1.5 px-6\"><h3 class=\"card-title text-lg font-semibold leading-none tracking-tight\">Account Summary</h3><p class=\"card-description text-sm text-muted-foreground\">Key account metrics and status</p></div><div class=\"card-content px-6 pt-4 space-y-4\"><hr><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Customer Since</span> <span class=\"text-sm text-muted-foreground\">January 15, 2023</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Outstanding Balance</span> <span class=\"text-sm text-destructive\">$750</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Last Activity</span> <span class=\"text-sm text-muted-foreground\" data-tooltip=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var29 string
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(c.UpdatedAt.Time.Format("Jan 2, 2006 15:04") + " UTC")
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 206, Col: 118}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" data-side=\"left\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var30 string
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(humanize.Time(c.UpdatedAt.Time))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 206, Col: 171}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Invoices</span> <span class=\"text-sm text-muted-foreground\">2 Unpaid, 1 Draft</span></div><div class=\"flex justify-between items-center\"><span class=\"text-sm font-medium\">Projects</span> <span class=\"text-sm text-muted-foreground\">4 Active, 2 Maintenance</span></div></div></div></div><div class=\"mt-4\"><div class=\"card block\"><header><div class=\"flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -638,7 +666,7 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<h3 class=\"text-lg font-medium\">Notes</h3></div></header><section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<h3 class=\"text-lg font-medium\">Notes</h3></div></header><section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -646,11 +674,11 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</section></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</section></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var29 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var31 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -662,20 +690,20 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<header><h2 id=\"edit-logo-dialog-title\">Upload Logo</h2><p id=\"edit-logo-dialog-description\">Upload a new logo for this customer. Recommended size is 200x200px.</p></header><section><form class=\"form grid gap-4\" enctype=\"multipart/form-data\"><div class=\"grid gap-2\"><input type=\"file\" id=\"logo-upload\" name=\"logo\" accept=\"image/*\" required data-bind=\"logo\"></div></form></section><footer class=\"flex gap-1 justify-end flex-row\"><button class=\"btn-outline\" type=\"button\" data-on-click=\"$_showEditLogoModal = false\">Cancel</button> <button class=\"btn\" type=\"button\" data-on-click=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<header><h2 id=\"edit-logo-dialog-title\">Upload Logo</h2><p id=\"edit-logo-dialog-description\">Upload a new logo for this customer. Recommended size is 200x200px.</p></header><section><form class=\"form grid gap-4\" enctype=\"multipart/form-data\"><div class=\"grid gap-2\"><input type=\"file\" id=\"logo-upload\" name=\"logo\" accept=\"image/*\" required data-bind=\"logo\"></div></form></section><footer class=\"flex gap-1 justify-end flex-row\"><button class=\"btn-outline\" type=\"button\" data-on-click=\"$_showEditLogoModal = false\">Cancel</button> <button class=\"btn\" type=\"button\" data-on-click=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/customer/upload-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
+			var templ_7745c5c3_Var32 string
+			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@post('/sse/customer/upload-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 244, Col: 150}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 246, Col: 150}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" data-attr-disabled=\"!$logo.length\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" data-attr-disabled=\"!$logo.length\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -683,20 +711,20 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "Upload Logo</button> <button class=\"btn-destructive flex items-center gap-2\" type=\"button\" data-on-click=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "Upload Logo</button> <button class=\"btn-destructive flex items-center gap-2\" type=\"button\" data-on-click=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
+			var templ_7745c5c3_Var33 string
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/delete-logo/%s'), $_showEditLogoModal = false", c.ID.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 248, Col: 185}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer_overview.templ`, Line: 250, Col: 185}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -704,17 +732,17 @@ func CustomerOverview(c db.GetCustomerRow) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</button></footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</button></footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = ModalDialog(ModalProps{ID: "edit-logo-dialog", Signal: "_showEditLogoModal"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ModalDialog(ModalProps{ID: "edit-logo-dialog", Signal: "_showEditLogoModal"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

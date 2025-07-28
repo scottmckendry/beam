@@ -125,7 +125,7 @@ templ DashboardActivity(activities []db.GetRecentActivityRow) {
 								<p class="text-sm text-muted-foreground">{ a.Description }</p>
 							</div>
 							<div class="ml-auto px-2 text-xs text-muted-foreground whitespace-nowrap">
-								{ humanize.Time(a.CreatedAt.Time) }
+								<span data-tooltip={ a.CreatedAt.Time.Format("Jan 2, 2006 15:04") + " UTC" } data-side="left">{ humanize.Time(a.CreatedAt.Time) }</span>
 							</div>
 						</div>
 					}

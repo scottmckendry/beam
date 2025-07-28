@@ -5,6 +5,8 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
 	"github.com/scottmckendry/beam/ui/utils"
+
+	"github.com/dustin/go-humanize"
 )
 
 type ContactFormProps struct {
@@ -273,7 +275,11 @@ templ ContactView(contact db.Contact) {
 			@mdNotes(contact.Notes.String)
 		</div>
 	</div>
-	<div class="flex justify-end pt-4">
+	<div class="border-t pt-4 flex items-center justify-between">
+		<div class="text-sm">
+			<span class="text-muted-foreground">Last Updated</span>
+			<p class="font-medium" data-tooltip={ contact.UpdatedAt.Time.Format("Jan 2, 2006 15:04") + " UTC" } data-side="right">{ humanize.Time(contact.UpdatedAt.Time) }</p>
+		</div>
 		<button class="btn btn-secondary" aria-label="Edit" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/edit-contact/%s')", contact.CustomerID.String(), contact.ID.String()) }>
 			@icon.Pencil(icon.Props{Size: 16})
 			Edit
