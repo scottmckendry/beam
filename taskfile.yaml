@@ -40,7 +40,10 @@ tasks:
     cmds:
       - find public/js -type f -name "*.js" ! -name "beam.min.js" | xargs cat | go tool minify -o public/js/beam.min.js --type js
 
-  generate-icons:
-    desc: Dynamically tree-shake and generate only used Lucide icons
+  reset-demo-data:
+    desc: Drop all tables except 'users' to reset demo data
     cmds:
-      - go run ./cmd/iconshaker/main.go
+      - |
+        sqlite3 data/beam.db ".tables" | tr ' ' '\n' | grep -v '^users$' | while read tbl; do
+          sqlite3 data/beam.db "DROP TABLE IF EXISTS \"$tbl\";"
+        done

@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS migrations (
     applied DATETIME NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT (uuid()),
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -12,7 +12,7 @@ CREATE TABLE users (
     is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     id UUID PRIMARY KEY DEFAULT (uuid()),
     name TEXT NOT NULL,
     logo TEXT,
@@ -27,7 +27,7 @@ CREATE TABLE customers (
     deleted_at DATETIME DEFAULT NULL
 );
 
-CREATE TABLE contacts (
+CREATE TABLE IF NOT EXISTS contacts (
     id UUID PRIMARY KEY DEFAULT (uuid()),
     customer_id UUID NOT NULL,
     name TEXT NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE contacts (
 );
 
 
-CREATE TABLE activity_log (
+CREATE TABLE IF NOT EXISTS activity_log (
     id UUID PRIMARY KEY DEFAULT (uuid()),
     customer_id UUID NOT NULL,
     activity_type TEXT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE activity_log (
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id UUID PRIMARY KEY DEFAULT (uuid()),
     customer_id UUID NOT NULL,
     description TEXT NOT NULL,
