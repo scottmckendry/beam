@@ -3,9 +3,10 @@ package views
 import (
 	"fmt"
 	"strings"
-
+	"github.com/scottmckendry/beam/ui/utils"
 	"github.com/scottmckendry/beam/db/sqlc"
 )
+
 
 var tabHeaders = []string{
 	"Overview",
@@ -81,11 +82,11 @@ templ customerForm(p CustomerFormProps) {
 				<div class="grid gap-2">
 					<label for="status">Status</label>
 					<select id="status" name="status" class="w-full">
-						for _, status := range []string{"Active", "Inactive", "Prospect"} {
-							if strings.ToLower(status) == p.Status {
-								<option value={ strings.ToLower(status) } selected>{ status }</option>
+						for _, status := range []string{"active", "inactive", "prospect"} {
+							if status == p.Status {
+								<option value={ status } selected>{ utils.Capitalise(status) }</option>
 							} else {
-								<option value={ strings.ToLower(status) }>{ status }</option>
+								<option value={ status }>{ utils.Capitalise(status) }</option>
 							}
 						}
 					</select>

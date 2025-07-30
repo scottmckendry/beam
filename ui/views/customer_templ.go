@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/scottmckendry/beam/db/sqlc"
+	"github.com/scottmckendry/beam/ui/utils"
+	"strings"
 )
 
 var tabHeaders = []string{
@@ -140,7 +140,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(p.ActionURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 59, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 60, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -153,7 +153,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 63, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 64, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -166,7 +166,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Email)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 67, Col: 95}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 68, Col: 95}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -179,7 +179,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Address)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 71, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 72, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -192,7 +192,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.Phone)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 75, Col: 92}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 76, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -205,7 +205,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Website)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 79, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 80, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -215,16 +215,16 @@ func customerForm(p CustomerFormProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, status := range []string{"Active", "Inactive", "Prospect"} {
-			if strings.ToLower(status) == p.Status {
+		for _, status := range []string{"active", "inactive", "prospect"} {
+			if status == p.Status {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(strings.ToLower(status))
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 86, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 87, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -235,9 +235,9 @@ func customerForm(p CustomerFormProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(status)
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(utils.Capitalise(status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 86, Col: 67}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 87, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -253,9 +253,9 @@ func customerForm(p CustomerFormProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(strings.ToLower(status))
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 88, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 89, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -266,9 +266,9 @@ func customerForm(p CustomerFormProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(status)
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(utils.Capitalise(status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 88, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 89, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -287,7 +287,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(p.Notes)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 96, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 97, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func customerForm(p CustomerFormProps) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(p.ButtonLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 98, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 99, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("customer-tabs-tab-%d", i+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 111, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 112, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("customer-tabs-panel-%d", i+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 112, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 113, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -373,7 +373,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(i == 0)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 113, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 114, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -386,7 +386,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("@get('/sse/customer/%s/%s')", c.ID.String(), strings.ToLower(header)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 115, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 116, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -404,7 +404,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(header)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 119, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 120, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -422,7 +422,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(header)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 121, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 122, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("customer-tabs-panel-%d", i+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 129, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 130, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("customer-tabs-tab-%d", i+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 130, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 131, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -476,7 +476,7 @@ func Customer(c db.GetCustomerRow) templ.Component {
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i == 0)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 132, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/customer.templ`, Line: 133, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {

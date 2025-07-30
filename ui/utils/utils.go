@@ -18,3 +18,14 @@ func Initials(name string) string {
 	}
 	return strings.ToUpper(initials)
 }
+
+// Capitalise returns the string with the first letter capitalised (ASCII only)
+func Capitalise(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	if s[0] >= 'a' && s[0] <= 'z' {
+		return string(s[0]-32) + s[1:]
+	}
+	return s
+}

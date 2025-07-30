@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
+	"github.com/scottmckendry/beam/ui/utils"
 )
+
 
 type SubscriptionFormProps struct {
 	Description    string
@@ -176,9 +178,9 @@ templ subscriptionForm(p SubscriptionFormProps) {
 					<select id="term" name="term" class="w-full">
 						for _, term := range []string{"monthly", "yearly"} {
 							if term == p.Term {
-								<option value={ term } selected>{ term }</option>
+								<option value={ term } selected>{ utils.Capitalise(term) }</option>
 							} else {
-								<option value={ term }>{ term }</option>
+								<option value={ term }>{ utils.Capitalise(term) }</option>
 							}
 						}
 					</select>
@@ -188,9 +190,9 @@ templ subscriptionForm(p SubscriptionFormProps) {
 					<select id="billingcadence" name="billingcadence" class="w-full">
 						for _, cadence := range []string{"monthly", "yearly"} {
 							if cadence == p.BillingCadence {
-								<option value={ cadence } selected>{ cadence }</option>
+								<option value={ cadence } selected>{ utils.Capitalise(cadence) }</option>
 							} else {
-								<option value={ cadence }>{ cadence }</option>
+								<option value={ cadence }>{ utils.Capitalise(cadence) }</option>
 							}
 						}
 					</select>
@@ -200,9 +202,9 @@ templ subscriptionForm(p SubscriptionFormProps) {
 					<select id="status" name="status" class="w-full">
 						for _, status := range []string{"active", "paused", "cancelled"} {
 							if status == p.Status {
-								<option value={ status } selected>{ status }</option>
+								<option value={ status } selected>{ utils.Capitalise(status) }</option>
 							} else {
-								<option value={ status }>{ status }</option>
+								<option value={ status }>{ utils.Capitalise(status) }</option>
 							}
 						}
 					</select>
