@@ -190,7 +190,7 @@ func contactForm(p ContactFormProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></div></div><div class=\"flex items-start gap-3 mt-2\"><input type=\"checkbox\" id=\"is_primary\" name=\"is_primary\" class=\"input\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></div></div><div class=\"flex items-start gap-3 mt-2\"><input type=\"checkbox\" id=\"isprimary\" name=\"isprimary\" class=\"input\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -200,7 +200,7 @@ func contactForm(p ContactFormProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "><div class=\"grid gap-2\"><label for=\"is_primary\" class=\"label\">Primary Contact</label><p class=\"text-muted-foreground text-sm\">Only one primary contact is allowed per organization. Setting this will replace any existing primary contact.</p></div></div><div class=\"grid gap-2 mt-6\"><label for=\"notes\">Notes</label> <textarea id=\"notes\" name=\"notes\" placeholder=\"Markdown supported\" rows=\"6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "><div class=\"grid gap-2\"><label for=\"isprimary\" class=\"label\">Primary Contact</label><p class=\"text-muted-foreground text-sm\">Only one primary contact is allowed per organization. Setting this will replace any existing primary contact.</p></div></div><div class=\"grid gap-2 mt-6\"><label for=\"notes\">Notes</label> <textarea id=\"notes\" name=\"notes\" placeholder=\"Markdown supported\" rows=\"6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

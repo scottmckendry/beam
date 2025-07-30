@@ -13,8 +13,104 @@ import (
 	"github.com/google/uuid"
 )
 
+const createSubscription = `-- name: CreateSubscription :one
+INSERT INTO subscriptions ( customer_id, description, amount, term, billing_cadence, status, start_date, notes)
+VALUES ( ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, notes, created_at, updated_at, deleted_at
+`
+
+type CreateSubscriptionParams struct {
+	CustomerID     uuid.UUID
+	Description    string
+	Amount         float64
+	Term           string
+	BillingCadence string
+	Status         string
+	StartDate      time.Time
+	Notes          sql.NullString
+}
+
+func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (Subscription, error) {
+	row := q.db.QueryRowContext(ctx, createSubscription,
+		arg.CustomerID,
+		arg.Description,
+		arg.Amount,
+		arg.Term,
+		arg.BillingCadence,
+		arg.Status,
+		arg.StartDate,
+		arg.Notes,
+	)
+	var i Subscription
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Description,
+		&i.Amount,
+		&i.Term,
+		&i.BillingCadence,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Status,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const deleteSubscription = `-- name: DeleteSubscription :one
+UPDATE subscriptions SET deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND deleted_at IS NULL RETURNING id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, notes, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) DeleteSubscription(ctx context.Context, id uuid.UUID) (Subscription, error) {
+	row := q.db.QueryRowContext(ctx, deleteSubscription, id)
+	var i Subscription
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Description,
+		&i.Amount,
+		&i.Term,
+		&i.BillingCadence,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Status,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getSubscription = `-- name: GetSubscription :one
+SELECT id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, notes, created_at, updated_at, deleted_at FROM subscriptions WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) GetSubscription(ctx context.Context, id uuid.UUID) (Subscription, error) {
+	row := q.db.QueryRowContext(ctx, getSubscription, id)
+	var i Subscription
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Description,
+		&i.Amount,
+		&i.Term,
+		&i.BillingCadence,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Status,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const listSubscriptionsByCustomer = `-- name: ListSubscriptionsByCustomer :many
-SELECT s.id, s.customer_id, s.description, s.amount, s.term, s.billing_cadence, s.start_date, s.end_date, s.status, s.created_at, s.updated_at, s.deleted_at, s.start_date as next_billing_date FROM subscriptions s WHERE customer_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
+SELECT s.id, s.customer_id, s.description, s.amount, s.term, s.billing_cadence, s.start_date, s.end_date, s.status, s.notes, s.created_at, s.updated_at, s.deleted_at, s.start_date as next_billing_date FROM subscriptions s WHERE customer_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
 `
 
 type ListSubscriptionsByCustomerRow struct {
@@ -27,6 +123,7 @@ type ListSubscriptionsByCustomerRow struct {
 	StartDate       time.Time
 	EndDate         sql.NullTime
 	Status          string
+	Notes           sql.NullString
 	CreatedAt       sql.NullTime
 	UpdatedAt       sql.NullTime
 	DeletedAt       sql.NullTime
@@ -52,6 +149,7 @@ func (q *Queries) ListSubscriptionsByCustomer(ctx context.Context, customerID uu
 			&i.StartDate,
 			&i.EndDate,
 			&i.Status,
+			&i.Notes,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -68,4 +166,51 @@ func (q *Queries) ListSubscriptionsByCustomer(ctx context.Context, customerID uu
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSubscription = `-- name: UpdateSubscription :one
+UPDATE subscriptions SET description = ?, amount = ?, term = ?, billing_cadence = ?, status = ?, start_date = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ? AND deleted_at IS NULL
+RETURNING id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, notes, created_at, updated_at, deleted_at
+`
+
+type UpdateSubscriptionParams struct {
+	Description    string
+	Amount         float64
+	Term           string
+	BillingCadence string
+	Status         string
+	StartDate      time.Time
+	Notes          sql.NullString
+	ID             uuid.UUID
+}
+
+func (q *Queries) UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error) {
+	row := q.db.QueryRowContext(ctx, updateSubscription,
+		arg.Description,
+		arg.Amount,
+		arg.Term,
+		arg.BillingCadence,
+		arg.Status,
+		arg.StartDate,
+		arg.Notes,
+		arg.ID,
+	)
+	var i Subscription
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.Description,
+		&i.Amount,
+		&i.Term,
+		&i.BillingCadence,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Status,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }

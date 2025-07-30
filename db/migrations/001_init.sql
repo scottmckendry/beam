@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     start_date DATETIME NOT NULL,
     end_date DATETIME DEFAULT NULL,
     status TEXT NOT NULL DEFAULT 'active', -- 'active', 'paused', 'cancelled'
+    notes TEXT,
     created_at DATETIME DEFAULT (datetime('now')),
     updated_at DATETIME DEFAULT (datetime('now')),
     deleted_at DATETIME DEFAULT NULL,

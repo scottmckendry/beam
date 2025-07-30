@@ -251,31 +251,41 @@ INSERT INTO activity_log (id, customer_id, activity_type, action, description, c
 ('f5e6a7b8-eeee-4eee-8eee-eeeeeeeeeeee', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'project', 'project_completed', 'Project completed for Wayne Enterprises', datetime('now', '-3 days'));
 
 -- Demo data for subscriptions table
-INSERT INTO subscriptions (id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, created_at, updated_at)
+INSERT INTO subscriptions (id, customer_id, description, amount, term, billing_cadence, start_date, end_date, status, notes, created_at, updated_at)
 VALUES
-('a1a1e1b2-1111-4a1a-9a1a-111111111111', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme SaaS Platform', 99.00, 'monthly', 'monthly', '2023-08-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('a2a1e1b2-2222-4a1a-9a1a-111111111112', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Premium Support', 1200.00, 'yearly', 'monthly', '2022-03-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('a3a1e1b2-3333-4a1a-9a1a-111111111113', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Data Backup', 300.00, 'yearly', 'yearly', '2024-06-01T00:00:00Z', NULL, 'paused', datetime('now'), datetime('now')),
-('b2b2e2b3-2222-4b2b-9b2b-222222222221', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Cloud Storage', 250.00, 'yearly', 'monthly', '2019-11-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('b2b2e2b3-2222-4b2b-9b2b-222222222222', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex API Access', 50.00, 'monthly', 'monthly', '2025-01-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('b2b2e2b3-2222-4b2b-9b2b-222222222223', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Analytics', 600.00, 'yearly', 'yearly', '2021-07-01T00:00:00Z', NULL, 'cancelled', datetime('now'), datetime('now')),
-('c3c3e3b4-3333-4c3c-9c3c-333333333331', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech Support Retainer', 500.00, 'yearly', 'monthly', '2024-03-15T00:00:00Z', '2025-03-14T00:00:00Z', 'active', datetime('now'), datetime('now')),
-('c3c3e3b4-3333-4c3c-9c3c-333333333332', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech DevOps', 75.00, 'monthly', 'monthly', '2023-12-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('c3c3e3b4-3333-4c3c-9c3c-333333333333', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech QA', 200.00, 'yearly', 'yearly', '2020-04-15T00:00:00Z', NULL, 'paused', datetime('now'), datetime('now')),
-('d4d4e4b5-4444-4d4d-9d4d-444444444441', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Hosting', 400.00, 'yearly', 'monthly', '2022-09-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('d4d4e4b5-4444-4d4d-9d4d-444444444442', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Backup', 100.00, 'monthly', 'monthly', '2024-11-15T00:00:00Z', NULL, 'paused', datetime('now'), datetime('now')),
-('e5e5e5b6-5555-4e5e-9e5e-555555555551', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Cloud Suite', 150.00, 'monthly', 'monthly', '2025-05-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('e5e5e5b6-5555-4e5e-9e5e-555555555552', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Security Monitoring', 1800.00, 'yearly', 'yearly', '2023-02-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('e5e5e5b6-5555-4e5e-9e5e-555555555553', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Data Analytics', 500.00, 'quarterly', 'quarterly', '2021-12-01T00:00:00Z', NULL, 'cancelled', datetime('now'), datetime('now')),
-('f6f6f6b7-6666-4f6f-9f6f-666666666661', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark Innovation Platform', 250.00, 'monthly', 'monthly', '2024-09-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('f6f6f6b7-6666-4f6f-9f6f-666666666662', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark R&D Retainer', 5000.00, 'yearly', 'monthly', '2019-06-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('f6f6f6b7-6666-4f6f-9f6f-666666666663', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark VIP Support', 1200.00, 'yearly', 'yearly', '2023-11-01T00:00:00Z', NULL, 'paused', datetime('now'), datetime('now')),
-('f6f6f6b7-6666-4f6f-9f6f-666666666664', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark IoT Monitoring', 300.00, 'quarterly', 'quarterly', '2022-07-15T00:00:00Z', NULL, 'cancelled', datetime('now'), datetime('now')),
-('a7a7a7b8-7777-4a7a-9a7a-777777777771', 'c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Hooli Cloud Migration', 800.00, 'yearly', 'monthly', '2024-02-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('b8b8b8b9-8888-4b8b-9b8b-888888888881', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Soylent Compliance Suite', 200.00, 'monthly', 'monthly', '2025-03-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('b8b8b8b9-8888-4b8b-9b8b-888888888882', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Soylent Sustainability Reports', 900.00, 'yearly', 'yearly', '2020-09-01T00:00:00Z', NULL, 'cancelled', datetime('now'), datetime('now')),
-('c9c9c9c0-9999-4c9c-9c9c-999999999991', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne Robotics Platform', 1000.00, 'yearly', 'monthly', '2023-05-15T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('c9c9c9c0-9999-4c9c-9c9c-999999999992', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne AI Ethics Review', 300.00, 'quarterly', 'quarterly', '2024-08-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('c9c9c9c0-9999-4c9c-9c9c-999999999993', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne Data Security', 150.00, 'monthly', 'monthly', '2022-12-15T00:00:00Z', NULL, 'paused', datetime('now'), datetime('now')),
-('d0d0d0d1-0000-4d0d-9d0d-000000000001', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Tyrell Replicant Program', 2000.00, 'yearly', 'yearly', '2021-03-01T00:00:00Z', NULL, 'active', datetime('now'), datetime('now')),
-('d0d0d0d1-0000-4d0d-9d0d-000000000002', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Tyrell Compliance Monitoring', 400.00, 'quarterly', 'quarterly', '2024-01-15T00:00:00Z', NULL, 'cancelled', datetime('now'), datetime('now'));
+('a1a1e1b2-1111-4a1a-9a1a-111111111111', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme SaaS Platform', 99.00, 'monthly', 'monthly', '2023-08-15T00:00:00Z', NULL, 'active', '**Active subscription**
+> Reliable monthly service.', datetime('now'), datetime('now')),
+('a2a1e1b2-2222-4a1a-9a1a-111111111112', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Premium Support', 1200.00, 'yearly', 'monthly', '2022-03-01T00:00:00Z', NULL, 'active', '> Includes 24/7 support
+- [Support Portal](https://acme.com/support)', datetime('now'), datetime('now')),
+('a3a1e1b2-3333-4a1a-9a1a-111111111113', 'c1a1e1b2-1111-4a1a-9a1a-111111111111', 'Acme Data Backup', 300.00, 'yearly', 'yearly', '2024-06-01T00:00:00Z', NULL, 'paused', '- *Backup paused*
+See [status page](https://acme.com/status)', datetime('now'), datetime('now')),
+('b2b2e2b3-2222-4b2b-9b2b-222222222221', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Cloud Storage', 250.00, 'yearly', 'monthly', '2019-11-15T00:00:00Z', NULL, 'active', '### Storage Tier
+- **Enterprise**', datetime('now'), datetime('now')),
+('b2b2e2b3-2222-4b2b-9b2b-222222222222', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex API Access', 50.00, 'monthly', 'monthly', '2025-01-01T00:00:00Z', NULL, 'active', '- [API Docs](https://globex.com/api)
+> Monthly access', datetime('now'), datetime('now')),
+('b2b2e2b3-2222-4b2b-9b2b-222222222223', 'c2b2e2b3-2222-4b2b-9b2b-222222222222', 'Globex Analytics', 600.00, 'yearly', 'yearly', '2021-07-01T00:00:00Z', NULL, 'cancelled', '> Cancelled
+- *Analytics discontinued*', datetime('now'), datetime('now')),
+('c3c3e3b4-3333-4c3c-9c3c-333333333331', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech Support Retainer', 500.00, 'yearly', 'monthly', '2024-03-15T00:00:00Z', '2025-03-14T00:00:00Z', 'active', '- **Retainer active**
+[Contact support](https://initech.com/support)', datetime('now'), datetime('now')),
+('c3c3e3b4-3333-4c3c-9c3c-333333333332', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech DevOps', 75.00, 'monthly', 'monthly', '2023-12-01T00:00:00Z', NULL, 'active', '> DevOps monthly\n- *Automation included*', datetime('now'), datetime('now')),
+('c3c3e3b4-3333-4c3c-9c3c-333333333333', 'c3c3e3b4-3333-4c3c-9c3c-333333333333', 'Initech QA', 200.00, 'yearly', 'yearly', '2020-04-15T00:00:00Z', NULL, 'paused', '- QA paused\n[QA Docs](https://initech.com/qa)', datetime('now'), datetime('now')),
+('d4d4e4b5-4444-4d4d-9d4d-444444444441', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Hosting', 400.00, 'yearly', 'monthly', '2022-09-01T00:00:00Z', NULL, 'active', '**Hosting active**\n> Priority support enabled', datetime('now'), datetime('now')),
+('d4d4e4b5-4444-4d4d-9d4d-444444444442', 'c4d4e4b5-4444-4d4d-9d4d-444444444444', 'Umbrella Backup', 100.00, 'monthly', 'monthly', '2024-11-15T00:00:00Z', NULL, 'paused', '- *Backup paused*\nSee [backup status](https://umbrella.com/backup)', datetime('now'), datetime('now')),
+('e5e5e5b6-5555-4e5e-9e5e-555555555551', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Cloud Suite', 150.00, 'monthly', 'monthly', '2025-05-01T00:00:00Z', NULL, 'active', '**Cloud Suite active**\n- [Learn more](https://wayne.com/cloud)', datetime('now'), datetime('now')),
+('e5e5e5b6-5555-4e5e-9e5e-555555555552', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Security Monitoring', 1800.00, 'yearly', 'yearly', '2023-02-15T00:00:00Z', NULL, 'active', '> Security monitoring enabled
+- *Annual review required*', datetime('now'), datetime('now')),
+('e5e5e5b6-5555-4e5e-9e5e-555555555553', 'c5e5e5b6-5555-4e5e-9e5e-555555555555', 'Wayne Data Analytics', 500.00, 'quarterly', 'quarterly', '2021-12-01T00:00:00Z', NULL, 'cancelled', '- *Analytics cancelled*\nSee [archive](https://wayne.com/analytics)', datetime('now'), datetime('now')),
+('f6f6f6b7-6666-4f6f-9f6f-666666666661', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark Innovation Platform', 250.00, 'monthly', 'monthly', '2024-09-15T00:00:00Z', NULL, 'active', '**Innovation Platform**\n> "Changing the world, one suit at a time."', datetime('now'), datetime('now')),
+('f6f6f6b7-6666-4f6f-9f6f-666666666662', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark R&D Retainer', 5000.00, 'yearly', 'monthly', '2019-06-01T00:00:00Z', NULL, 'active', '- *R&D retainer active*
+[Project archive](https://stark.com/projects)', datetime('now'), datetime('now')),
+('f6f6f6b7-6666-4f6f-9f6f-666666666663', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark VIP Support', 1200.00, 'yearly', 'yearly', '2023-11-01T00:00:00Z', NULL, 'paused', '> VIP support paused\n- **Contact support for details**', datetime('now'), datetime('now')),
+('f6f6f6b7-6666-4f6f-9f6f-666666666664', 'c6f6f6b7-6666-4f6f-9f6f-666666666666', 'Stark IoT Monitoring', 300.00, 'quarterly', 'quarterly', '2022-07-15T00:00:00Z', NULL, 'cancelled', '- *IoT monitoring cancelled*\nSee [IoT docs](https://stark.com/iot)', datetime('now'), datetime('now')),
+('a7a7a7b8-7777-4a7a-9a7a-777777777771', 'c7a7a7b8-7777-4a7a-9a7a-777777777777', 'Hooli Cloud Migration', 800.00, 'yearly', 'monthly', '2024-02-01T00:00:00Z', NULL, 'active', '**Cloud migration active**\n- [Migration docs](https://hooli.com/cloud)', datetime('now'), datetime('now')),
+('b8b8b8b9-8888-4b8b-9b8b-888888888881', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Soylent Compliance Suite', 200.00, 'monthly', 'monthly', '2025-03-15T00:00:00Z', NULL, 'active', '> Compliance suite active\n- *Monthly review required*', datetime('now'), datetime('now')),
+('b8b8b8b9-8888-4b8b-9b8b-888888888882', 'c8b8b8b9-8888-4b8b-9b8b-888888888888', 'Soylent Sustainability Reports', 900.00, 'yearly', 'yearly', '2020-09-01T00:00:00Z', NULL, 'cancelled', '- *Reports cancelled*\nSee [sustainability](https://soylent.com/sustainability)', datetime('now'), datetime('now')),
+('c9c9c9c0-9999-4c9c-9c9c-999999999991', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne Robotics Platform', 1000.00, 'yearly', 'monthly', '2023-05-15T00:00:00Z', NULL, 'active', '**Robotics platform active**\n- [AI policy](https://cyberdyne.com/ai-policy)', datetime('now'), datetime('now')),
+('c9c9c9c0-9999-4c9c-9c9c-999999999992', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne AI Ethics Review', 300.00, 'quarterly', 'quarterly', '2024-08-01T00:00:00Z', NULL, 'active', '> Ethics review active\n- *Quarterly review*', datetime('now'), datetime('now')),
+('c9c9c9c0-9999-4c9c-9c9c-999999999993', 'c9c9c9c0-9999-4c9c-9c9c-999999999999', 'Cyberdyne Data Security', 150.00, 'monthly', 'monthly', '2022-12-15T00:00:00Z', NULL, 'paused', '- *Data security paused*\nSee [security docs](https://cyberdyne.com/security)', datetime('now'), datetime('now')),
+('d0d0d0d1-0000-4d0d-9d0d-000000000001', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Tyrell Replicant Program', 2000.00, 'yearly', 'yearly', '2021-03-01T00:00:00Z', NULL, 'active', '**Replicant program active**\n> "More human than human."', datetime('now'), datetime('now')),
+('d0d0d0d1-0000-4d0d-9d0d-000000000002', 'c0d0d0d1-0000-4d0d-9d0d-000000000000', 'Tyrell Compliance Monitoring', 400.00, 'quarterly', 'quarterly', '2024-01-15T00:00:00Z', NULL, 'cancelled', '- *Compliance monitoring cancelled*
+See [compliance docs](https://tyrell.com/compliance)', datetime('now'), datetime('now'))

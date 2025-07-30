@@ -72,19 +72,6 @@ func (h *Handlers) AddContactFormSSE(w http.ResponseWriter, r *http.Request) {
 // AddContactSubmitSSE handles the submission of the add contact form, creates the contact, and refreshes the contact list via SSE.
 func (h *Handlers) AddContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 	customerID := chi.URLParam(r, "customerID")
-	if err := r.ParseForm(); err != nil {
-		slog.Error("Error parsing form", "err", err)
-		w.WriteHeader(http.StatusBadRequest)
-		h.Notify(NotifyError, "Invalid form", "The submitted form is invalid.", w, r)
-		return
-	}
-	name := r.FormValue("name")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	role := r.FormValue("role")
-	isPrimary := r.FormValue("is_primary") == "on"
-	notes := r.FormValue("notes")
-
 	cid, err := uuid.Parse(customerID)
 	if err != nil {
 		slog.Error("Failed to get customer", "customerID", customerID, "err", err)
@@ -93,15 +80,17 @@ func (h *Handlers) AddContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newContact, err := h.Queries.CreateContact(r.Context(), db.CreateContactParams{
-		CustomerID: cid,
-		Name:       name,
-		Role:       sql.NullString{String: role, Valid: role != ""},
-		Email:      sql.NullString{String: email, Valid: email != ""},
-		Phone:      sql.NullString{String: phone, Valid: phone != ""},
-		IsPrimary:  sql.NullBool{Bool: isPrimary, Valid: true},
-		Notes:      sql.NullString{String: notes, Valid: notes != ""},
-	})
+	var params db.CreateContactParams
+	if err := utils.MapFormToStruct(r, &params); err != nil {
+		slog.Error("Error parsing/mapping form", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
+		return
+	}
+
+	// Ensure the customer ID is set
+	params.CustomerID = cid
+	newContact, err := h.Queries.CreateContact(r.Context(), params)
 	if err != nil {
 		slog.Error("Error adding contact", "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -110,7 +99,7 @@ func (h *Handlers) AddContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If this contact is primary, unset all others for this customer
-	if isPrimary {
+	if params.IsPrimary.Bool {
 		err = h.Queries.UnsetOtherPrimaryContacts(r.Context(), db.UnsetOtherPrimaryContactsParams{
 			CustomerID: cid,
 			ID:         newContact.ID,
@@ -222,19 +211,6 @@ func (h *Handlers) EditContactFormSSE(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) EditContactSubmitSSE(w http.ResponseWriter, r *http.Request) {
 	contactID := chi.URLParam(r, "contactID")
 	customerID := chi.URLParam(r, "customerID")
-	if err := r.ParseForm(); err != nil {
-		slog.Error("Error parsing form", "err", err)
-		w.WriteHeader(http.StatusBadRequest)
-		h.Notify(NotifyError, "Invalid form", "The submitted form is invalid.", w, r)
-		return
-	}
-	name := r.FormValue("name")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	role := r.FormValue("role")
-	isPrimary := r.FormValue("is_primary") == "on"
-	notes := r.FormValue("notes")
-
 	cid, err := uuid.Parse(contactID)
 	if err != nil {
 		slog.Error("Invalid contact ID", "err", err)
@@ -244,8 +220,19 @@ func (h *Handlers) EditContactSubmitSSE(w http.ResponseWriter, r *http.Request) 
 	}
 	parsedCustID, err := uuid.Parse(customerID)
 
-	// If this contact is being set as primary, unset all others for this customer
-	if isPrimary {
+	var params db.UpdateContactParams
+	if err := utils.MapFormToStruct(r, &params); err != nil {
+		slog.Error("Error mapping form to struct", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
+		return
+	}
+
+	// ensure the contact and customer IDs are set
+	params.ID = cid
+
+	// If this contact is set as primary, unset all other primary contacts for the customer
+	if params.IsPrimary.Bool {
 		if err == nil {
 			err = h.Queries.UnsetOtherPrimaryContacts(r.Context(), db.UnsetOtherPrimaryContactsParams{
 				CustomerID: parsedCustID,
@@ -256,15 +243,8 @@ func (h *Handlers) EditContactSubmitSSE(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 	}
-	err = h.Queries.UpdateContact(r.Context(), db.UpdateContactParams{
-		ID:        cid,
-		Name:      name,
-		Role:      sql.NullString{String: role, Valid: role != ""},
-		Email:     sql.NullString{String: email, Valid: email != ""},
-		Phone:     sql.NullString{String: phone, Valid: phone != ""},
-		IsPrimary: sql.NullBool{Bool: isPrimary, Valid: true},
-		Notes:     sql.NullString{String: notes, Valid: notes != ""},
-	})
+
+	err = h.Queries.UpdateContact(r.Context(), params)
 	if err != nil {
 		slog.Error("Failed to update contact", "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -273,7 +253,7 @@ func (h *Handlers) EditContactSubmitSSE(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.Notify(NotifySuccess, "Contact updated", "The contact has been successfully updated.", w, r)
-	al.LogContactUpdated(r.Context(), h.Queries, parsedCustID, name)
+	al.LogContactUpdated(r.Context(), h.Queries, parsedCustID, params.Name)
 
 	// Fetch the updated contacts for the customer
 	contacts, err := h.Queries.ListContactsByCustomer(r.Context(), parsedCustID)

@@ -1,9 +1,22 @@
 package views
 
 import (
+	"fmt"
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
 )
+
+type SubscriptionFormProps struct {
+	Description    string
+	Amount         float64
+	Term           string
+	BillingCadence string
+	Status         string
+	StartDate      string
+	Notes          string
+	ButtonLabel    string
+	ActionURL      string
+}
 
 templ CustomerSubscriptions(c db.GetCustomerRow, subscriptions []db.ListSubscriptionsByCustomerRow) {
 	<div id="customer-tab-content">
@@ -13,10 +26,10 @@ templ CustomerSubscriptions(c db.GetCustomerRow, subscriptions []db.ListSubscrip
 				<p class="text-muted-foreground text-sm">View and manage subscriptions for this customer</p>
 			</div>
 			<div class="flex gap-2">
-				<button type="button" class="btn flex items-center gap-2">
+				<a class="btn flex items-center gap-2" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/add-subscription')", c.ID.String()) }>
 					@icon.Plus()
 					Add Subscription
-				</button>
+				</a>
 			</div>
 		</div>
 		<div class="flex flex-col gap-4 mt-4">
@@ -30,22 +43,182 @@ templ CustomerSubscriptions(c db.GetCustomerRow, subscriptions []db.ListSubscrip
 	</div>
 }
 
+// TODO: make this look less ugly
 templ SubscriptionCard(sub db.ListSubscriptionsByCustomerRow) {
-	<div class="rounded-lg border bg-card text-card-foreground shadow-2xs">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div>
-					<h3 class="font-semibold tracking-tight text-lg">{ sub.Description }</h3>
-					<p class="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-						@icon.Calendar(icon.Props{Size: 12, Class: "h-3 w-3"})
-						Next billing: { sub.NextBillingDate.Format("Jan 2, 2006") }
-					</p>
+	<div class="card flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 w-full relative">
+		<div class="flex items-center gap-4 min-w-0">
+			<div class="min-w-0">
+				<h3 class="font-semibold">{ sub.Description }</h3>
+				<p class="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+					@icon.Calendar(icon.Props{Size: 12, Class: "h-3 w-3"})
+					Next billing: { sub.NextBillingDate.Format("Jan 2, 2006") }
+				</p>
+			</div>
+		</div>
+		<div class="flex items-center sm:ml-auto w-full sm:w-auto">
+			<div class="space-y-1 text-left sm:text-right w-full">
+				<div class="flex items-center gap-2 text-2xl font-bold sm:justify-end">
+					${ sub.Amount }/{ sub.BillingCadence }
 				</div>
-				<div class="text-left sm:text-right">
-					<div class="text-2xl font-bold">${ sub.Amount }/{ sub.BillingCadence }</div>
-					<div class="badge-primary leading-none">{ sub.Status }</div>
+				<div class="badge-primary leading-none sm:justify-end">{ sub.Status }</div>
+			</div>
+			<div class="dropdown-menu absolute sm:relative right-0 sm:right-auto top-0 sm:top-auto">
+				<button
+					type="button"
+					id={ sub.ID.String() + "-dropdown-trigger" }
+					aria-haspopup="menu"
+					aria-controls={ sub.ID.String() + "-dropdown-menu" }
+					aria-expanded="false"
+					class="ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-md absolute right-0 top-0 sm:static ml-auto sm:ml-0"
+				>
+					@icon.Ellipsis(icon.Props{Size: 16, Class: "h-4 w-4"})
+				</button>
+				<div id={ sub.ID.String() + "-dropdown-popover" } data-popover aria-hidden="true" class="absolute right-0 top-10 left-auto">
+					<div role="menu" id={ sub.ID.String() + "-dropdown-menu" } aria-labelledby={ sub.ID.String() + "-dropdown-trigger" }>
+						<div role="menuitem" data-on-click={ "$_showSubscriptionViewModal-" + sub.ID.String() + " = true" }>
+							@icon.Eye(icon.Props{Size: 16, Class: "inline mr-2"})
+							View Subscription
+						</div>
+						<a role="menuitem" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/edit-subscription/%s')", sub.CustomerID.String(), sub.ID.String()) }>
+							@icon.Pencil(icon.Props{Size: 16, Class: "inline mr-2"})
+							Edit Subscription
+						</a>
+						<div role="menuitem" data-on-click={ "$_showSubscriptionModal-" + sub.ID.String() + " = true" }>
+							@icon.Trash2(icon.Props{Size: 16, Class: "inline mr-2"})
+							Delete Subscription
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
+		@ModalDialog(ModalProps{
+			ID:     sub.ID.String() + "-subscription-modal",
+			Signal: "_showSubscriptionModal-" + sub.ID.String()}) {
+			<header>
+				<h2 id="alert-dialog-title">Delete Subscription?</h2>
+				<p id="alert-dialog-description">
+					This will delete <strong>{ sub.Description }</strong> and remove it from active lists.
+				</p>
+			</header>
+			<footer>
+				<button class="btn-outline" data-on-click={ "$_showSubscriptionModal-" + sub.ID.String() + " = false" }>Cancel</button>
+				<button class="btn-destructive" data-on-click={ fmt.Sprintf("$_showSubscriptionModal-%s = false, @get('/sse/customer/%s/delete-subscription/%s')", sub.ID.String(), sub.CustomerID.String(), sub.ID.String()) }>
+					@icon.Trash2()
+					Delete
+				</button>
+			</footer>
+		}
+		@ModalDialog(ModalProps{
+			ID:     sub.ID.String() + "-subscription-view-modal",
+			Signal: "_showSubscriptionViewModal-" + sub.ID.String()}) {
+			<section>
+				<h2 class="text-lg font-semibold leading-none tracking-tight">Subscription Details</h2>
+				<p><strong>Description:</strong> { sub.Description }</p>
+				<p><strong>Amount:</strong> ${ sub.Amount }</p>
+				<p><strong>Term:</strong> { sub.Term }</p>
+				<p><strong>Billing Cadence:</strong> { sub.BillingCadence }</p>
+				<p><strong>Status:</strong> { sub.Status }</p>
+				<p><strong>Start Date:</strong> { sub.StartDate.Format("Jan 2, 2006") }</p>
+				<p><strong>Next Billing Date:</strong> { sub.NextBillingDate.Format("Jan 2, 2006") }</p>
+				<div>
+					@templ.Raw(markdownToTailwindHTML(sub.Notes.String))
+				</div>
+			</section>
+			<footer class="flex gap-1 justify-end flex-row">
+				<button class="btn-outline" type="button" data-on-click={ "$__showSubscriptionViewModal-" + sub.ID.String() + " = false" }>Close</button>
+			</footer>
+		}
+	</div>
+}
+
+templ AddSubscription(customerID string) {
+	@subscriptionForm(SubscriptionFormProps{
+		Description:    "",
+		Amount:         0,
+		Term:           "",
+		BillingCadence: "",
+		Status:         "",
+		StartDate:      "",
+		Notes:          "",
+		ButtonLabel:    "Add Subscription",
+		ActionURL:      fmt.Sprintf("@get('/sse/customer/%s/add-subscription-submit', {contentType: 'form'})", customerID),
+	})
+}
+
+templ EditSubscription(customerID string, sub db.Subscription) {
+	@subscriptionForm(SubscriptionFormProps{
+		Description:    sub.Description,
+		Amount:         sub.Amount,
+		Term:           sub.Term,
+		BillingCadence: sub.BillingCadence,
+		Status:         sub.Status,
+		StartDate:      sub.StartDate.Format("2006-01-02"),
+		Notes:          sub.Notes.String,
+		ButtonLabel:    "Update Subscription",
+		ActionURL:      fmt.Sprintf("@get('/sse/customer/%s/edit-subscription-submit/%s', {contentType: 'form'})", customerID, sub.ID.String()),
+	})
+}
+
+templ subscriptionForm(p SubscriptionFormProps) {
+	<div id="customer-tab-content" class="p-6">
+		<form class="form grid gap-6 w-full max-w-3xl mx-auto" data-on-submit={ p.ActionURL }>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="grid gap-2">
+					<label for="description">Description</label>
+					<input type="text" id="description" name="description" placeholder="Subscription Description" value={ p.Description } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="amount">Amount</label>
+					<input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" value={ p.Amount } required/>
+				</div>
+				<div class="grid gap-2">
+					<label for="term">Term</label>
+					<select id="term" name="term" class="w-full">
+						for _, term := range []string{"monthly", "yearly"} {
+							if term == p.Term {
+								<option value={ term } selected>{ term }</option>
+							} else {
+								<option value={ term }>{ term }</option>
+							}
+						}
+					</select>
+				</div>
+				<div class="grid gap-2">
+					<label for="billingcadence">Billing Cadence</label>
+					<select id="billingcadence" name="billingcadence" class="w-full">
+						for _, cadence := range []string{"monthly", "yearly"} {
+							if cadence == p.BillingCadence {
+								<option value={ cadence } selected>{ cadence }</option>
+							} else {
+								<option value={ cadence }>{ cadence }</option>
+							}
+						}
+					</select>
+				</div>
+				<div class="grid gap-2">
+					<label for="status">Status</label>
+					<select id="status" name="status" class="w-full">
+						for _, status := range []string{"active", "paused", "cancelled"} {
+							if status == p.Status {
+								<option value={ status } selected>{ status }</option>
+							} else {
+								<option value={ status }>{ status }</option>
+							}
+						}
+					</select>
+				</div>
+				<div class="grid gap-2">
+					<label for="startdate">Start Date</label>
+					<input type="date" id="startdate" name="startdate" value={ p.StartDate } required/>
+				</div>
+			</div>
+			<div class="grid gap-2">
+				<label for="notes">Notes</label>
+				<textarea id="notes" name="notes" placeholder="Markdown supported" rows="6">{ p.Notes }</textarea>
+			</div>
+			<div class="flex justify-end mt-6">
+				<button type="submit" class="btn btn-primary">{ p.ButtonLabel }</button>
+			</div>
+		</form>
 	</div>
 }
