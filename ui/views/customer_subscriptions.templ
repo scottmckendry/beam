@@ -5,6 +5,7 @@ import (
 	"github.com/scottmckendry/beam/db/sqlc"
 	"github.com/scottmckendry/beam/ui/icon"
 	"github.com/scottmckendry/beam/ui/utils"
+	"github.com/dustin/go-humanize"
 )
 
 type SubscriptionFormProps struct {
@@ -112,22 +113,58 @@ templ SubscriptionCard(sub db.ListSubscriptionsByCustomerRow) {
 		@ModalDialog(ModalProps{
 			ID:     sub.ID.String() + "-subscription-view-modal",
 			Signal: "_showSubscriptionViewModal-" + sub.ID.String()}) {
-			<section>
-				<h2 class="text-lg font-semibold leading-none tracking-tight">Subscription Details</h2>
-				<p><strong>Description:</strong> { sub.Description }</p>
-				<p><strong>Amount:</strong> ${ sub.Amount }</p>
-				<p><strong>Term:</strong> { sub.Term }</p>
-				<p><strong>Billing Cadence:</strong> { sub.BillingCadence }</p>
-				<p><strong>Status:</strong> { sub.Status }</p>
-				<p><strong>Start Date:</strong> { sub.StartDate.Format("Jan 2, 2006") }</p>
-				<p><strong>Next Billing Date:</strong> { sub.NextBillingDate.Format("Jan 2, 2006") }</p>
-				<div>
-					@templ.Raw(markdownToTailwindHTML(sub.Notes.String))
+			<div class="flex flex-col gap-2 text-center sm:text-left">
+				<h2 class="text-lg leading-none font-semibold">Subscription Details</h2>
+			</div>
+			<div class="space-y-4">
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div>
+						<span class="font-medium text-muted-foreground">Description:</span>
+						<p class="mt-1">{ sub.Description }</p>
+					</div>
+					<div>
+						<span class="font-medium text-muted-foreground">Amount:</span>
+						<p class="mt-1">${ sub.Amount }</p>
+					</div>
+					<div>
+						<span class="font-medium text-muted-foreground">Term:</span>
+						<p class="mt-1">{ sub.Term }</p>
+					</div>
+					<div>
+						<span class="font-medium text-muted-foreground">Billing Cadence:</span>
+						<p class="mt-1">{ sub.BillingCadence }</p>
+					</div>
+					<div>
+						<span class="font-medium text-muted-foreground">Status:</span>
+						<p>
+							<div class="badge-secondary leading-none">{ sub.Status }</div>
+						</p>
+					</div>
+					<div>
+						<span class="font-medium text-muted-foreground">Start Date:</span>
+						<p class="mt-1">{ sub.StartDate.Format("Jan 2, 2006") }</p>
+					</div>
 				</div>
-			</section>
-			<footer class="flex gap-1 justify-end flex-row">
-				<button class="btn-outline" type="button" data-on-click={ "$_showSubscriptionViewModal-" + sub.ID.String() + " = false" }>Close</button>
-			</footer>
+				<div>
+					<span class="font-medium text-muted-foreground">Next Billing Date:</span>
+					<p class="mt-1">{ sub.NextBillingDate.Format("Jan 2, 2006") }</p>
+				</div>
+				<div class="pt-4 border-t">
+					@mdNotes(sub.Notes.String)
+				</div>
+			</div>
+			<div class="border-t pt-4 flex items-center justify-between">
+				<div class="text-sm">
+					<span class="text-muted-foreground">Last Updated</span>
+					<p class="font-medium" data-tooltip={ sub.UpdatedAt.Time.Format("Jan 2, 2006 15:04") + " UTC" } data-side="right">{ humanize.Time(sub.UpdatedAt.Time) }</p>
+				</div>
+				<div class="flex gap-1">
+					<a class="btn-secondary" type="button" data-on-click={ fmt.Sprintf("@get('/sse/customer/%s/edit-subscription/%s')", sub.CustomerID.String(), sub.ID.String()) }>
+						Edit
+					</a>
+					<button class="btn-outline" type="button" data-on-click={ "$_showSubscriptionViewModal-" + sub.ID.String() + " = false" }>Close</button>
+				</div>
+			</div>
 		}
 	</div>
 }
