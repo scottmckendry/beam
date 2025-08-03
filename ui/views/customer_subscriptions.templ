@@ -7,7 +7,6 @@ import (
 	"github.com/scottmckendry/beam/ui/utils"
 )
 
-
 type SubscriptionFormProps struct {
 	Description    string
 	Amount         float64
@@ -127,7 +126,7 @@ templ SubscriptionCard(sub db.ListSubscriptionsByCustomerRow) {
 				</div>
 			</section>
 			<footer class="flex gap-1 justify-end flex-row">
-				<button class="btn-outline" type="button" data-on-click={ "$__showSubscriptionViewModal-" + sub.ID.String() + " = false" }>Close</button>
+				<button class="btn-outline" type="button" data-on-click={ "$_showSubscriptionViewModal-" + sub.ID.String() + " = false" }>Close</button>
 			</footer>
 		}
 	</div>
