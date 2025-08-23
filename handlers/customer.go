@@ -146,8 +146,14 @@ func (h *Handlers) EditCustomerSubmitSSE(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// prevent non-form fields from being overwritten
 	var params db.UpdateCustomerParams
+	if err := utils.MapFormToStruct(r, &params); err != nil {
+		slog.Error("Error mapping form to struct", "err", err)
+		h.Notify(NotifyError, "Form Error", "An error occurred while processing the form.", w, r)
+		return
+	}
+
+	// prevent non-form fields from being overwritten
 	c, _ := h.getCustomerByID(w, r, "id")
 	params.ID = c.ID
 	params.Logo = c.Logo
