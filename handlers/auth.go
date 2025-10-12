@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/scottmckendry/beam/ui/views"
 	"net/http"
+
+	"github.com/scottmckendry/beam/ui/views"
 )
 
 // HandleLogin processes GET requests to the login page and redirects authenticated users to the root.
 func (h *Handlers) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("user_name")
-	if err == nil {
+	user, err := h.OAuth.GetSignedCookie(r, "user_name")
+	if err == nil && user != "" {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}

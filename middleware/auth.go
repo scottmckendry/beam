@@ -3,6 +3,7 @@ package middleware
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/scottmckendry/beam/oauth"
@@ -21,6 +22,7 @@ func Auth(oauthEnv *oauth.OAuth) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := oauthEnv.GetSignedCookie(r, "user_name")
 			if err != nil || user == "" {
+				slog.Info("unauthenticated request", "path", r.URL.Path, "err", err)
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
